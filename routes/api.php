@@ -23,6 +23,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Auth::routes();
 
+Route::get('/login/{social}', [LoginController::class, 'handler']);
+Route::get('/login/{social}/callback', [LoginController::class, 'social_login'])->where('social', 'facebook|google');
+
 // Routes that required authentication
 Route::middleware('auth:sanctum')->group(function () {
     Route::resource('artists', ArtistController::class);

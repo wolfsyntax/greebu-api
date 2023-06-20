@@ -132,17 +132,24 @@ class LoginController extends Controller
                     $user = $user->first();
                 }
 
+                $profile = Profile::where('user_id', $user->id)->first();
+
                 auth()->login($user->first());
 
                 $request->session()->regenerate();
-                return redirect()->route('artist.profile');
+                return response()->json([
+                    'message' => 'Login successfully.',
+                    'users'     => $user,
+                    'profile'   => $profile,
+                    'token' => $user->createToken($social . "_auth")->plainTextToken
+                ]);
             }
 
             return response()->json(['user' => $u]);
         } catch (InvalidStateException $e) {
 
             return response()->json([
-                'user' => 'Error'
+                'errors' => $e,
             ]);
         }
     }
