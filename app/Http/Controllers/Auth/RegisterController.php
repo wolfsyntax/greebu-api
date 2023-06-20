@@ -30,14 +30,14 @@ class RegisterController extends Controller
     |
     */
 
-    use RegistersUsers;
+    // use RegistersUsers;
 
     /**
      * Where to redirect users after registration.
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    // protected $redirectTo = RouteServiceProvider::HOME;
 
     /**
      * Create a new controller instance.
@@ -66,13 +66,17 @@ class RegisterController extends Controller
         ]);
     }
 
+    public function showRegistrationForm()
+    {
+    }
+
     public function register(Request $request)
     {
 
         $email_rules = ['required', 'string', 'email', 'max:255', 'unique:users'];
 
-        if ($request->input('login_type') === 'phone') {
-            $email_rules = ['required', 'string', 'regex:/\+639[0-9]{9}$/i'];
+        if ($request->input('reg_type') === 'phone') {
+            $email_rules = ['required', 'string', 'regex:/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/i'];
         }
 
         $validator = Validator::make($request->all(), [
@@ -85,7 +89,9 @@ class RegisterController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator->errors());
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 403);
         }
 
         $formData = [
@@ -96,7 +102,7 @@ class RegisterController extends Controller
             'password'      => $request->password,
         ];
 
-        if ($request->input('login_type') === 'phone') {
+        if ($request->input('reg_type') === 'phone') {
 
             $formData = [
                 'first_name'    => $request->first_name,
@@ -116,9 +122,13 @@ class RegisterController extends Controller
             'business_name'     => $user->fullname,
         ])->assignRole($request->input('account_type'));
 
-        $user->createToken('auth_token', ['admin']);
+        // $user->createToken('auth_token', ['admin']);
 
         event(new Registered($user));
+
+        return response()->json([
+            'message' => 'Account successfully registered.',
+        ], 201);
 
         return redirect()->to('/login');
     }

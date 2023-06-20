@@ -13,6 +13,7 @@ use App\Models\Profile;
 
 class LoginController extends Controller
 {
+
     /*
     |--------------------------------------------------------------------------
     | Login Controller
@@ -49,6 +50,9 @@ class LoginController extends Controller
         if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
             $rules = 'required|email:rfc,dns';
             $loginType = 'email';
+        } else if (preg_match("/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/", $request->email)) {
+            $rules = ['required', 'string', 'regex:/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/',];
+            $loginType = 'phone';
         } else {
             $rules = 'required|string|min:8';
             $loginType = 'username';
@@ -60,7 +64,9 @@ class LoginController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator->errors());
+            return response()->json([
+                'errors' => $validator->errors(),
+            ]);
         }
 
         $user = User::where([$loginType => $request->email, 'password' => hash('sha256', $request->password, false)])->first();
@@ -71,11 +77,19 @@ class LoginController extends Controller
 
             auth()->login($user);
             $request->session()->regenerate();
-
             $role = $profile->roles->first()->name;
-            return redirect()->route("$role.profile");
+
+            return response()->json([
+                'message' => 'Login successfully.',
+                'users'     => $user,
+                'profile'   => $profile,
+                'token' => $user->createToken("$role._userAuth")->plainTextToken
+            ]);
         }
-        return redirect()->back()->with('message', 'These credentials does not match any of our record');
+
+        return response()->json([
+            'message' => 'These credentials does not match any of our record',
+        ]);
     }
 
     public function logout(Request $request)

@@ -14,8 +14,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\ArtistController;
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 Auth::routes();
+
+// Routes that required authentication
+Route::middleware('auth:sanctum')->group(function () {
+    Route::resource('artists', ArtistController::class);
+});
+
+Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);
