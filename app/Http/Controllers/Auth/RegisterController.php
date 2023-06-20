@@ -4,10 +4,18 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
-use App\Models\User;
+
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Events\Registered;
+
+use App\Models\User;
+use App\Models\Profile;
 
 class RegisterController extends Controller
 {
@@ -50,24 +58,68 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'username' => ['required', 'string',  'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\Models\User
-     */
-    protected function create(array $data)
+    public function register(Request $request)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+
+        $email_rules = ['required', 'string', 'email', 'max:255', 'unique:users'];
+
+        if ($request->input('login_type') === 'phone') {
+            $email_rules = ['required', 'string', 'regex:/\+639[0-9]{9}$/i'];
+        }
+
+        $validator = Validator::make($request->all(), [
+            'first_name'    => ['required', 'string', 'max:255'],
+            'last_name'     => ['required', 'string', 'max:255'],
+            'email'         => $email_rules,
+            'username'      => ['required', 'string',  'max:255', 'unique:users'],
+            'password'      => ['required', 'string', 'min:8', 'confirmed'],
+            'account_type'  => ['string', Rule::in(['customers', 'artists', 'organizer', 'service-provider']),],
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator->errors());
+        }
+
+        $formData = [
+            'first_name'    => $request->first_name,
+            'last_name'     => $request->last_name,
+            'username'      => $request->username,
+            'email'         => $request->email,
+            'password'      => $request->password,
+        ];
+
+        if ($request->input('login_type') === 'phone') {
+
+            $formData = [
+                'first_name'    => $request->first_name,
+                'last_name'     => $request->last_name,
+                'username'      => $request->username,
+                'phone'         => $request->phone,
+                'password'      => $request->password,
+            ];
+        }
+
+        $user = User::create($formData);
+
+        $profile = Profile::create([
+            'user_id' => $user->id,
+            'business_email'    => $user->email,
+            'phone'             => $user->phone,
+            'business_name'     => $user->fullname,
+        ])->assignRole($request->input('account_type'));
+
+        $user->createToken('auth_token', ['admin']);
+
+        event(new Registered($user));
+
+        return redirect()->to('/login');
     }
 }
