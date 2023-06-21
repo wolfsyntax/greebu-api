@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ArtistController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -27,7 +29,7 @@ Route::get('/login/{social}', [LoginController::class, 'handler']);
 Route::get('/login/{social}/callback', [LoginController::class, 'social_login'])->where('social', 'facebook|google');
 
 // Routes that required authentication
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:api')->group(function () {
     Route::resource('artists', ArtistController::class);
 });
 

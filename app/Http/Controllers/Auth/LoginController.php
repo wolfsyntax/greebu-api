@@ -44,6 +44,11 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
     public function login(Request $request)
     {
 
@@ -76,14 +81,15 @@ class LoginController extends Controller
             $profile = Profile::where('user_id', $user->id)->first();
 
             auth()->login($user);
-            $request->session()->regenerate();
+
+            // $request->session()->regenerate();
             $role = $profile->roles->first()->name;
 
             return response()->json([
                 'message' => 'Login successfully.',
-                'users'     => $user,
+                'user'     => $user,
                 'profile'   => $profile,
-                'token' => $user->createToken("$role._userAuth")->plainTextToken
+                'token' => $user->createToken("$role._userAuth")->accessToken
             ]);
         }
 

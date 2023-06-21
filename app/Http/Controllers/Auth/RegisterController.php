@@ -120,7 +120,7 @@ class RegisterController extends Controller
             'business_email'    => $user->email,
             'phone'             => $user->phone,
             'business_name'     => $user->fullname,
-        ])->assignRole($request->input('account_type'));
+        ])->assignRole($request->input('account_type', 'customers'));
 
         // $user->createToken('auth_token', ['admin']);
 

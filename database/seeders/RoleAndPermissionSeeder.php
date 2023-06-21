@@ -258,21 +258,37 @@ class RoleAndPermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::create(['name' => $permission,]);
+            Permission::create(['name' => $permission, 'guard_name' => 'api',]);
         }
 
         /** ROLES **/
         // Super Admin
-        Role::create(['name' => 'super-admin', 'guard_name' => 'web',])->givePermissionTo($permissions);
+        Role::create(['name' => 'super-admin',])->givePermissionTo($permissions);
+        Role::create(['name' => 'super-admin', 'guard_name' => 'api',])->givePermissionTo($permissions);
 
         // Service Providers
-        Role::create(['name' => 'service-provider', 'guard_name' => 'web',])->givePermissionTo($permissions);
+        Role::create(['name' => 'service-provider',])->givePermissionTo($permissions);
+        Role::create(['name' => 'service-provider', 'guard_name' => 'api',])->givePermissionTo($permissions);
 
         // Organizers
-        Role::create(['name' => 'organizer', 'guard_name' => 'web',])->givePermissionTo($permissions);
+        Role::create(['name' => 'organizer',])->givePermissionTo($permissions);
+        Role::create(['name' => 'organizer', 'guard_name' => 'api',])->givePermissionTo($permissions);
 
         // Artists
-        Role::create(['name' => 'artists', 'guard_name' => 'web',])->givePermissionTo([
+        Role::create(['name' => 'artists',])->givePermissionTo([
+            "retrieve artist", "create artist", "update artist",
+            "delete artist", "view artist", "accept the organizer's invitation",
+            "apply as an event artist", "accept invitations from the organizer",
+            "upload artist media", "view hiring artist", "send a proposal to the artist",
+
+            "retrieve members", "update members", "delete members",
+            "retrieve member", "update member", "delete member",
+            "view member", "add member", "deactivate member",
+
+        ]);
+
+        Role::create(['name' => 'artists', 'guard_name' => 'api',])->givePermissionTo([
             "retrieve artist", "create artist", "update artist",
             "delete artist", "view artist", "accept the organizer's invitation",
             "apply as an event artist", "accept invitations from the organizer",
@@ -285,6 +301,7 @@ class RoleAndPermissionSeeder extends Seeder
         ]);
 
         // Customers
-        Role::create(['name' => 'customers', 'guard_name' => 'web',])->givePermissionTo($permissions);
+        Role::create(['name' => 'customers',])->givePermissionTo($permissions);
+        Role::create(['name' => 'customers', 'guard_name' => 'api',])->givePermissionTo($permissions);
     }
 }

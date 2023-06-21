@@ -3,7 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Artist;
+use App\Models\ArtistType;
+use App\Models\Genre;
+use App\Models\Profile;
+use App\Models\Member;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class ArtistController extends Controller
 {
@@ -32,6 +38,36 @@ class ArtistController extends Controller
     public function create()
     {
         //
+        $user = auth()->user()->load('profiles');
+        $artist = Artist::with(['profile', 'artistType', 'genres', 'members'])->where('profile_id', $user->profiles->first()->id)->first();
+        $genres = $members = [];
+        $img = '';
+
+        if ($artist) {
+            $genres = $artist->genres()->pluck('title');
+            $img = Storage::url($user->profiles->first()->avatar);
+            $members = $artist->members()->get();
+            /*
+            // Check if exists on s3
+            if (Storage::disk('s3')->exists('file.jpg')) {
+                // ...
+            }
+
+            // Check if missing on s3
+            if (Storage::disk('s3')->missing('file.jpg')) {
+                // ...
+            }
+            */
+        }
+
+        return inertia('Artist/EditProfile', [
+            'artist_types'  => ArtistType::get(),
+            'genres'        => Genre::get()->pluck('title'),
+            'profile'       => $artist,
+            'artist_genre'  => $genres,
+            'img'           => $img,
+            'members'       => $members,
+        ]);
     }
 
     /**
