@@ -1,0 +1,37 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "greebu-api-staging",
+            "image": "882963366445.dkr.ecr.ap-southeast-2.amazonaws.com/greebu-api-staging:latest",
+            "cpu": 512,
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "hostPort": 80,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/greebu-api-staging-td",
+                    "awslogs-region": "ap-southeast-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "family": "greebu-api-staging-td",
+    "executionRoleArn": "arn:aws:iam::882963366445:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "1024"
+  }
