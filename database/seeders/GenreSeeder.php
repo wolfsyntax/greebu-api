@@ -15,25 +15,14 @@ class GenreSeeder extends Seeder
     {
         //
         $genres = [
-            ['title' => 'Popular music', 'description' => ''],
-            ['title' => 'Pop music', 'description' => ''],
             ['title' => 'Rock', 'description' => ''],
-            ['title' => 'Jazz', 'description' => ''],
-            ['title' => 'Hip hop music', 'description' => ''],
-            ['title' => 'Electronic music', 'description' => ''],
-            ['title' => 'Country music', 'description' => ''],
-            ['title' => 'Classical music', 'description' => ''],
-            ['title' => 'Rhythm and Blues', 'description' => ''],
-            ['title' => 'Heavy Metal', 'description' => ''],
-            ['title' => 'Alternative Rock', 'description' => ''],
-            ['title' => 'Blues', 'description' => ''],
+            ['title' => 'Hip-hop/Rap', 'description' => ''],
+            ['title' => 'Pop', 'description' => ''],
             ['title' => 'Reggae', 'description' => ''],
-            ['title' => 'Funk', 'description' => ''],
-            ['title' => 'Soul music', 'description' => ''],
-            ['title' => 'Folk music', 'description' => ''],
-            ['title' => 'Techno', 'description' => ''],
-            ['title' => 'K-pop', 'description' => ''],
-            ['title' => 'Classic Rock', 'description' => ''],
+            ['title' => 'Metal', 'description' => ''],
+            ['title' => 'R&B/Soul', 'description' => ''],
+            ['title' => 'Country Rock', 'description' => ''],
+            ['title' => 'Others', 'description' => ''],
         ];
 
         foreach ($genres as $genre) {

@@ -23,7 +23,7 @@ class Artist extends Model
         'profile_id', 'artist_type_id',
         'youtube_channel', 'spotify_profile', 'twitter_username', 'instagram_username',
         'professional_fee', 'is_hourly', 'set_played',
-        'deactivated_at',
+        'deactivated_at', 'isAccepting_request',
     ];
 
     protected $appends = [];
@@ -44,6 +44,7 @@ class Artist extends Model
         'is_hourly'         => 'boolean',
         'set_played'        => 'integer',
         'deactivated_at'    => 'timestamp',
+        'isAccepting_request' => 'boolean',
     ];
 
     public function profile()
@@ -64,6 +65,17 @@ class Artist extends Model
     {
         return $this->hasMany(Member::class);
     }
+
+    public function albums(): HasMany
+    {
+        return $this->hasMany(Album::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ArtistReview::class);
+    }
+
     /**
      * The roles that belong to the Artist
      *
@@ -72,5 +84,15 @@ class Artist extends Model
     public function genres(): BelongsToMany
     {
         return $this->belongsToMany(Genre::class, 'artist_genres', 'artist_id', 'genre_id')->withTimestamps();
+    }
+
+    public function communities(): BelongsToMany
+    {
+        return $this->belongsToMany(Genre::class, 'artist_communities', 'artist_id', 'communities_id')->withTimestamps();
+    }
+
+    public function languages(): BelongsToMany
+    {
+        return $this->belongsToMany(SupportedLanguage::class, 'artist_languages', 'artist_id', 'language_id')->withTimestamps();
     }
 }

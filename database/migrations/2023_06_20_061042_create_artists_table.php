@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('spotify_profile')->nullable()->default('');
             $table->unsignedDecimal('professional_fee')->nullable()->default(0.00);
             $table->boolean('is_hourly')->nullable()->default(0)->comment('1 - hourly, 0 - by set');
+            $table->boolean('isAccepting_request')->nullable()->default(false);
             $table->unsignedBigInteger('set_played')->nullable()->default(1)->comment('songs to be played');
             $table->timestamp('deactivated_at')->nullable();
 

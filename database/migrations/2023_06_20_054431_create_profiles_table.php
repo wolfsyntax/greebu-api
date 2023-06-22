@@ -22,6 +22,11 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->string('cover_photo')->nullable();
             $table->string('phone', 24)->nullable();
+            $table->string('street_address')->nullable();
+            $table->string('city')->comment('i.e. Naga City');
+            $table->string('zip_code')->comment('i.e. 4400');
+            $table->string('province')->comment('i.e. Camarines Sur');
+            $table->string('country')->nullable()->default('philippines');
 
             $table->longText('bio')->nullable();
             $table->timestamp('last_accessed')->nullable()->useCurrent();

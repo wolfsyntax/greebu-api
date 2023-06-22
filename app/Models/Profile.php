@@ -26,6 +26,7 @@ class Profile extends Model
         'business_email', 'business_name', 'phone',
         'account_type', 'credit_balance',
         'avatar', 'cover_photo', 'bio',
+        'street_address', 'city', 'zip_code', 'province', 'country',
         'last_accessed',
 
     ];

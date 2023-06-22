@@ -120,14 +120,31 @@ class RegisterController extends Controller
             'business_email'    => $user->email,
             'phone'             => $user->phone,
             'business_name'     => $user->fullname,
+            'city'              => 'Naga City',
+            'zip_code'          => '4400',
+            'province'          => 'Camarines Sur',
         ])->assignRole($request->input('account_type', 'customers'));
+        $artist_profile = "";
+        if ($request->input('account_type', 'customers') === 'artists') {
 
-        // $user->createToken('auth_token', ['admin']);
+            $artistType = \App\Models\ArtistType::first();
+            $genre = \App\Models\Genre::where('title', 'Others')->first();
+
+            $artist_profile = \App\Models\Artist::create([
+                'profile_id'        => $profile->id,
+                'artist_type_id'    => $artistType->id,
+            ]);
+
+            $languages = \App\Models\SupportedLanguage::get();
+            $artist_profile->genres()->sync($genre);
+            $artist_profile->languages()->sync($languages);
+        }
 
         event(new Registered($user));
 
         return response()->json([
             'message' => 'Account successfully registered.',
+            'a' => $artist_profile,
         ], 201);
 
         return redirect()->to('/login');

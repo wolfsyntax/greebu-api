@@ -42,24 +42,11 @@ class Album extends Model
 
     public function tracks()
     {
-        return $this->belongsToMany(Track::class)->withTimestamps();
+        return $this->hasMany(Track::class)->withTimestamps();
     }
 
     public function genres()
     {
         return $this->belongsToMany(Genre::class)->withTimestamps();
-    }
-
-    public static function boot()
-    {
-
-        parent::boot();
-
-        static::creating(function ($query) {
-            $query->id = Str::uuid()->toString();
-        });
-
-        static::saving(function ($query) {
-        });
     }
 }
