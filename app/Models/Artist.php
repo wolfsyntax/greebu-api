@@ -26,7 +26,9 @@ class Artist extends Model
         'deactivated_at', 'isAccepting_request',
     ];
 
-    protected $appends = [];
+    protected $appends = [
+        'avgRating'
+    ];
 
     /**
      * The attributes that should be cast.
@@ -74,6 +76,24 @@ class Artist extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(ArtistReview::class);
+    }
+
+    public function avgRating()
+    {
+        return $this->reviews()
+            ->selectRaw('avg(star_rating) as aggregate, artist_id')
+            ->groupBy('artist_id');
+    }
+
+    public function getAvgRatingAttribute()
+    {
+        if (!array_key_exists('avgRating', $this->relations)) {
+            $this->load('avgRating');
+        }
+
+        $relation = $this->getRelation('avgRating')->first();
+
+        return ($relation) ? $relation->aggregate : null;
     }
 
     /**
