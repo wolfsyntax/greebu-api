@@ -77,7 +77,9 @@ class ArtistController extends Controller
         return response()->json([
             'status' => 200,
             'message' => "Successfully fetched artists list",
-            'result' => $artists,
+            'result' => [
+                'artist' => $artists,
+            ],
         ], 200);
     }
 
