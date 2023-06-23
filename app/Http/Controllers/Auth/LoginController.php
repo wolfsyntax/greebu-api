@@ -70,8 +70,12 @@ class LoginController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors(),
-            ]);
+                'status'    => 422,
+                'message'   => 'Unprocessible Entity',
+                'results'   => [
+                    'errors' => $validator->errors(),
+                ],
+            ], 203);
         }
 
         $user = User::where([$loginType => $request->email, 'password' => hash('sha256', $request->password, false)])->first();

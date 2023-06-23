@@ -34,6 +34,9 @@ class ArtistController extends Controller
         $language = strtolower($request->query('language'));
         $city = strtolower($request->query('city'));
         $province = strtolower($request->query('province'));
+        $orderBy = $request->query('sortBy', 'ASC');
+        $filter = $request->query('filterBy', 'created_at');
+        $search = $request->query('search');
 
         $page = 1;
         $offset = 0;
@@ -70,7 +73,13 @@ class ArtistController extends Controller
             });
         }
 
-        $artists = $artists->skip($offset)
+        $artists = $artists->whereHas('profile', function ($query) use ($search) {
+            return $query->where('business_name', 'LIKE', '%' . $search . '%');
+        });
+
+        $total = $artists->count();
+
+        $artists = $artists->orderBy($filter, $orderBy)->skip($offset)
             ->take($perPage)
             ->get();
 
@@ -79,6 +88,7 @@ class ArtistController extends Controller
             'message' => "Successfully fetched artists list",
             'result' => [
                 'artist' => $artists,
+                'total' => $total / $perPage,
             ],
         ], 200);
     }

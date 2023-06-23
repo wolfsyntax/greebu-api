@@ -26,6 +26,7 @@ return new class extends Migration
             $table->unsignedBigInteger('capacity')->nullable()->default(1);
             $table->boolean('is_public')->default(true);
             $table->boolean('is_featured')->default(false);
+            $table->boolean('is_free')->default(false);
             $table->enum('status', ['draft', 'open', 'closed', 'ongoing', 'past', 'cancelled'])->nullable()->default('draft');
 
             $table->date('event_date');

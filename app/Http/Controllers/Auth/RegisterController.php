@@ -90,8 +90,12 @@ class RegisterController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors(),
-            ], 403);
+                'status'    => 422,
+                'message'   => 'Unprocessible Entity',
+                'results'   => [
+                    'errors' => $validator->errors(),
+                ],
+            ], 203);
         }
 
         $formData = [
