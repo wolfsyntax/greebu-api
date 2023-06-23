@@ -38,10 +38,12 @@ Route::get('/login/{social}', [LoginController::class, 'handler']);
 Route::get('/login/{social}/callback', [LoginController::class, 'social_login'])->where('social', 'facebook|google');
 
 Route::get('artist', [ArtistController::class, 'index'])->name('artists.index-g');
+Route::get('artist/forms', [ArtistController::class, 'form']);
 
 // Routes that required authentication
 Route::middleware('auth:api')->group(function () {
     Route::resource('artists', ArtistController::class); //->except(['index']);
+    Route::post('artists/member', [ArtistController::class, 'members'])->name('artist.add-member');
 });
 
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);

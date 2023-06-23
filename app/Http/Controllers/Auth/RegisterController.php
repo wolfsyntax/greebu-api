@@ -148,7 +148,6 @@ class RegisterController extends Controller
 
         return response()->json([
             'message' => 'Account successfully registered.',
-            'a' => $artist_profile,
         ], 201);
 
         return redirect()->to('/login');

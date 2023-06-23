@@ -122,13 +122,18 @@ class ArtistController extends Controller
         }
 
         return response()->json([
-            'artist_types'  => ArtistType::get(),
-            'genres'        => Genre::get()->pluck('title'),
-            'profile'       => $artist,
-            'artist_genre'  => $genres,
-            'img'           => $img,
-            'members'       => $members,
-        ]);
+            'status' => 200,
+            'message' => 'Artist Profile form data.',
+            'result' => [
+                'artist_types'  => ArtistType::get(),
+                'genres'        => Genre::get()->pluck('title'),
+                'profile'       => $artist,
+                'artist_genre'  => $genres,
+                'img'           => $img,
+                'members'       => $members,
+                'user'          => $user,
+            ],
+        ], 200);
     }
 
     /**
@@ -149,8 +154,10 @@ class ArtistController extends Controller
             return response()->json([
                 'status' => 422,
                 'message' => "Invalid data",
-                'result' => $validator->errors(),
-            ], 422);
+                'result' => [
+                    'errors' => $validator->errors(),
+                ],
+            ], 203);
         }
 
         $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->first();
@@ -167,12 +174,20 @@ class ArtistController extends Controller
         $profile->update($nprof);
 
         $genres = $request->input('genre');
+
+        $artist_profile = Artist::where('profile_id', $profile->id)->first();
         $artistType = ArtistType::where('title', $request->input('artist_type'))->first();
 
-        $artist_profile = Artist::create([
-            'profile_id'        => $profile->id,
-            'artist_type_id'    => $artistType->id,
-        ]);
+        if ($artist_profile) {
+            $artist_profile->update([
+                'artist_type_id'    => $artistType->id,
+            ]);
+        } else {
+            $artist_profile = Artist::create([
+                'profile_id'        => $profile->id,
+                'artist_type_id'    => $artistType->id,
+            ]);
+        }
 
         $genre = Genre::whereIn('title', $genres)->get();
         $artist_profile->genres()->sync($genre);
@@ -183,7 +198,8 @@ class ArtistController extends Controller
             'result' => [
                 'user_profile'      => $profile,
                 'artist_profile'    => $artist_profile,
-                'genres'            => $artist_profile->genres()->get(),
+                'artist_genres'     => $artist_profile->genres()->get(),
+                'members'           => Member::where('artist_id', $artist_profile->id)->get(),
             ],
         ], 200);
     }
@@ -196,7 +212,11 @@ class ArtistController extends Controller
         //
 
         return response()->json([
-            'artist' => $artist,
+            'status' => 200,
+            'message' => 'Artist Show Profile.',
+            'result' => [
+                'artist' => $artist,
+            ],
         ]);
     }
 
@@ -228,13 +248,17 @@ class ArtistController extends Controller
         }
 
         return response()->json([
-            'artist_types'  => ArtistType::get(),
-            'genres'        => Genre::get()->pluck('title'),
-            'profile'       => $artist,
-            'artist_genre'  => $genres,
-            'img'           => $img,
-            'members'       => $members,
-        ]);
+            'status' => 200,
+            'message' => 'Artist Profile edit form data.',
+            'result' => [
+                'artist_types'  => ArtistType::get(),
+                'genres'        => Genre::get()->pluck('title'),
+                'profile'       => $artist,
+                'artist_genre'  => $genres,
+                'img'           => $img,
+                'members'       => $members,
+            ],
+        ], 200);
     }
 
     /**
@@ -254,8 +278,10 @@ class ArtistController extends Controller
             return response()->json([
                 'status' => 422,
                 'message' => "Invalid data",
-                'result' => $validator->errors(),
-            ], 422);
+                'result' => [
+                    'errors' => $validator->errors(),
+                ],
+            ], 203);
         }
 
         $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->first();
@@ -291,13 +317,6 @@ class ArtistController extends Controller
                 'artist_genres'     => $artist_profile->genres()->get(),
             ],
         ], 200);
-
-        return response()->json([
-            'message'           => 'Artist Profile updated successfully.',
-            'user_profile'      => $profile,
-            'artist_profile'    => $artist_profile,
-            'artist_genres'     => $artist_profile->genres()->get(),
-        ]);
     }
 
     /**
@@ -310,5 +329,79 @@ class ArtistController extends Controller
 
     public function profile(Request $request)
     {
+    }
+
+    public function forms(Request $request)
+    {
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Artist form options successfully fetched.',
+            'result'    => [
+                'artist_types'      => ArtistType::get(),
+                'genres'            => Genre::get(),
+            ],
+        ], 200);
+    }
+
+    public function members(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'member_name'       => ['required', 'string',],
+            'last_name'         => ['sometimes', 'required', 'string',],
+            'role'              => ['required', 'string',],
+            'member_avatar'     => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'message' => "Invalid data",
+                'result' => [
+                    'errors' => $validator->errors(),
+                ],
+            ], 203);
+        }
+
+        $user = auth()->user()->load('profiles');
+        $artist = Artist::with(['profile', 'artistType', 'genres', 'members'])->where('profile_id', $user->profiles->first()->id)->first();
+
+        $member = Member::where('first_name', $request->input('member_name'))->where('artist_id', $artist->id)->first();
+
+        if ($member) {
+            return response()->json([
+                'status' => 422,
+                'message' => "Invalid data",
+                'result' => [
+                    'errors' => [
+                        'member_name' => 'Member name already exists.',
+                    ],
+                ],
+            ], 203);
+        }
+
+        $data = [
+            'artist_id'     => $artist->id,
+            'first_name'    => $request->input('member_name', ''),
+            'last_name'     => $request->input('last_name', ''),
+            'role'          => $request->input('role', 'others'),
+            'avatar'        => '',
+        ];
+
+        if ($request->hasFile('member_avatar') && $request->file('member_avatar')->isValid()) {
+            // ...
+            $data['avatar'] = $request->file('member_avatar')->store('image', 'public');;
+        }
+
+        $member = $artist->members()->create($data);
+
+        return response()->json([
+            'status'        => 200,
+            'message'       => 'Member added successfully.',
+            'result'        => [
+                'member'    => $member,
+                'members'   => $artist->members()->get(),
+            ],
+        ], 200);
     }
 }
