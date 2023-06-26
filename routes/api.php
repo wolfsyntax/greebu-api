@@ -43,7 +43,11 @@ Route::get('artist/forms', [ArtistController::class, 'form']);
 // Routes that required authentication
 Route::middleware('auth:api')->group(function () {
     Route::resource('artists', ArtistController::class); //->except(['index']);
-    Route::post('artists/member', [ArtistController::class, 'members'])->name('artist.add-member');
+    Route::post('artists/member', [ArtistController::class, 'members']);
+    Route::put('artists/member/{member}', [ArtistController::class, 'editMember']);
+    Route::delete('artists/member', [ArtistController::class, 'removeMember']);
+    Route::post('artists/social-account', [ArtistController::class, 'updateSocialAccount']);
+    Route::delete('artists/social-account', [ArtistController::class, 'removeMediaAccount']);
 });
 
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);

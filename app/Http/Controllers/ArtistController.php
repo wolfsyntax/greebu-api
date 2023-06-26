@@ -18,6 +18,8 @@ class ArtistController extends Controller
     {
         $this->middleware(['role:artists'])->only([
             'create', 'store', 'edit', 'update',
+            'members', 'editMember', 'removeMember',
+            'updateSocialAccount', 'removeMediaAccount',
         ]);
     }
 
@@ -148,6 +150,9 @@ class ArtistController extends Controller
             'genre'             => ['required', 'array',],
             'bio'               => ['sometimes', 'required', 'string',],
             'avatar'            => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            'street'            => ['required', 'string',],
+            'city'              => ['required', 'string',],
+            'province'          => ['required', 'string',],
         ]);
 
         if ($validator->fails()) {
@@ -163,8 +168,11 @@ class ArtistController extends Controller
         $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->first();
 
         $nprof = [
-            'business_name' => $request->input('artist_name'),
-            'bio'           => $request->input('bio', '123'),
+            'business_name'     => $request->input('artist_name'),
+            'bio'               => $request->input('bio', '123'),
+            'street_address'    => $request->input('street'),
+            'city'              => $request->input('city'),
+            'province'          => $request->input('province'),
         ];
 
         if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
@@ -403,5 +411,144 @@ class ArtistController extends Controller
                 'members'   => $artist->members()->get(),
             ],
         ], 200);
+    }
+
+    public function updateSocialAccount(Request $request)
+    {
+
+        $rules = ['required', 'string',];
+        $key = 'youtube_channel';
+
+        switch ($request->input('media_type')) {
+            case 'instagram':
+                $rules = [
+                    'required', 'string', 'regex:/^(?:(?:http|https):\/\/)?(?:www.)?(?:instagram.com|instagr.am|instagr.com)\/(\w+)/i',
+                ];
+
+                $key = 'instagram_username';
+
+                break;
+            case 'twitter':
+                $rules = [
+                    'required', 'string', 'regex:/^(https:\/\/twitter.com\/(?![a-zA-Z0-9_]+\/)([a-zA-Z0-9_]+))/i',
+                ];
+
+                $key = 'twitter_username';
+
+                break;
+            case 'youtube':
+                $rules = [
+                    'required', 'string', 'regex:/^http(s)?:\/\/(www|m)\.youtube\.com\/((channel|c)\/)?(?!feed|user\/|watch\?)([a-zA-Z0-9-_.])*.*/i',
+                ];
+
+                $key = 'youtube_channel';
+
+                break;
+            case 'spotify':
+                $rules = [
+                    'required', 'string', 'regex:/^(https?:\/\/open.spotify.com\/(track|user|artist|album)\/[a-zA-Z0-9]+(\/playlist\/[a-zA-Z0-9]+|)|spotify:(track|user|artist|album):[a-zA-Z0-9]+(:playlist:[a-zA-Z0-9]+|))$/i',
+                ];
+
+                $key = 'spotify_profile';
+
+                break;
+            default:
+                break;
+        }
+
+        $validator = Validator::make($request->all(), [
+            'url'               => $rules,
+            'media_type'        => ['required', 'in:instagram,twitter,youtube,spotify'],
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator->errors());
+        }
+
+
+        $user = auth()->user()->load('profiles');
+        $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
+        $artist->update([
+            $key => $request->input('url'),
+        ]);
+
+
+        return redirect()->back()->with('message', 'Social Media account added successfully.');
+    }
+
+    public function removeMember(Request $request, $id)
+    {
+        $user = auth()->user()->load('profiles');
+
+        $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
+
+        $member = Member::where('artist_id', $artist->id)->where('id', $id)->first();
+        if ($member) {
+            $member->delete();
+            return redirect()->back()->with('message', 'Member removed successfully.');
+        }
+        return redirect()->back()->with('message', "Member does not exists.");
+    }
+
+    public function editMember(Request $request, Member $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'member_name'       => ['required', 'string',],
+            'last_name'         => ['sometimes', 'required', 'string',],
+            'role'              => ['required', 'string',],
+            'member_avatar'     => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator->errors());
+        }
+
+        $user = auth()->user()->load('profiles');
+
+        $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
+
+        $member = Member::where('artist_id', $artist->id)->where('id', $id)->first();
+
+        if ($member) {
+
+            $data = [
+                'first_name'    => $request->input('member_name', ''),
+                'last_name'     => $request->input('last_name', ''),
+                'role'          => $request->input('role', 'others'),
+                'avatar'        => '',
+            ];
+
+            if ($request->hasFile('member_avatar') && $request->file('member_avatar')->isValid()) {
+                // ...
+                $data['avatar'] = $request->file('member_avatar')->store('image', 'public');;
+            }
+
+            $member->update($data);
+            return redirect()->back()->with('message', 'Member details updated successfully.');
+        }
+
+        return redirect()->back()->with('message', "Member does not exists.");
+    }
+
+    public function removeMediaAccount(Request $request, $category)
+    {
+        $user = auth()->user()->load('profiles');
+
+        $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
+        $data = [];
+
+        if ($category === 'youtube') {
+            $data['youtube_channel'] = '';
+        } else if ($category === 'instagram') {
+            $data['instagram_username'] = '';
+        } else if ($category === 'twitter') {
+            $data['twitter_username'] = '';
+        } else if ($category === 'spotify') {
+            $data['spotify_profile'] = '';
+        }
+
+        $artist->update($data);
+
+        return redirect()->back()->with('message', 'Artist social media remove successfully.');
     }
 }
