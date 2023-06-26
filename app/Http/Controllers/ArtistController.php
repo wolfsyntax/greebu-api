@@ -462,9 +462,16 @@ class ArtistController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator->errors());
+            return response()->json([
+                'status' => 422,
+                'message' => "Invalid data",
+                'result' => [
+                    'errors' => [
+                        'member_name' => 'Member name already exists.',
+                    ],
+                ],
+            ], 203);
         }
-
 
         $user = auth()->user()->load('profiles');
         $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
@@ -472,8 +479,13 @@ class ArtistController extends Controller
             $key => $request->input('url'),
         ]);
 
-
-        return redirect()->back()->with('message', 'Social Media account added successfully.');
+        return response()->json([
+            'status' => 200,
+            'message' => 'Artist Profile updated successfully.',
+            'result' => [
+                'artist_profile'    => $artist,
+            ],
+        ], 200);
     }
 
     public function removeMember(Request $request, $id)
@@ -485,9 +497,24 @@ class ArtistController extends Controller
         $member = Member::where('artist_id', $artist->id)->where('id', $id)->first();
         if ($member) {
             $member->delete();
-            return redirect()->back()->with('message', 'Member removed successfully.');
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Member removed successfully.',
+                'result' => [
+                    'member'    => $member,
+                    'members'   => $artist->members()->get(),
+                ],
+            ], 200);
         }
-        return redirect()->back()->with('message', "Member does not exists.");
+
+        return response()->json([
+            'status'        => 404,
+            'message'       => "Member does not exists.",
+            'result'        => [
+                'member'    => null,
+            ],
+        ], 203);
     }
 
     public function editMember(Request $request, Member $id)
@@ -500,7 +527,15 @@ class ArtistController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator->errors());
+            return response()->json([
+                'status' => 422,
+                'message' => "Invalid data",
+                'result' => [
+                    'errors' => [
+                        'member_name' => 'Member name already exists.',
+                    ],
+                ],
+            ], 203);
         }
 
         $user = auth()->user()->load('profiles');
@@ -524,10 +559,24 @@ class ArtistController extends Controller
             }
 
             $member->update($data);
-            return redirect()->back()->with('message', 'Member details updated successfully.');
+
+            return response()->json([
+                'status'        => 200,
+                'message'       => 'Member details updated successfully.',
+                'result'        => [
+                    'member'    => $member,
+                    'members'   => $artist->members()->get(),
+                ],
+            ], 200);
         }
 
-        return redirect()->back()->with('message', "Member does not exists.");
+        return response()->json([
+            'status'        => 404,
+            'message'       => "Member does not exists.",
+            'result'        => [
+                'member'    => null,
+            ],
+        ], 203);
     }
 
     public function removeMediaAccount(Request $request, $category)
