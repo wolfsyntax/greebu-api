@@ -45,9 +45,9 @@ Route::middleware('auth:api')->group(function () {
     Route::resource('artists', ArtistController::class); //->except(['index']);
     Route::post('artists/member', [ArtistController::class, 'members']);
     Route::put('artists/member/{member}', [ArtistController::class, 'editMember']);
-    Route::delete('artists/member', [ArtistController::class, 'removeMember']);
+    Route::delete('artists/member/{member}', [ArtistController::class, 'removeMember']);
     Route::post('artists/social-account', [ArtistController::class, 'updateSocialAccount']);
-    Route::delete('artists/social-account', [ArtistController::class, 'removeMediaAccount']);
+    Route::delete('artists/social-account', [ArtistController::class, 'removeMediaAccount'])->whereIn('category', ['youtube', 'instagram', 'twitter', 'spotify']);
 });
 
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);

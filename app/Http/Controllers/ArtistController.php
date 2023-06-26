@@ -488,36 +488,34 @@ class ArtistController extends Controller
         ], 200);
     }
 
-    public function removeMember(Request $request, $id)
+    public function removeMember(Request $request, Member $member)
     {
         $user = auth()->user()->load('profiles');
 
         $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
 
-        $member = Member::where('artist_id', $artist->id)->where('id', $id)->first();
-        if ($member) {
-            $member->delete();
-
-            return response()->json([
-                'status' => 200,
-                'message' => 'Member removed successfully.',
-                'result' => [
-                    'member'    => $member,
-                    'members'   => $artist->members()->get(),
-                ],
-            ], 200);
-        }
+        $member->delete();
 
         return response()->json([
-            'status'        => 404,
-            'message'       => "Member does not exists.",
-            'result'        => [
-                'member'    => null,
+            'status' => 200,
+            'message' => 'Member removed successfully.',
+            'result' => [
+                'member'    => $member,
+                'members'   => $artist->members()->get(),
             ],
-        ], 203);
+        ], 200);
+        // }
+
+        // return response()->json([
+        //     'status'        => 404,
+        //     'message'       => "Member does not exists.",
+        //     'result'        => [
+        //         'member'    => null,
+        //     ],
+        // ], 203);
     }
 
-    public function editMember(Request $request, Member $id)
+    public function editMember(Request $request, Member $member)
     {
         $validator = Validator::make($request->all(), [
             'member_name'       => ['required', 'string',],
@@ -542,41 +540,41 @@ class ArtistController extends Controller
 
         $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
 
-        $member = Member::where('artist_id', $artist->id)->where('id', $id)->first();
+        //$member = Member::where('artist_id', $artist->id)->where('id', $id)->first();
 
-        if ($member) {
+        //if ($member) {
 
-            $data = [
-                'first_name'    => $request->input('member_name', ''),
-                'last_name'     => $request->input('last_name', ''),
-                'role'          => $request->input('role', 'others'),
-                'avatar'        => '',
-            ];
+        $data = [
+            'first_name'    => $request->input('member_name', ''),
+            'last_name'     => $request->input('last_name', ''),
+            'role'          => $request->input('role', 'others'),
+            'avatar'        => '',
+        ];
 
-            if ($request->hasFile('member_avatar') && $request->file('member_avatar')->isValid()) {
-                // ...
-                $data['avatar'] = $request->file('member_avatar')->store('image', 'public');;
-            }
-
-            $member->update($data);
-
-            return response()->json([
-                'status'        => 200,
-                'message'       => 'Member details updated successfully.',
-                'result'        => [
-                    'member'    => $member,
-                    'members'   => $artist->members()->get(),
-                ],
-            ], 200);
+        if ($request->hasFile('member_avatar') && $request->file('member_avatar')->isValid()) {
+            // ...
+            $data['avatar'] = $request->file('member_avatar')->store('image', 'public');;
         }
 
+        $member->update($data);
+
         return response()->json([
-            'status'        => 404,
-            'message'       => "Member does not exists.",
+            'status'        => 200,
+            'message'       => 'Member details updated successfully.',
             'result'        => [
-                'member'    => null,
+                'member'    => $member,
+                'members'   => $artist->members()->get(),
             ],
-        ], 203);
+        ], 200);
+        //}
+
+        // return response()->json([
+        //     'status'        => 404,
+        //     'message'       => "Member does not exists.",
+        //     'result'        => [
+        //         'member'    => null,
+        //     ],
+        // ], 203);
     }
 
     public function removeMediaAccount(Request $request, $category)
