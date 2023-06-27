@@ -22,12 +22,13 @@ use App\Http\Controllers\Auth\ConfirmPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\PostController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->name('login');
 
 Route::post('/password/confirm', [ConfirmPasswordController::class, 'confirm']);
 Route::post('/password/email', [ForgotPasswordController::class, 'confirm']);
@@ -51,6 +52,14 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('artists/member/{member}', [ArtistController::class, 'removeMember']);
     Route::post('artists/social-account', [ArtistController::class, 'updateSocialAccount']);
     Route::delete('artists/social-account/{category}/destroy', [ArtistController::class, 'removeMediaAccount'])->whereIn('category', ['youtube', 'instagram', 'twitter', 'spotify']);
+
+    Route::apiResource('posts', PostController::class);
 });
 
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);
+
+Route::any('/{any}', function () {
+    return response()->json([
+        'test' => []
+    ]);
+})->where('any', '(.*)');
