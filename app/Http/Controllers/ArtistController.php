@@ -596,6 +596,12 @@ class ArtistController extends Controller
 
         $artist->update($data);
 
-        return redirect()->back()->with('message', 'Artist social media remove successfully.');
+        return response()->json([
+            'status' => 200,
+            'message' => 'Artist Profile updated successfully.',
+            'result' => [
+                'artist_profile'    => $artist,
+            ],
+        ], 200);
     }
 }

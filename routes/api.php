@@ -28,7 +28,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout']);
+
 Route::post('/password/confirm', [ConfirmPasswordController::class, 'confirm']);
 Route::post('/password/email', [ForgotPasswordController::class, 'confirm']);
 Route::post('/password/reset', [ResetPasswordController::class, 'reset']);
@@ -42,12 +42,15 @@ Route::get('artist/forms', [ArtistController::class, 'form']);
 
 // Routes that required authentication
 Route::middleware('auth:api')->group(function () {
+
+    Route::post('/logout', [LoginController::class, 'logout']);
+
     Route::resource('artists', ArtistController::class); //->except(['index']);
     Route::post('artists/member', [ArtistController::class, 'members']);
     Route::put('artists/member/{member}', [ArtistController::class, 'editMember']);
     Route::delete('artists/member/{member}', [ArtistController::class, 'removeMember']);
     Route::post('artists/social-account', [ArtistController::class, 'updateSocialAccount']);
-    Route::delete('artists/social-account', [ArtistController::class, 'removeMediaAccount'])->whereIn('category', ['youtube', 'instagram', 'twitter', 'spotify']);
+    Route::delete('artists/social-account/{category}/destroy', [ArtistController::class, 'removeMediaAccount'])->whereIn('category', ['youtube', 'instagram', 'twitter', 'spotify']);
 });
 
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);

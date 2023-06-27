@@ -12,8 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reported_profiles', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id');
+
+            $table->foreignUuid('reported_id')->index()->constrained(table: 'profiles', column: 'id');
+            $table->foreignUuid('reporter_id')->index()->constrained(table: 'profiles', column: 'id');
+            $table->primary(['reporter_id', 'reported_id']);
+
+            $table->enum('report_status', ['1', '2']);
+            $table->text('reason');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

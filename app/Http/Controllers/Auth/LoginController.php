@@ -7,9 +7,11 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Profile;
+use Auth;
 
 class LoginController extends Controller
 {
@@ -104,10 +106,16 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        auth()->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('login');
+        $request->user()->token()->revoke();
+        $request->user()->token()->delete();
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Logout successfully',
+            'result'    => [
+                'user_profile' => $request->user()->token(),
+            ],
+        ]);
     }
 
     public function handler($social)
