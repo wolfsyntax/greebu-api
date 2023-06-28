@@ -23,6 +23,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\PostController;
+use App\Models\Subscription;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -41,6 +42,9 @@ Route::get('/login/{social}/callback', [LoginController::class, 'social_login'])
 Route::get('artist', [ArtistController::class, 'index'])->name('artists.index-g');
 Route::get('artist/forms', [ArtistController::class, 'form']);
 
+Route::get('subscriptions/plan/{plan}', [SubscriptionController::class, 'pricings'])->where('plan', 'artists|organizer|service-provider');
+Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);
+
 // Routes that required authentication
 Route::middleware('auth:api')->group(function () {
 
@@ -55,11 +59,3 @@ Route::middleware('auth:api')->group(function () {
 
     Route::apiResource('posts', PostController::class);
 });
-
-Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);
-
-Route::any('/{any}', function () {
-    return response()->json([
-        'test' => []
-    ]);
-})->where('any', '(.*)');

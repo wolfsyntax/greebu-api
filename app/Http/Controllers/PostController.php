@@ -10,6 +10,13 @@ use App\Models\Post;
 
 class PostController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['role:artists,organizer,service-provider'])->only([
+            'store', 'update',
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -25,7 +32,7 @@ class PostController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'content'           => ['bail', 'required_if:attachment,null', 'string'],
+            'content'           => ['bail', 'required_if:attachment_type,none', 'string'],
             'attachment_type'   => ['required', 'in:image,video,audio,none', 'bail',],
             'attachment'        => ['sometimes', 'required_unless:attachment_type,none',],
             'latitude'          => ['sometimes', 'required_unless:longitude,null', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/'],
