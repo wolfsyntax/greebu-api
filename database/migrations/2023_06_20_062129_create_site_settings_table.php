@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('site_settings', function (Blueprint $table) {
-            $table->uuid('id');
+            $table->uuid('id')->primary();
             $table->string('meta_key', 100);
             $table->string('meta_value', 100);
             $table->enum('is_dropdown', ['yes', 'no',])->nullable()->default('yes');

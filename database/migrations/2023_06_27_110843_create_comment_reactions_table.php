@@ -12,10 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comment_reactions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignUuid('comment_id')->index()->constrained();
+            //$table->uuid('id')->primary();
+            $table->foreignUuid('comment_id')->index()->constrained(table: 'comments');
             $table->foreignUuid('profile_id')->index()->constrained();
             $table->foreignUuid('reaction_id')->index()->constrained(table: 'emoticons');
+
+            $table->primary(['comment_id', 'profile_id', 'reaction_id',]);
             $table->timestamps();
         });
     }

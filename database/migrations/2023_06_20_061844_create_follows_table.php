@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('follows', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            //$table->uuid('id')->primary();
             $table->foreignUuid('followed_id')->constrained(table: 'artists');
             $table->foreignUuid('profile_id')->constrained();
-
+            $table->primary(['profile_id', 'followed_id']);
             $table->timestamps();
         });
     }
