@@ -128,20 +128,26 @@ class RegisterController extends Controller
             'zip_code'          => '4400',
             'province'          => 'Camarines Sur',
         ])->assignRole($request->input('account_type', 'customers'));
-        $artist_profile = "";
+
         if ($request->input('account_type', 'customers') === 'artists') {
 
             $artistType = \App\Models\ArtistType::first();
             $genre = \App\Models\Genre::where('title', 'Others')->first();
 
-            $artist_profile = \App\Models\Artist::create([
+            $client_profile = \App\Models\Artist::create([
                 'profile_id'        => $profile->id,
                 'artist_type_id'    => $artistType->id,
             ]);
 
             $languages = \App\Models\SupportedLanguage::get();
-            $artist_profile->genres()->sync($genre);
-            $artist_profile->languages()->sync($languages);
+            $client_profile->genres()->sync($genre);
+            $client_profile->languages()->sync($languages);
+        } else {
+
+            $client_profile = \App\Models\Customer::create([
+                'profile_id'    => $profile->id,
+                'name'          => $user->fullname,
+            ]);
         }
 
         event(new Registered($user));

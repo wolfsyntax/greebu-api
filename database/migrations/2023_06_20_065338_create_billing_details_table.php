@@ -11,13 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('comment_reactions', function (Blueprint $table) {
-            //$table->uuid('id')->primary();
-            $table->foreignUuid('comment_id')->index()->constrained(table: 'comments');
-            $table->foreignUuid('profile_id')->index()->constrained();
-            $table->foreignUuid('reaction_id')->index()->constrained(table: 'emoticons');
+        Schema::create('billing_details', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->string('email');
+            $table->string('phone');
+            $table->string('line_1');
+            $table->string('city');
+            $table->string('state');
+            $table->string('postal_code', 36);
 
-            $table->primary(['comment_id', 'profile_id', 'reaction_id',]);
+            $table->foreignUuid('profile_id')->index()->constrained();
+
             $table->timestamps();
         });
     }
@@ -27,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('comment_reactions');
+        Schema::dropIfExists('billing_details');
     }
 };

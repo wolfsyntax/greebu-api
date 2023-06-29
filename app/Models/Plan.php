@@ -13,6 +13,7 @@ class Plan extends Model
     protected $fillable = [
         'name', 'cost_text', 'cost_value',
         'description', 'plan_type', 'is_active',
+        'account_type',
     ];
 
     protected $appends = [];
@@ -29,6 +30,7 @@ class Plan extends Model
         'description'   => 'string',
         'plan_type'     => 'string',
         'is_active'     => 'boolean',
+        'account_type'  => 'string',
     ];
 
     public function inclusions()

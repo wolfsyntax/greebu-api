@@ -86,7 +86,7 @@ class LoginController extends Controller
 
             $profile = Profile::where('user_id', $user->id)->first();
 
-            auth()->login($user);
+            auth()->login($user, $request->input('remember_me', false));
 
             // $request->session()->regenerate();
             $role = $profile->roles->first()->name;

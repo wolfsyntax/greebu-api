@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comments', function (Blueprint $table) {
-            $table->uuid('id');
+            $table->uuid('id')->primary();
             $table->foreignUuid('post_id')->index()->constrained();
             $table->foreignUuid('profile_id')->index()->constrained();
-            $table->longText('comment')->nullable();
+            $table->longText('feedback')->nullable();
 
             $table->string('longitude')->nullable();
             $table->string('latitude')->nullable();

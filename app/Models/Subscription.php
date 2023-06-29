@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-class CommentReaction extends Model
+class Subscription extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, HasUuids;
 
     /**
      * The attributes that are mass assignable.
@@ -17,13 +19,6 @@ class CommentReaction extends Model
     protected $fillable = [];
 
     protected $appends = [];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [];
 
     /**
      * The attributes that should be cast.

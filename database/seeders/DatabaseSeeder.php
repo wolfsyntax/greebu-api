@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             CancellationReasonSeeder::class,
             PlansSeeders::class,
             BankCardSeeder::class,
+            PaymentSeeder::class,
         ]);
     }
 }

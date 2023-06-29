@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('site_settings', function (Blueprint $table) {
+        Schema::create('subscription_plan', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('meta_key', 100);
-            $table->string('meta_value', 100);
-            $table->enum('is_dropdown', ['yes', 'no',])->nullable()->default('yes');
-            $table->boolean('is_active');
+            $table->foreignUuid('subscription_id')->index()->constrained();
+
+            //$table->
+            // $table->boolean('subscribe_after_trial')->default(false);
 
             $table->timestamps();
             $table->softDeletes();
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('site_settings');
+        Schema::dropIfExists('subscription_plan');
     }
 };

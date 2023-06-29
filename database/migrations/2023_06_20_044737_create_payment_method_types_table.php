@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('site_settings', function (Blueprint $table) {
+        Schema::create('payment_method_types', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('meta_key', 100);
-            $table->string('meta_value', 100);
-            $table->enum('is_dropdown', ['yes', 'no',])->nullable()->default('yes');
-            $table->boolean('is_active');
-
+            $table->string('provider_name');
+            $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('site_settings');
+        Schema::dropIfExists('payment_method_types');
     }
 };

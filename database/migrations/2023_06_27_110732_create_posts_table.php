@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('longitude')->nullable();
             $table->string('latitude')->nullable();
             $table->boolean('is_schedule')->nullable()->default(false);
-            $table->timestamp('schedule_at')->nullable();
+            $table->timestamp('scheduled_at')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

@@ -17,15 +17,31 @@ class PlansSeeders extends Seeder
         //
         $plans = [
             [
-                "plans" => ['name' => 'Customer', 'cost_text' => 'FREE', 'cost_value' => 0.00, 'description' => '', 'is_active' => true, 'plan_type' => "monthly",],
-                "inclusions" => ["Create a Song with Artist", "Look For an Artist",],
+                "plans" => ['name' => 'FREE', 'cost_text' => 'FREE', 'cost_value' => 0.00, 'description' => 'Lorem ipsum dolor sit consectetur.', 'is_active' => true, 'plan_type' => "monthly", 'account_type' => 'customers',],
+                "inclusions" => ["Create a Song with Artist", "Look For an Artist", "Can view events"],
             ],
             [
-                "plans" => ['name' => 'Artist', 'cost_text' => '2,000.00', 'cost_value' => 2000.00, 'description' => '', 'plan_type' => '', 'is_active' => true, 'plan_type' => "monthly",],
+                "plans" => ['name' => 'Monthly', 'cost_text' => '2,000.00', 'cost_value' => 2000.00, 'description' => 'Lorem ipsum dolor sit consectetur.', 'is_active' => true, 'plan_type' => "monthly", 'account_type' => 'artists',],
                 "inclusions" => ["Accept Booking", "Create a song for client", "Apply for Events", "Look for Services"],
             ],
             [
-                "plans" => ['name' => 'Organizer', 'cost_text' => '2,000.00', 'cost_value' => 2000.00, 'description' => '', 'plan_type' => '', 'is_active' => true, 'plan_type' => "monthly",],
+                "plans" => ['name' => 'Yearly', 'cost_text' => '2,000.00', 'cost_value' => 2000.00, 'description' => 'Lorem ipsum dolor sit consectetur.', 'is_active' => true, 'plan_type' => "monthly", 'account_type' => 'artists',],
+                "inclusions" => ["Accept Booking", "Create a song for client", "Apply for Events", "Look for Services"],
+            ],
+            [
+                "plans" => ['name' => 'Monthly', 'cost_text' => '2,000.00', 'cost_value' => 2000.00, 'description' => 'Lorem ipsum dolor sit consectetur.', 'is_active' => true, 'plan_type' => "monthly", 'account_type' => 'organizer',],
+                "inclusions" => ["Accept Bookings", "Create a song for clients", "Apply for Events", "Look for Services"],
+            ],
+            [
+                "plans" => ['name' => 'Yearly', 'cost_text' => '2,000.00', 'cost_value' => 2000.00, 'description' => 'Lorem ipsum dolor sit consectetur.', 'is_active' => true, 'plan_type' => "monthly", 'account_type' => 'organizer',],
+                "inclusions" => ["Create Event", "Look for Artist", "Look for Services",],
+            ],
+            [
+                "plans" => ['name' => 'Monthly', 'cost_text' => '2,000.00', 'cost_value' => 2000.00, 'description' => 'Lorem ipsum dolor sit consectetur.', 'is_active' => true, 'plan_type' => "monthly", 'account_type' => 'service-provider',],
+                "inclusions" => ["Accept Bookings", "Create a song for clients", "Apply for Events", "Look for Services"],
+            ],
+            [
+                "plans" => ['name' => 'Yearly', 'cost_text' => '2,000.00', 'cost_value' => 2000.00, 'description' => 'Lorem ipsum dolor sit consectetur.', 'is_active' => true, 'plan_type' => "monthly", 'account_type' => 'service-provider',],
                 "inclusions" => ["Create Event", "Look for Artist", "Look for Services",],
             ],
         ];
