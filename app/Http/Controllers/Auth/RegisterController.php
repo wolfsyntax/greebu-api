@@ -142,6 +142,11 @@ class RegisterController extends Controller
             $languages = \App\Models\SupportedLanguage::get();
             $artist_profile->genres()->sync($genre);
             $artist_profile->languages()->sync($languages);
+        } else {
+            $artist_profile = \App\Models\Customer::create([
+                'profile_id'    => $profile->id,
+                'name'          => $user->fullname,
+            ]);
         }
 
         event(new Registered($user));
