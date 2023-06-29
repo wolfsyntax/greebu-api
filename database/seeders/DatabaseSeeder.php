@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             PlansSeeders::class,
             BankCardSeeder::class,
             PaymentSeeder::class,
+            CountrySeeder::class,
         ]);
     }
 }

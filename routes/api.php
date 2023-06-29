@@ -24,6 +24,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\PostController;
 use App\Models\Subscription;
+use App\Http\Controllers\Admin\CountryController as AdminCountryController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -42,6 +43,7 @@ Route::get('/login/{social}/callback', [LoginController::class, 'social_login'])
 Route::get('artist', [ArtistController::class, 'index'])->name('artists.index-g');
 Route::get('artist/forms', [ArtistController::class, 'form']);
 
+Route::get('/country', [AdminCountryController::class, 'index']);
 Route::get('subscriptions/plan/{plan}', [SubscriptionController::class, 'pricings'])->where('plan', 'artists|organizer|service-provider');
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);
 
