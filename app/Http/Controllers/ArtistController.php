@@ -11,11 +11,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Collection;
+use App\Libraries\Service;
+use Carbon\Carbon;
+
+use Aws\S3\S3Client;
+use Aws\Exception\AwsException;
 
 class ArtistController extends Controller
 {
+    protected $service;
+
     public function __construct()
     {
+
+        $this->service = new Service();
+
         $this->middleware(['role:artists'])->only([
             'create', 'store', 'edit', 'update',
             'members', 'editMember', 'removeMember',
@@ -175,8 +185,20 @@ class ArtistController extends Controller
             'province'          => $request->input('province'),
         ];
 
-        if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
-            $nprof['avatar'] = $request->file('avatar')->store('image', 'public');;
+        // if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
+        //     $nprof['avatar'] = $request->file('avatar')->store('image', 'public');;
+        // }
+
+        if ($request->hasFile('avatar')) {
+
+            $filename = 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension();
+            $image_file = $request->file('avatar')->getPathname();
+            $s3_filename = 'avatar/' . $filename;
+
+            if ($this->service->put_object_to_s3priv($s3_filename, $image_file)) {
+                $path = '';
+            }
+            $nprof['avatar'] = $s3_filename;
         }
 
         $profile->update($nprof);
@@ -199,6 +221,7 @@ class ArtistController extends Controller
 
         $genre = Genre::whereIn('title', $genres)->get();
         $artist_profile->genres()->sync($genre);
+        $profile->avatar = $this->service->get_s3_object($profile->avatar, 'private');
 
         return response()->json([
             'status' => 200,
