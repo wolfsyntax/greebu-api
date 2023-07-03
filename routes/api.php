@@ -26,6 +26,8 @@ use App\Http\Controllers\PostController;
 use App\Models\Subscription;
 use App\Http\Controllers\Admin\CountryController as AdminCountryController;
 
+use Illuminate\Support\Facades\Storage;
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -60,4 +62,16 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('artists/social-account/{category}/destroy', [ArtistController::class, 'removeMediaAccount'])->whereIn('category', ['youtube', 'instagram', 'twitter', 'spotify']);
 
     Route::apiResource('posts', PostController::class);
+});
+
+Route::get('fetch/{path}', function ($path) {
+    //Storage::disk('s3priv')->deleteDirectory($path);
+    return response()->json([
+        'status' => 200,
+        'message' => '',
+        'result' => [
+            'path' => $path,
+            'files' => Storage::disk('s3priv')->files($path),
+        ]
+    ]);
 });
