@@ -175,7 +175,11 @@ class ArtistController extends Controller
             ], 203);
         }
 
-        $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->first();
+        $profile = Profile::with('roles')->where('user_id', auth()->user()->id)
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'artists');
+            })
+            ->first();
 
         $nprof = [
             'business_name'     => $request->input('artist_name'),
@@ -189,22 +193,21 @@ class ArtistController extends Controller
 
         if ($request->hasFile('avatar')) {
 
-            // $filename = 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension();
-            // $image_file = $request->file('avatar')->getPathname();
-            // $s3_filename = 'avatar/' . $filename;
             if (Storage::disk('s3priv')->exists($profile->avatar)) {
                 Storage::disk('s3priv')->delete($profile->avatar);
             }
 
             $path = Storage::disk('s3priv')->putFileAs('avatar', $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
 
-            // if ($this->service->put_object_to_s3priv($s3_filename, $image_file)) {
-            //     $path = '';
-            // }
             $nprof['avatar'] = parse_url($path)['path'];
         }
 
-        $profile->update($nprof);
+        if ($profile) {
+            $profile->update($nprof);
+        } else {
+            $nprof['user_id'] = auth()->user()->id;
+            $profile = Profile::create($nprof);
+        }
 
         $genres = $request->input('genre');
 

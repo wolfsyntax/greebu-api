@@ -31,7 +31,7 @@ return new class extends Migration
             $table->longText('bio')->nullable();
             $table->timestamp('last_accessed')->nullable()->useCurrent();
             $table->unsignedDecimal('credit_balance', 10)->nullable()->default(0.00);
-
+            $table->string('bucket')->nullable();
             $table->timestamps();
             $table->softDeletes('deactivated_at');
         });
