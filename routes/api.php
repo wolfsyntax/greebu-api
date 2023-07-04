@@ -26,6 +26,7 @@ use App\Http\Controllers\PostController;
 use App\Models\Subscription;
 use App\Http\Controllers\Admin\CountryController as AdminCountryController;
 use App\Http\Controllers\NetworkController;
+use App\Http\Controllers\SongController;
 use App\Http\Controllers\UserController;
 
 use Illuminate\Support\Facades\Storage;
@@ -110,6 +111,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('user/profile', [UserController::class, 'create']);
 
     Route::apiResource('users', UserController::class);
+
+    Route::post('song-requests/{songRequest}/request', [SongController::class, 'updateRequestStatus']);
+    Route::post('song-requests/{songRequest}/approval', [SongController::class, 'updateApprovalStatus']);
+
+    Route::apiResource('song-requests', SongController::class);
 });
 
 Route::get('fetch/{path}', function ($path) {
