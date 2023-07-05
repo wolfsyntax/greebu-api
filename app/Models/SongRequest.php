@@ -24,7 +24,7 @@ class SongRequest extends Model
         'first_name', 'last_name', 'email',
         'request_status', 'page_status', 'approval_status',
         'sender', 'receiver',
-        'user_story',
+        'user_story', 'estimate_date',
         'delivery_date', 'approved_at',
     ];
 
@@ -54,5 +54,6 @@ class SongRequest extends Model
         'user_story'            => 'string',
         'delivery_date'         => 'timestamp',
         'approved_at'           => 'timestamp',
+        'estimate_date'         => 'integer',
     ];
 }

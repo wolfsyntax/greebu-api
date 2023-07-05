@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             BankCardSeeder::class,
             PaymentSeeder::class,
             CountrySeeder::class,
+            DurationSeeder::class,
         ]);
     }
 }

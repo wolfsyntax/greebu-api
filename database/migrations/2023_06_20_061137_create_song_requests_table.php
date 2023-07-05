@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->foreignUuid('creator_id')->constrained(table: 'profiles');
+            $table->foreignUuid('artist_id')->constrained();
             $table->foreignUuid('artist_type_id')->constrained();
             $table->foreignUuid('genre_id')->constrained();
             $table->foreignUuid('song_type_id')->constrained();
@@ -37,6 +38,7 @@ return new class extends Migration
             // can validate artist song submission
             $table->boolean('verification_status')->nullable()->default(0); // artist output -> approval by admin
             $table->timestamp('delivery_date')->nullable();
+            $table->unsignedInteger('estimate_date')->nullable()->default(3);
             $table->timestamp('approved_at')->nullable()->default(now());
 
             // can request resubmission (can request a custom song to be edited)

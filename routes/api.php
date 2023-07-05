@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+use Carbon\Carbon;
 
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ArtistController;
@@ -71,6 +72,7 @@ Route::middleware('auth:api')->group(function () {
             $profile = App\Models\Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) {
                 $query->where('name', 'customers');
             })->first();
+
             $msg = 'Profile update successfully.';
             if ($profile) {
                 $profile->city = 'Gainza';
@@ -112,6 +114,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::apiResource('users', UserController::class);
 
+    Route::post('song-requests/{songRequest}/verified', [SongController::class, 'updateVerificationStatus']);
     Route::post('song-requests/{songRequest}/request', [SongController::class, 'updateRequestStatus']);
     Route::post('song-requests/{songRequest}/approval', [SongController::class, 'updateApprovalStatus']);
 
@@ -129,3 +132,7 @@ Route::get('fetch/{path}', function ($path) {
         ]
     ]);
 });
+
+// Route::get('carbon', function () {
+
+// });

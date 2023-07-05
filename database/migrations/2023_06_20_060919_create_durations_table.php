@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('durations', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title');
-            $table->unsignedBigInteger('length')->nullable()->default(0);
+            $table->unsignedBigInteger('value')->nullable()->default(0);
+            $table->enum('duration_type', ['min', 'hour'])->default('min');
             $table->unsignedDecimal('cost', 10, 2)->nullable()->default(0.00);
             $table->timestamps();
             $table->softDeletes();

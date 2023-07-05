@@ -10,6 +10,8 @@ use App\Models\SongRequest;
 use App\Models\SongType;
 use App\Models\SupportedLanguage;
 
+use Carbon\Carbon;
+
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
@@ -25,6 +27,10 @@ class SongController extends Controller
 
         $this->middleware(['role:artists'])->only([
             'updateRequestStatus',
+        ]);
+
+        $this->middleware(['role:super-admin'])->only([
+            'updateVerificationStatus',
         ]);
     }
     /**
@@ -59,6 +65,7 @@ class SongController extends Controller
 
         $validator = Validator::make($request->all(), [
             'artist_type_id'    => ['required', 'exists:artist_types,id',],
+            'artist_id'         => ['required', 'exists:artists,id',],
             'genre_id'          => ['required', 'exists:genres,id',],
             'song_type_id'      => ['required', 'exists:song_types',], // mood
             'language_id'       => ['required', '',], // supported_languages
@@ -141,6 +148,7 @@ class SongController extends Controller
             'receiver'          => ['required', 'string', 'max:255',],
             'user_story'        => ['required', 'string', 'max:500',],
             'page_status'       => ['required', 'string', 'max:64'],
+            'estimate_date'     => ['required', 'integer',],
         ]);
 
         if ($validator->fails()) {
@@ -155,20 +163,20 @@ class SongController extends Controller
 
         $songRequest;
 
-        $songRequest->artist_type_id = $request->artist_type_id;
-        $songRequest->genre_id = $request->genre_id;
-        $songRequest->song_type_id = $request->song_type_id;
-        $songRequest->language_id = $request->language_id;
-        $songRequest->duration_id = $request->duration_id;
-        $songRequest->purpose_id = $request->purpose_id;
-        $songRequest->first_name = $request->first_name;
-        $songRequest->last_name = $request->last_name;
-        $songRequest->email = $request->email;
-        $songRequest->sender = $request->sender;
-        $songRequest->receiver = $request->receiver;
-        $songRequest->user_story = $request->user_story;
-        $songRequest->page_status = $request->page_status;
-
+        $songRequest->artist_type_id = $request->input('artist_type_id');
+        $songRequest->genre_id = $request->input('genre_id');
+        $songRequest->song_type_id = $request->input('song_type_id');
+        $songRequest->language_id = $request->input('language_id');
+        $songRequest->duration_id = $request->input('duration_id');
+        $songRequest->purpose_id = $request->input('purpose_id');
+        $songRequest->first_name = $request->input('first_name');
+        $songRequest->last_name = $request->input('last_name');
+        $songRequest->email = $request->input('email');
+        $songRequest->sender = $request->input('sender');
+        $songRequest->receiver = $request->input('receiver');
+        $songRequest->user_story = $request->input('user_story');
+        $songRequest->page_status = $request->input('page_status');
+        $songRequest->estimate_date = $request->input('estimate_date', 3);
         $songRequest->save();
 
         $this->successResponse('...', [
@@ -184,6 +192,7 @@ class SongController extends Controller
         //
     }
 
+    // Artist
     public function updateRequestStatus(Request $request, SongRequest $songRequest)
     {
 
@@ -201,7 +210,13 @@ class SongController extends Controller
             ], 203);
         }
 
-        $songRequest->request_status = $request->input('request_status', 'pending');
+        $status = $request->input('request_status', 'pending');
+        $songRequest->request_status = $status;
+
+        if ($status === 'accepted') {
+            $songRequest->delivery_date  = now()->addDays($songRequest->estimate_date);
+        }
+
         $songRequest->save();
 
         $this->successResponse('...', [
@@ -209,6 +224,8 @@ class SongController extends Controller
         ]);
     }
 
+
+    // Customer
     public function updateApprovalStatus(Request $request, SongRequest $songRequest)
     {
 
@@ -231,6 +248,31 @@ class SongController extends Controller
         if ($request->approval_status === 'accepted') {
             $songRequest->approved_at = now();
         }
+
+        $songRequest->save();
+
+        $this->successResponse('...', [
+            'song_request' => $songRequest,
+        ]);
+    }
+
+    public function updateVerificationStatus(Request $request, SongRequest $songRequest)
+    {
+        $validator = Validator::make($request->all(), [
+            'verification_status'    => ['required', 'boolean',],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'message' => "Invalid data",
+                'result' => [
+                    'errors' => $validator->errors(),
+                ],
+            ], 203);
+        }
+
+        $songRequest->verification_status = $request->input('verification_status', false);
 
         $songRequest->save();
 
