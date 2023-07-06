@@ -20,175 +20,78 @@ class NetworkController extends Controller
     //     //
     // }
 
-    public function redirectToProvider($provider = 'facebook')
-    {
+    // public function redirectToProvider($provider = 'facebook')
+    // {
 
-        $socialite = Socialite::driver($provider);
-        return $socialite->with(['auth_type' => 'rerequest'])->redirect();
-        // ->redirect()->getTargetUrl();
-    }
+    //     $socialite = Socialite::driver($provider);
+    //     return $socialite->with(['auth_type' => 'rerequest'])->redirect();
+    // }
 
-    public function handleProviderCallback(Request $request, $provider)
-    {
+    // public function handleProviderCallback(Request $request, $provider)
+    // {
 
-        // try {
-        //     $u = Socialite::driver($provider)->stateless()->user();
+    //     try {
 
-        //     if ($provider === 'google') {
+    //         $user_media = Socialite::driver($provider)->stateless()->user();
+    //         $user = User::where($provider . '_id', $user_media->getId())->orWhere('email', $user_media->getEmail())->first();
 
-        //         /*
-        //             {"user":
-        //                 {
-        //                     "id":"110670774044361693933",
-        //                     "nickname":null,
-        //                     "name":"Jayson Alpe",
-        //                     "email":"jaysonalpe@gmail.com",
-        //                     "avatar":"https:\/\/lh3.googleusercontent.com\/a\/AAcHTtdtu9zUAnedzUGyyPHjopn1VdzCJbTMlnLj-MsQtg=s96-c",
-        //                     "user":{
-        //                         "sub":"110670774044361693933",
-        //                         "name":"Jayson Alpe",
-        //                         "given_name":"Jayson",
-        //                         "family_name":"Alpe",
-        //                         "picture":"https:\/\/lh3.googleusercontent.com\/a\/AAcHTtdtu9zUAnedzUGyyPHjopn1VdzCJbTMlnLj-MsQtg=s96-c",
-        //                         "email":"jaysonalpe@gmail.com",
-        //                         "email_verified":true,
-        //                         "locale":"en",
-        //                         "id":"110670774044361693933",
-        //                         "verified_email":true,
-        //                         "link":null
-        //                     },
-        //                     "attributes":{
-        //                         "id":"110670774044361693933",
-        //                         "nickname":null,
-        //                         "name":"Jayson Alpe",
-        //                         "email":"jaysonalpe@gmail.com",
-        //                         "avatar":"https:\/\/lh3.googleusercontent.com\/a\/AAcHTtdtu9zUAnedzUGyyPHjopn1VdzCJbTMlnLj-MsQtg=s96-c",
-        //                         "avatar_original":"https:\/\/lh3.googleusercontent.com\/a\/AAcHTtdtu9zUAnedzUGyyPHjopn1VdzCJbTMlnLj-MsQtg=s96-c"
-        //                     },
-        //                     "token":"ya29.a0AWY7Ckn12Mx5OIEe9ZezDjkQ0qNgaFVAr3_Xisj5evyQAnUBb0UaUmaiMvusKNdGz4jqJ_xLPfw3lBb2rM85kd1qxwy2vLlk9yN_JukKpIgOa16axO1yVGHQRvorXL_Xhz7LyHp40T2eBOwoQIFEPfjXc04JaCgYKAecSARISFQG1tDrpGCtCCgX2lbFu_G5Gekd6qQ0163",
-        //                     "refreshToken":null,
-        //                     "expiresIn":3599,
-        //                     "approvedScopes":[
-        //                         "https:\/\/www.googleapis.com\/auth\/userinfo.profile",
-        //                         "https:\/\/www.googleapis.com\/auth\/userinfo.email",
-        //                         "openid"
-        //                     ]
-        //                 }
-        //             }
-        //        */
+    //         if ($user) {
 
-        //         $email = $u->getEmail();
+    //             if (!$user->email) $user->email = $user_media->getEmail();
+    //             if (!$user->facebook_id && $provider === 'facebook') $user->facebook_id = $user_media->getId();
+    //             if (!$user->google_id && $provider === 'google') $user->google_id = $user_media->getId();
 
-        //         // return response()->json([
-        //         //     'exists' => User::where('email', $email)->exists(),
-        //         //     'id' => $u->getId(),
-        //         //     'nickname' => $u->getNickname(),
-        //         //     'name' => $u->getName(),
-        //         //     'email' => $u->getEmail(),
-        //         //     'avatar' => $u->getAvatar(),
-        //         //     'user' => $u->user,
-        //         //     'last_name' => $u->user['given_name']
-        //         // ]);
+    //             $user->email_verified_at = !$user->email_verified_at ? now() : $user->email_verified_at;
+    //             $user->save();
+    //         } else {
+    //             $user = User::create([
+    //                 $provider . '_id'   => $user_media->id(),
+    //                 'email'             => $user_media->email(),
+    //                 'first_name'        => $user_media->name(),
+    //                 'password'          => hash('sha256', $request->password, false),
+    //                 'email_verified_at' => now(),
+    //             ]);
+    //         }
 
-        //         $user = User::where('email', $u->getEmail());
+    //         $profile = Profile::where('user_id', $user->id)->first();
 
-        //         if (!$user->exists()) {
-        //             $username = explode('@', $u->getEmail())[0];
+    //         if (!$profile) {
 
-        //             $user = User::create([
-        //                 'first_name'            => $u->user['given_name'],
-        //                 'last_name'             => $u->user['family_name'],
-        //                 'email'                 => $u->getEmail(),
-        //                 'email_verified_at'     => now(),
-        //                 'password'              => hash('sha256', '12345678', false),
-        //                 'username'              => $username,
-        //             ]);
-        //         } else {
-        //             $user = $user->first();
-        //         }
+    //             $profile = Profile::create([
+    //                 'user_id'           => $user->id,
+    //                 'business_email'    => $user->email,
+    //                 'business_name'     => $user->fullname,
+    //                 'avatar'            => $user_media->avatar,
+    //             ])->assignRole('customers');
+    //         } else {
 
-        //         auth()->login($user->first());
-        //         return response()->json([
-        //             'status' => 200,
-        //             'message'   => '',
-        //             'result'    => [
-        //                 'user'  => [],
-        //             ]
-        //         ]);
-        //         $request->session()->regenerate();
-        //         return redirect()->route('artist.profile');
-        //     }
+    //             $profile->business_email = $profile->business_email ? $profile->email : $user_media->getEmail();
+    //             $profile->business_name = $profile->business_name ? $profile->business_name : $user_media->getName();
+    //             $profile->business_name = $profile->business_name;
+    //             $profile->save();
+    //         }
 
-        //     return response()->json(['user' => $u]);
-        // } catch (InvalidStateException $e) {
+    //         auth()->login($user);
 
-        //     return response()->json([
-        //         'user' => 'Error'
-        //     ]);
-        // }
+    //         return response()->json([
+    //             'status'        => 200,
+    //             'message'       => 'Login Successfully.',
+    //             'result'        => [
+    //                 'profile'   => $profile,
+    //                 'user'      => $user,
+    //                 'token'     => $user->createToken("user_auth")->accessToken,
+    //                 'socialite' => $user_media,
+    //             ],
+    //         ]);
+    //     } catch (Exception $e) {
 
-        try {
-
-            $user_media = Socialite::driver($provider)->stateless()->user();
-            $user = User::where($provider . '_id', $user_media->getId())->orWhere('email', $user_media->getEmail())->first();
-
-            if ($user) {
-
-                if (!$user->email) $user->email = $user_media->getEmail();
-                if (!$user->facebook_id && $provider === 'facebook') $user->facebook_id = $user_media->getId();
-                if (!$user->google_id && $provider === 'google') $user->google_id = $user_media->getId();
-
-                $user->email_verified_at = !$user->email_verified_at ? now() : $user->email_verified_at;
-                $user->save();
-            } else {
-                $user = User::create([
-                    $provider . '_id'   => $user_media->id(),
-                    'email'             => $user_media->email(),
-                    'first_name'        => $user_media->name(),
-                    'password'          => hash('sha256', $request->password, false),
-                    'email_verified_at' => now(),
-                ]);
-            }
-
-            $profile = Profile::where('user_id', $user->id)->first();
-
-            if (!$profile) {
-
-                $profile = Profile::create([
-                    'user_id'           => $user->id,
-                    'business_email'    => $user->email,
-                    'business_name'     => $user->fullname,
-                    'avatar'            => $user_media->avatar,
-                ])->assignRole('customers');
-            } else {
-
-                $profile->business_email = $profile->business_email ? $profile->email : $user_media->getEmail();
-                $profile->business_name = $profile->business_name ? $profile->business_name : $user_media->getName();
-                $profile->business_name = $profile->business_name;
-                $profile->save();
-            }
-
-            auth()->login($user);
-
-            return response()->json([
-                'status'        => 200,
-                'message'       => 'Login Successfully.',
-                'result'        => [
-                    'profile'   => $profile,
-                    'user'      => $user,
-                    'token'     => $user->createToken("user_auth")->accessToken,
-                    'socialite' => $user_media,
-                ],
-            ]);
-        } catch (Exception $e) {
-
-            return response()->json([
-                'status'    => 500,
-                'message'   => 'Login failed.',
-                'result'    => []
-            ], 203);
-        }
-    }
+    //         return response()->json([
+    //             'status'    => 500,
+    //             'message'   => 'Login failed.',
+    //             'result'    => []
+    //         ], 203);
+    //     }
+    // }
 
     public function firebaseProvider(Request $request, $provider)
     {
@@ -276,76 +179,4 @@ class NetworkController extends Controller
             ]);
         }
     }
-    // public function SocialSignup($provider)
-    // {
-    //     // Socialite will pick response data automatic
-    //     $user = Socialite::driver($provider)->stateless()->user();
-
-    //     return response()->json($user);
-    // }
-
-    // public function index($provider)
-    // {
-    //     try {
-
-    //         $user_media = Socialite::driver($provider)->stateless()->user();
-    //         $user = User::where($provider . '_id', $user_media->getId())->orWhere('email', $user_media->getEmail())->first();
-
-    //         if ($user) {
-
-    //             if (!$user->email) $user->email = $user_media->getEmail();
-    //             if (!$user->facebook_id && $provider === 'facebook') $user->facebook_id = $user_media->getId();
-    //             if (!$user->google_id && $provider === 'google') $user->google_id = $user_media->getId();
-
-    //             $user->email_verified_at = !$user->email_verified_at ? now() : $user->email_verified_at;
-    //             $user->save();
-    //         } else {
-    //             $user = User::create([
-    //                 $provider . '_id'   => $user_media->id(),
-    //                 'email'             => $user_media->email(),
-    //                 'first_name'        => $user_media->name(),
-    //                 'password'          => hash('sha256', $request->password, false),
-    //                 'email_verified_at' => now(),
-    //             ]);
-    //         }
-
-    //         $profile = Profile::where('user_id', $user->id)->first();
-
-    //         if (!$profile) {
-
-    //             $profile = Profile::create([
-    //                 'user_id'           => $user->id,
-    //                 'business_email'    => $user->email,
-    //                 'business_name'     => $user->fullname . '1',
-    //                 'avatar'            => $user_media->avatar,
-    //             ]);
-    //         } else {
-
-    //             $profile->business_email = $profile->business_email ? $profile->email : $user_media->getEmail();
-    //             $profile->business_name = $profile->business_name ? $profile->business_name : $user_media->getName();
-    //             $profile->business_name = $profile->business_name;
-    //             $profile->save();
-    //         }
-
-    //         auth()->login($user);
-
-    //         return response()->json([
-    //             'status'        => 200,
-    //             'message'       => 'Login Successfully.',
-    //             'result'        => [
-    //                 'profile'   => $profile,
-    //                 'user'      => $user,
-    //                 'token'     => $user->createToken("user_auth")->accessToken,
-    //                 'socialite' => $user_media,
-    //             ],
-    //         ]);
-    //     } catch (Exception $e) {
-
-    //         return response()->json([
-    //             'status'    => 500,
-    //             'message'   => 'Login failed.',
-    //             'result'    => []
-    //         ], 203);
-    //     }
-    // }
 }

@@ -24,9 +24,3 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-Route::post('/login/{social}', [NetworkController::class, 'redirectToProvider']);
-Route::get('/login/{social}/callback', [NetworkController::class, 'handleProviderCallback'])->where('social', 'facebook|google');
-
-// Route::post('sociallogin/{provider}', [NetworkController::class, 'SocialSignup']);
-// Route::get('auth/{provider}/callback', [NetworkController::class, 'index'])->where('provider', 'facebook|google');
