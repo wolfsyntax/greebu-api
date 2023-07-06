@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
+use App\Http\Resources\ProfileResource;
 use App\Models\User;
 use App\Models\Profile;
 use Auth;
@@ -158,7 +159,7 @@ class NetworkController extends Controller
                     'business_email'    => $user->email,
                     'business_name'     => $user->fullname,
                     'avatar'            => $user_media->avatar,
-                ]);
+                ])->assignRole('customers');
             } else {
 
                 $profile->business_email = $profile->business_email ? $profile->email : $user_media->getEmail();
@@ -195,9 +196,13 @@ class NetworkController extends Controller
         try {
 
             $validator = Validator::make($request->all(), [
+                'is_verified'   => ['required', 'boolean'],
                 'email'         => ['required', 'email:rfc,dns', 'max:255',],
-                'name'          => ['required', 'string', 'max:255',],
+                'first_name'    => ['required', 'string', 'max:255',],
+                'last_name'     => ['required', 'string', 'max:255',],
                 'provider_id'   => ['required', 'string', 'max:255',],
+                'username'      => ['sometimes', 'required', 'string', 'max:255',],
+                'phone'         => ['sometimes', 'required', 'string', 'max:64',],
             ]);
 
             if ($validator->fails()) {
@@ -215,9 +220,10 @@ class NetworkController extends Controller
             if (!$user) {
 
                 $user = new User;
-                $user->first_name   = $request->name;
+                $user->first_name   = $request->first_name;
+                $user->last_name   = $request->last_name;
                 $user->email        = $request->input('email');
-                $user->password     = '1234567890';
+                $user->username     = $request->input('username', uniqid());
 
                 if ($provider === 'facebook') $user->facebook_id = $request->input('provider_id');
                 if ($provider === 'google') $user->google_id = $request->input('provider_id');
@@ -227,7 +233,7 @@ class NetworkController extends Controller
                 if ($provider === 'google') $user->google_id = $request->input('provider_id');
             }
 
-            if (!$user->email_verified_at) $user->email_verified_at = now();
+            if (!$user->email_verified_at && $request->is_verified) $user->email_verified_at = now();
 
             $user->save();
 
@@ -239,20 +245,23 @@ class NetworkController extends Controller
                 $profile->user_id = $user->id;
                 $profile->business_email = $user->email;
                 $profile->business_name = $user->fullname;
+                $profile->save();
+                $profile->assignRole('customers');
             } else {
 
-                $profile->business_email = $profile->business_email ? $profile->email : $user_media->getEmail();
-                $profile->business_name = $profile->business_name ? $profile->business_name : $user_media->getName();
+                $profile->business_email = $profile->business_email ? $profile->email : $request->input('email');
+                $profile->business_name = $profile->business_name ? $profile->business_name : $user->fullname;
                 $profile->business_name = $profile->business_name;
+                $profile->save();
             }
 
-            $profile->save();
+            auth()->login($user, $request->input('remember_me', false));
 
             return response()->json([
                 'status'        => 200,
                 'message'       => 'Login Successfully.',
                 'result'        => [
-                    'profile'   => $profile,
+                    'profile'   => new ProfileResource($profile, 's3'),
                     'user'      => $user,
                     'token'     => $user->createToken("user_auth")->accessToken,
                 ],

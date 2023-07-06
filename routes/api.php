@@ -45,8 +45,11 @@ Route::post('/register', [RegisterController::class, 'register']);
 
 // Route::get('/login/{social}', [LoginController::class, 'handler']);
 // Route::get('/login/{social}/callback', [LoginController::class, 'social_login'])->where('social', 'facebook|google');
-Route::get('/login/{social}', [NetworkController::class, 'redirectToProvider',]);
-Route::get('/login/{social}/callback', [NetworkController::class, 'handleProviderCallback',])->where('social', 'facebook|google');
+
+// Route::get('/login/{social}', [NetworkController::class, 'redirectToProvider',]);
+// Route::get('/login/{social}/callback', [NetworkController::class, 'handleProviderCallback',])->where('social', 'facebook|google');
+
+Route::post('/auth/{provider}/firebase', [NetworkController::class, 'firebaseProvider'])->where('provider', 'facebook|google');
 
 Route::get('artist', [ArtistController::class, 'index'])->name('artists.index-g');
 Route::get('artist/forms', [ArtistController::class, 'form']);
@@ -133,6 +136,11 @@ Route::get('fetch/{path}', function ($path) {
     ]);
 });
 
+Route::get('hash', function (Request $request) {
+    return response()->json([
+        'password' => hash('sha256', $request->password, false),
+    ]);
+});
 // Route::get('carbon', function () {
 
 // });

@@ -10,6 +10,7 @@ use Laravel\Socialite\Facades\Socialite;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProfileResource;
 use App\Models\User;
 use App\Models\Profile;
 use Auth;
@@ -94,11 +95,21 @@ class LoginController extends Controller
             $role = $profile->roles->first()->name;
 
             return response()->json([
-                'message' => 'Login successfully.',
-                'user'     => $user,
-                'profile'   => $profile,
-                'token' => $user->createToken("$role._userAuth")->accessToken
+                'status'        => 200,
+                'message'       => 'Login Successfully.',
+                'result'        => [
+                    'profile'   =>  new ProfileResource($profile, 's3'),
+                    'user'      => $user,
+                    'token'     => $user->createToken("user_auth")->accessToken,
+                ],
             ]);
+
+            // return response()->json([
+            //     'message' => 'Login successfully.',
+            //     'user'     => $user,
+            //     'profile'   => $profile,
+            //     'token' => $user->createToken("$role._userAuth")->accessToken
+            // ]);
         }
 
         return response()->json([
