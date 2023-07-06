@@ -1,8 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\NetworkController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -21,6 +24,3 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-Route::get('/login/{social}', [LoginController::class, 'redirectToProvider']);
-Route::get('/login/{social}/callback', [LoginController::class, 'handleProviderCallback'])->where('social', 'facebook|google');

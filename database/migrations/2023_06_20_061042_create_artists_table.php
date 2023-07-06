@@ -25,7 +25,7 @@ return new class extends Migration
             $table->boolean('isAccepting_request')->nullable()->default(false);
             $table->unsignedBigInteger('set_played')->nullable()->default(1)->comment('songs to be played');
             $table->timestamp('deactivated_at')->nullable();
-
+            $table->boolean('is_freeloader')->default(false)->comment('true - not required subscription (company artist), false - required subscription');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -27,7 +27,7 @@ class Profile extends Model
         'account_type', 'credit_balance',
         'avatar', 'cover_photo', 'bio',
         'street_address', 'city', 'zip_code', 'province', 'country',
-        'last_accessed',
+        'last_accessed', 'bucket',
 
     ];
 
@@ -49,6 +49,16 @@ class Profile extends Model
         'cover_photo'       => 'string',
         'bio'               => 'string',
         'last_accessed'     => 'timestamp',
+        'bucket'            => 'string',
+    ];
+
+    protected $attributes = [
+        'business_name'     => '',
+        'business_email'    => '',
+        'city'              => 'Naga City',
+        'zip_code'          => '4400',
+        'province'          => 'Camarines Sur',
+        // 'country'           => 'Philippines',
     ];
 
     public function artist()

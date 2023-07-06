@@ -10,6 +10,7 @@ use Laravel\Socialite\Facades\Socialite;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProfileResource;
 use App\Models\User;
 use App\Models\Profile;
 use Auth;
@@ -35,7 +36,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    // protected $redirectTo = '/';
+    protected $redirectTo = '/user';
 
     /**
      * Create a new controller instance.
@@ -44,7 +45,8 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest')->except('logout');
+        // $this->middleware('guest')->except('logout');
+        $this->middleware('guest', ['except' => ['logout', 'redirectToProvider', 'handleProviderCallback']]);
     }
 
     public function showLoginForm()
@@ -93,11 +95,21 @@ class LoginController extends Controller
             $role = $profile->roles->first()->name;
 
             return response()->json([
-                'message' => 'Login successfully.',
-                'user'     => $user,
-                'profile'   => $profile,
-                'token' => $user->createToken("$role._userAuth")->accessToken
+                'status'        => 200,
+                'message'       => 'Login Successfully.',
+                'result'        => [
+                    'profile'   =>  new ProfileResource($profile, 's3'),
+                    'user'      => $user,
+                    'token'     => $user->createToken("user_auth")->accessToken,
+                ],
             ]);
+
+            // return response()->json([
+            //     'message' => 'Login successfully.',
+            //     'user'     => $user,
+            //     'profile'   => $profile,
+            //     'token' => $user->createToken("$role._userAuth")->accessToken
+            // ]);
         }
 
         return response()->json([
@@ -170,99 +182,6 @@ class LoginController extends Controller
             return response()->json([
                 'errors' => $e,
             ]);
-        }
-    }
-
-    public function redirectToProvider($provider = 'facebook')
-    {
-
-        $socialite = Socialite::driver($provider);
-
-        return $socialite->with([
-            'auth_type' => 'rerequest',
-            'redirect_uri' => 'http://localhost:5173/login',
-        ])
-            ->stateless()
-            ->redirect();
-        // ->redirect()->getTargetUrl();
-    }
-
-    public function handleProviderCallback(Request $request, $provider)
-    {
-
-        try {
-            //$user = Socialite::driver($provider)->user();
-            $user_media = Socialite::driver($provider)
-                // ->with([
-                //     'redirect_uri' => 'http://localhost:5173/login',
-                // ])
-                ->stateless()->user();
-
-            $user = User::where($provider . "_id", $user_media->getId())->first();
-
-            if (!$user) {
-
-                $user = User::where([
-                    'email' => $user_media->getEmail(),
-                ])->first();
-
-                if (!$user) {
-                    $user = User::create([
-                        'email' => $user_media->getEmail(),
-                        'username' => uniqid(),
-                        'password' => hash('sha256', '1234567890', false),
-                    ]);
-                }
-
-                if (!$user->email_verified_at) $user->email_verified_at = now();
-
-                if (!$user->first_name) $user->first_name = $user_media->getName();
-                if (!$user->facebook_id && $provider === 'facebook') $user->facebook_id = $user_media->getId();
-                if (!$user->google_id && $provider === 'google') $user->google_id = $user_media->getId();
-            } else {
-
-                if (!$user->email_verified_at) $user->email_verified_at = now();
-
-                if (!$user->first_name) $user->first_name = $user_media->getName();
-                if (!$user->facebook_id && $provider === 'facebook') $user->facebook_id = $user_media->getId();
-                if (!$user->google_id && $provider === 'google') $user->google_id = $user_media->getId();
-            }
-
-            $user->save();
-
-            $profile = Profile::where('user_id', $user->id)->first();
-
-            if (!$profile) {
-
-                $profile = Profile::create([
-                    'user_id' => $user->id,
-                    'business_email'    => $user->email,
-                    'phone'             => $user->phone,
-                    'business_name'     => $user->fullname,
-                    'city'              => 'Naga City',
-                    'zip_code'          => '4400',
-                    'province'          => 'Camarines Sur',
-                ])->assignRole($request->input('account_type', 'customers'));
-            }
-
-            Auth::login($user);
-
-            return response()->json([
-                'status'    => 200,
-                'message'   => 'Login successfully.',
-                'result'    => [
-                    'users'     => $user,
-                    'profile'   => $profile,
-                    'token'     => $user->createToken("customer_userAuth")->accessToken,
-                ],
-            ]);
-        } catch (Exception $e) {
-
-            return response()->json([
-                'status'    => 500,
-                'message'   => 'Login failed.',
-                'result'    => []
-            ], 203);
         }
     }
 }

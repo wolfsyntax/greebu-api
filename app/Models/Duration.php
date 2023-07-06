@@ -18,7 +18,7 @@ class Duration extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'title', 'length', 'cost',
+        'title', 'value', 'cost', 'duration_type',
     ];
 
     protected $appends = [];
@@ -29,8 +29,9 @@ class Duration extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'title' => 'string',
-        'length' => 'integer',
-        'cost' => 'decimal:2',
+        'title'         => 'string',
+        'value'         => 'integer',
+        'cost'          => 'decimal:2',
+        'duration_type' => 'string',
     ];
 }
