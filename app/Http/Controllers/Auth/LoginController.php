@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Validator;
-use Laravel\Socialite\Facades\Socialite;
+// use Laravel\Socialite\Facades\Socialite;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -131,57 +131,57 @@ class LoginController extends Controller
         ]);
     }
 
-    public function handler($social)
-    {
-        $socialite = Socialite::driver($social);
-        return $socialite->with(['auth_type' => 'rerequest'])->redirect();
-    }
+    // public function handler($social)
+    // {
+    //     $socialite = Socialite::driver($social);
+    //     return $socialite->with(['auth_type' => 'rerequest'])->redirect();
+    // }
 
-    public function social_login(Request $request, $social)
-    {
-        try {
-            $u = Socialite::driver($social)->stateless()->user();
+    // public function social_login(Request $request, $social)
+    // {
+    //     try {
+    //         $u = Socialite::driver($social)->stateless()->user();
 
-            if ($social === 'google') {
+    //         if ($social === 'google') {
 
-                $email = $u->getEmail();
+    //             $email = $u->getEmail();
 
-                $user = User::where('email', $u->getEmail());
+    //             $user = User::where('email', $u->getEmail());
 
-                if (!$user->exists()) {
-                    $username = explode('@', $u->getEmail())[0];
+    //             if (!$user->exists()) {
+    //                 $username = explode('@', $u->getEmail())[0];
 
-                    $user = User::create([
-                        'first_name'            => $u->user['given_name'],
-                        'last_name'             => $u->user['family_name'],
-                        'email'                 => $u->getEmail(),
-                        'email_verified_at'     => now(),
-                        'password'              => hash('sha256', '12345678', false),
-                        'username'              => $username,
-                    ]);
-                } else {
-                    $user = $user->first();
-                }
+    //                 $user = User::create([
+    //                     'first_name'            => $u->user['given_name'],
+    //                     'last_name'             => $u->user['family_name'],
+    //                     'email'                 => $u->getEmail(),
+    //                     'email_verified_at'     => now(),
+    //                     'password'              => hash('sha256', '12345678', false),
+    //                     'username'              => $username,
+    //                 ]);
+    //             } else {
+    //                 $user = $user->first();
+    //             }
 
-                $profile = Profile::where('user_id', $user->id)->first();
+    //             $profile = Profile::where('user_id', $user->id)->first();
 
-                auth()->login($user->first());
+    //             auth()->login($user->first());
 
-                $request->session()->regenerate();
-                return response()->json([
-                    'message' => 'Login successfully.',
-                    'users'     => $user,
-                    'profile'   => $profile,
-                    'token' => $user->createToken($social . "_auth")->plainTextToken
-                ]);
-            }
+    //             $request->session()->regenerate();
+    //             return response()->json([
+    //                 'message' => 'Login successfully.',
+    //                 'users'     => $user,
+    //                 'profile'   => $profile,
+    //                 'token' => $user->createToken($social . "_auth")->plainTextToken
+    //             ]);
+    //         }
 
-            return response()->json(['user' => $u]);
-        } catch (InvalidStateException $e) {
+    //         return response()->json(['user' => $u]);
+    //     } catch (InvalidStateException $e) {
 
-            return response()->json([
-                'errors' => $e,
-            ]);
-        }
-    }
+    //         return response()->json([
+    //             'errors' => $e,
+    //         ]);
+    //     }
+    // }
 }
