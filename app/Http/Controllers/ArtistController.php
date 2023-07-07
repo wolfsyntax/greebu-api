@@ -10,21 +10,21 @@ use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Collection;
-use App\Libraries\Service;
+// use Illuminate\Support\Collection;
+// use App\Libraries\Service;
+use App\Traits\UserTrait;
+use App\Http\Resources\ProfileResource;
 use Carbon\Carbon;
-
-use Aws\S3\S3Client;
-use Aws\Exception\AwsException;
 
 class ArtistController extends Controller
 {
     protected $service;
+    use UserTrait;
 
     public function __construct()
     {
 
-        $this->service = new Service();
+        // $this->service = new Service();
 
         $this->middleware(['role:artists'])->only([
             'create', 'store', 'edit', 'update',
@@ -175,39 +175,7 @@ class ArtistController extends Controller
             ], 203);
         }
 
-        $profile = Profile::with('roles')->where('user_id', auth()->user()->id)
-            ->whereHas('roles', function ($query) {
-                $query->where('name', 'artists');
-            })
-            ->first();
-
-        $nprof = [
-            'business_name'     => $request->input('artist_name'),
-            'bio'               => $request->input('bio', '123'),
-            'street_address'    => $request->input('street'),
-            'city'              => $request->input('city'),
-            'province'          => $request->input('province'),
-        ];
-
-        $path = '';
-
-        if ($request->hasFile('avatar')) {
-
-            if (Storage::disk('s3priv')->exists($profile->avatar)) {
-                Storage::disk('s3priv')->delete($profile->avatar);
-            }
-
-            $path = Storage::disk('s3priv')->putFileAs('avatar', $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
-
-            $nprof['avatar'] = parse_url($path)['path'];
-        }
-
-        if ($profile) {
-            $profile->update($nprof);
-        } else {
-            $nprof['user_id'] = auth()->user()->id;
-            $profile = Profile::create($nprof);
-        }
+        $profile = $this->updateProfile($request, auth()->user(), role: 'artists');
 
         $genres = $request->input('genre');
 
@@ -227,13 +195,12 @@ class ArtistController extends Controller
 
         $genre = Genre::whereIn('title', $genres)->get();
         $artist_profile->genres()->sync($genre);
-        $profile->avatar = $this->service->get_s3_object($profile->avatar, 'private');
 
         return response()->json([
             'status' => 200,
             'message' => 'Artist Profile updated successfully.',
             'result' => [
-                'user_profile'      => $profile,
+                'user_profile'      => new ProfileResource($profile),
                 'artist_profile'    => $artist_profile,
                 'artist_genres'     => $artist_profile->genres()->get(),
                 'members'           => Member::where('artist_id', $artist_profile->id)->get(),

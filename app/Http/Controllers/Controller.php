@@ -18,4 +18,15 @@ class Controller extends BaseController
             'result'    => $data,
         ], 200);
     }
+
+    protected function debugResponse($message, $data)
+    {
+        return response()->json([
+            'status'    => 201,
+            'message'   => 'Debugging',
+            'result'    => [
+                'data'  => $data,
+            ]
+        ]);
+    }
 }

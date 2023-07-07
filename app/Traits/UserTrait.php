@@ -38,6 +38,7 @@ trait UserTrait
             $profile = new Profile;
             $profile->business_email = $user->email;
             $profile->business_name = $user->fullname;
+            $profile->user_id =  auth()->user()->id;
 
             if ($role !== 'customers') {
                 $profile->phone = $request->phone;
@@ -76,12 +77,14 @@ trait UserTrait
             $profile->country = $request->country ? $request->country : $profile->country;
         } else {
             $profile = new Profile;
-
+            $profile->user_id = auth()->user()->id;
             $profile->street_address = $request->street_address;
             $profile->city = $request->city;
             $profile->zip_code = $request->zip_code;
             $profile->province = $request->province;
             $profile->country = $request->country;
+            $profile->business_email = auth()->user()->email;
+            $profile->business_name = auth()->user()->fullname;
 
 
             if ($role !== 'customers') {

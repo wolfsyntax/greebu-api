@@ -22,10 +22,11 @@ class SongRequest extends Model
         'artist_type_id', 'genre_id', 'song_type_id', 'language_id',
         'duration_id', 'purpose_id',
         'first_name', 'last_name', 'email',
-        'request_status', 'page_status', 'approval_status',
+        'page_status', 'approval_status',
         'sender', 'receiver',
         'user_story', 'estimate_date',
         'delivery_date', 'approved_at',
+        // 'request_status',
     ];
 
     protected $appends = [];
@@ -56,4 +57,9 @@ class SongRequest extends Model
         'approved_at'           => 'timestamp',
         'estimate_date'         => 'integer',
     ];
+
+    public function artists()
+    {
+        return $this->hasMany(Artist::class)->take(3);
+    }
 }

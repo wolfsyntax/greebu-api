@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('email');
             // can approved a song request
             // can declined a song request
-            $table->enum('request_status', ['pending', 'accepted', 'declined']); // customer -> artist
+            // $table->enum('request_status', ['pending', 'accepted', 'declined']); // customer -> artist
 
             $table->string('sender');
             $table->string('receiver');
