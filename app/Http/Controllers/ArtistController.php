@@ -10,14 +10,11 @@ use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Collection;
-use App\Libraries\Service;
+// use Illuminate\Support\Collection;
+// use App\Libraries\Service;
 use App\Traits\UserTrait;
 use App\Http\Resources\ProfileResource;
 use Carbon\Carbon;
-
-use Aws\S3\S3Client;
-use Aws\Exception\AwsException;
 
 class ArtistController extends Controller
 {
@@ -27,7 +24,7 @@ class ArtistController extends Controller
     public function __construct()
     {
 
-        $this->service = new Service();
+        // $this->service = new Service();
 
         $this->middleware(['role:artists'])->only([
             'create', 'store', 'edit', 'update',
@@ -198,7 +195,6 @@ class ArtistController extends Controller
 
         $genre = Genre::whereIn('title', $genres)->get();
         $artist_profile->genres()->sync($genre);
-        //$profile->avatar = $this->service->get_s3_object($profile->avatar, 'public');
 
         return response()->json([
             'status' => 200,
