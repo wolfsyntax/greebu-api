@@ -61,22 +61,41 @@ Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccou
 // Routes that required authentication
 Route::middleware('auth:api')->group(function () {
 
-    // Route::prefix('test')->group(function () {
-    //     Route::get('/profile', function (Request $request) {
-    //         $roles = [];
-    //         $profiles = App\Models\Profile::with('roles')->where('user_id', auth()->user()->id)->get();
-    //         $roles = collect($profiles)->map(function ($query) {
-    //             return $query->getRoleNames()->first();
-    //         });
-    //         // foreach ($profiles as $profile) {
-    //         //     array_push($roles, $profile->getRoleNames()->first());
-    //         // }
-    //         return response()->json([
-    //             'role2s' => $roles,
-    //             'r' => App\Models\Profile::with('roles')->get(),
-    //         ]);
-    //     });
-    // });
+    Route::prefix('test')->group(function () {
+        Route::post('/url', function (Request $request) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'test url',
+                'result'    => [
+                    'url' => filter_var($request->input('avatar'), FILTER_VALIDATE_URL),
+                ]
+            ]);
+        });
+
+        Route::get('model/{user}', function ($user) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'model',
+                'result'    => [
+                    'model' => App\Models\User::where('id', $user)->firstOrFail(),
+                ]
+            ]);
+        });
+        // Route::get('/profile', function (Request $request) {
+        //     $roles = [];
+        //     $profiles = App\Models\Profile::with('roles')->where('user_id', auth()->user()->id)->get();
+        //     $roles = collect($profiles)->map(function ($query) {
+        //         return $query->getRoleNames()->first();
+        //     });
+        //     // foreach ($profiles as $profile) {
+        //     //     array_push($roles, $profile->getRoleNames()->first());
+        //     // }
+        //     return response()->json([
+        //         'role2s' => $roles,
+        //         'r' => App\Models\Profile::with('roles')->get(),
+        //     ]);
+        // });
+    });
     Route::post('/logout', [LoginController::class, 'logout']);
 
     Route::resource('artists', ArtistController::class); //->except(['index']);

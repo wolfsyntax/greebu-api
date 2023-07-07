@@ -101,6 +101,7 @@ class NetworkController extends Controller
             $validator = Validator::make($request->all(), [
                 'is_verified'   => ['required', 'boolean'],
                 'email'         => ['required', 'email:rfc,dns', 'max:255',],
+                'avatar'        => ['sometimes', 'required', 'string', 'max:255',],
                 'first_name'    => ['required', 'string', 'max:255',],
                 'last_name'     => ['required', 'string', 'max:255',],
                 'provider_id'   => ['required', 'string', 'max:255',],
@@ -155,6 +156,9 @@ class NetworkController extends Controller
                 $profile->business_email = $profile->business_email ? $profile->email : $request->input('email');
                 $profile->business_name = $profile->business_name ? $profile->business_name : $user->fullname;
                 $profile->business_name = $profile->business_name;
+
+                $profile->avatar = $request->input('avatar');
+
                 $profile->save();
             }
 
