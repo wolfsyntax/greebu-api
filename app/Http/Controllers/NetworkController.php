@@ -160,6 +160,11 @@ class NetworkController extends Controller
 
             auth()->login($user, $request->input('remember_me', false));
 
+            $userProfiles = Profile::with('roles')->where('user_id', $user->id)->get();
+            $userRoles = collect($userProfiles)->map(function ($query) {
+                return $query->getRoleNames()->first();
+            });
+
             return response()->json([
                 'status'        => 200,
                 'message'       => 'Login Successfully.',
@@ -167,6 +172,7 @@ class NetworkController extends Controller
                     'profile'   => new ProfileResource($profile, 's3'),
                     'user'      => $user,
                     'token'     => $user->createToken("user_auth")->accessToken,
+                    'roles'     => $userRoles,
                 ],
             ]);
         } catch (InvalidStateException $e) {

@@ -77,7 +77,7 @@ class LoginController extends Controller
             return response()->json([
                 'status'    => 422,
                 'message'   => 'Unprocessible Entity',
-                'results'   => [
+                'result'   => [
                     'errors' => $validator->errors(),
                 ],
             ], 203);
@@ -92,7 +92,12 @@ class LoginController extends Controller
             auth()->login($user, $request->input('remember_me', false));
 
             // $request->session()->regenerate();
-            $role = $profile->roles->first()->name;
+            // $role = $profile->roles->first()->name;
+
+            $userProfiles = Profile::with('roles')->where('user_id', $user->id)->get();
+            $userRoles = collect($userProfiles)->map(function ($query) {
+                return $query->getRoleNames()->first();
+            });
 
             return response()->json([
                 'status'        => 200,
@@ -101,6 +106,7 @@ class LoginController extends Controller
                     'profile'   =>  new ProfileResource($profile, 's3'),
                     'user'      => $user,
                     'token'     => $user->createToken("user_auth")->accessToken,
+                    'roles'     => $userRoles,
                 ],
             ]);
 

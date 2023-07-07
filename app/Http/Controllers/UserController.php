@@ -75,13 +75,7 @@ class UserController extends Controller
                 ],
             ], 203);
         }
-        return response()->json([
-            'status'    => 200,
-            'message'   => 'Debugging',
-            'result'    => [
-                'data'  => $request->all(),
-            ]
-        ]);
+
         $user = $this->updateUser($request);
 
         $profile = $this->updateProfile($request, $user, role: 'customers', disk: 's3');

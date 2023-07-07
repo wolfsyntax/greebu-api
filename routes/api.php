@@ -62,43 +62,18 @@ Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccou
 Route::middleware('auth:api')->group(function () {
 
     // Route::prefix('test')->group(function () {
-    //     Route::get('profile/artist', function (Request $request) {
-    //         $user = $request->user();
-    //         $user->load('profiles.roles');
-
-    //         $artist_profile = App\Models\Profile::with('roles')->where('user_id', auth()->user()->id)
-    //             ->whereHas('roles', function ($query) {
-    //                 $query->where('name', 'artists');
-    //             })->first();
-
-    //         $artist_data = new App\Models\Profile;
-    //         $profile = App\Models\Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) {
-    //             $query->where('name', 'customers');
-    //         })->first();
-
-    //         $msg = 'Profile update successfully.';
-    //         if ($profile) {
-    //             $profile->city = 'Gainza';
-    //             $profile->save();
-    //         } else if (!$profile) {
-    //             $profile = new App\Models\Profile;
-    //             $profile->user_id = auth()->user()->id;
-    //             $profile->business_email = auth()->user()->email;
-    //             $profile->business_name = auth()->user()->fullname;
-    //             $msg = 'Creating Profile';
-
-    //             $profile->save();
-    //             $profile->assignRole('customers');
-    //         }
+    //     Route::get('/profile', function (Request $request) {
+    //         $roles = [];
+    //         $profiles = App\Models\Profile::with('roles')->where('user_id', auth()->user()->id)->get();
+    //         $roles = collect($profiles)->map(function ($query) {
+    //             return $query->getRoleNames()->first();
+    //         });
+    //         // foreach ($profiles as $profile) {
+    //         //     array_push($roles, $profile->getRoleNames()->first());
+    //         // }
     //         return response()->json([
-    //             'status'    => 200,
-    //             'message'   => $msg,
-    //             'result'    => [
-    //                 'user'  => $user,
-    //                 'profile' => $user->profiles(),
-    //                 'artist_data'   => $artist_data,
-    //                 'auth_profile' => $profile,
-    //             ]
+    //             'role2s' => $roles,
+    //             'r' => App\Models\Profile::with('roles')->get(),
     //         ]);
     //     });
     // });
@@ -112,7 +87,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('artists/social-account/{category}/destroy', [ArtistController::class, 'removeMediaAccount'])->whereIn('category', ['youtube', 'instagram', 'twitter', 'spotify']);
 
     Route::apiResource('posts', PostController::class);
-
+    Route::post('users/{role}/switch', [UserController::class, 'switchAccount'])->whereIn('role', ['service-provider', 'organizer', 'artists', 'customers']);
     Route::get('user/profile', [UserController::class, 'create']);
 
     Route::apiResource('users', UserController::class);

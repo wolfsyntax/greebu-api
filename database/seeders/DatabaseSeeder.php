@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             PaymentSeeder::class,
             CountrySeeder::class,
             DurationSeeder::class,
+            TestSeeder::class,
         ]);
     }
 }

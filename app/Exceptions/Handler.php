@@ -44,7 +44,10 @@ class Handler extends ExceptionHandler
             return response()->json([
                 'status'    => 403,
                 'message'   => 'Not authorized access.',
-                'result'    => [],
+                'result'    => [
+                    'errors' => $exception,
+                    'request' => $request,
+                ],
             ], 203);
         }
         return parent::render($request, $exception);
