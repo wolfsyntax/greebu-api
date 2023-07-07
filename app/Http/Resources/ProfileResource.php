@@ -15,7 +15,7 @@ class ProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $avatar = $this->avatar ? Storage::disk($this->bucket)->temporaryUrl($this->avatar, now()->addMinutes(60)) : '';
+        $avatar = $this->avatar ? ($this->bucket === 's3' ? Storage::disk($this->bucket)->url($this->avatar) : Storage::disk($this->bucket)->temporaryUrl($this->avatar, now()->addMinutes(60))) : '';
         $roles = $this->roles ? $this->roles->first()->name : '';
         return [
             'user_id'           => $this->user_id,

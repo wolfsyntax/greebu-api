@@ -75,7 +75,13 @@ class UserController extends Controller
                 ],
             ], 203);
         }
-
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Debugging',
+            'result'    => [
+                'data'  => $request->all(),
+            ]
+        ]);
         $user = $this->updateUser($request);
 
         $profile = $this->updateProfile($request, $user, role: 'customers', disk: 's3');
@@ -117,5 +123,32 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         //
+    }
+
+    public function switchAccount(Request $request, $role)
+    {
+        $user = auth()->user();
+        $profile = Profile::with('roles')->where('user_id', $user->id)->whereHas('roles', function ($query) use ($role) {
+            $query->where('name', $role);
+        })->first();
+
+        if ($profile) {
+            return response()->json([
+                'status'        => 200,
+                'message'       => 'Profile switch successfully.',
+                'result'        => [
+                    'user'      => $user,
+                    'profile'   => new ProfileResource($profile),
+                ],
+            ]);
+        } else {
+            return response()->json([
+                'status'    => 404,
+                'message'   => 'Failed to switch profile.',
+                'result'    => [
+                    'profile' => null,
+                ]
+            ], 203);
+        }
     }
 }
