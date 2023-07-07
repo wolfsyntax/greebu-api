@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -35,6 +36,26 @@ class Handler extends ExceptionHandler
                 'message'   => 'You do not have the required authorization.',
                 'result'    => [],
             ], 203);
+        });
+
+        $this->renderable(function (NotFoundHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status'    => 404,
+                    'message'   => 'Page not found.',
+                    'result'    => [],
+                ], 203);
+            }
+        });
+
+        $this->renderable(function (ModelNotFoundException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status'    => 404,
+                    'message'   => 'Model not found.',
+                    'result'    => [],
+                ], 203);
+            }
         });
     }
 

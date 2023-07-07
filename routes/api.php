@@ -71,6 +71,16 @@ Route::middleware('auth:api')->group(function () {
                 ]
             ]);
         });
+
+        Route::get('model/{user}', function ($user) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'model',
+                'result'    => [
+                    'model' => App\Models\User::where('id', $user)->firstOrFail(),
+                ]
+            ]);
+        });
         // Route::get('/profile', function (Request $request) {
         //     $roles = [];
         //     $profiles = App\Models\Profile::with('roles')->where('user_id', auth()->user()->id)->get();
