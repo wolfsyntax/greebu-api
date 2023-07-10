@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\CountryController as AdminCountryController;
 use App\Http\Controllers\NetworkController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SiteSettingsController;
 
 use Illuminate\Support\Facades\Storage;
 
@@ -116,6 +117,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('song-requests/{songRequest}/approval', [SongController::class, 'updateApprovalStatus']);
 
     Route::apiResource('song-requests', SongController::class);
+
+    Route::middleware('role:super-admin')->apiResource('site-settings', SiteSettingsController::class);
 });
 
 Route::get('fetch/{path}', function ($path) {

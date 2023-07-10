@@ -119,8 +119,10 @@ class LoginController extends Controller
         }
 
         return response()->json([
-            'message' => 'These credentials does not match any of our record',
-        ]);
+            'status'    => 203,
+            'message'   => 'These credentials does not match any of our record',
+            'result'    => [],
+        ], 203);
     }
 
     public function logout(Request $request)

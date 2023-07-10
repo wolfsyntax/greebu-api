@@ -22,7 +22,7 @@ class TestSeeder extends Seeder
         $user = User::create([
             'first_name' => 'John',
             'last_name' => 'Doe',
-            'email' => 'johndoe@example.com',
+            'email' => 'johndoe@gmail.com',
             'username' => 'johndoe',
             'password' => '1234567890',
         ]);
