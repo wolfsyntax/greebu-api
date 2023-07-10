@@ -1,8 +1,8 @@
 {
   "containerDefinitions": [
       {
-          "name": "greebu-backend-dev",
-          "image": "675146749892.dkr.ecr.ap-southeast-1.amazonaws.com/greebu-backend-dev:latest",
+          "name": "geebu-backend-dev",
+          "image": "675146749892.dkr.ecr.ap-southeast-1.amazonaws.com/geebu-backend-dev:latest",
           "cpu": 256,
           "portMappings": [
               {
@@ -18,14 +18,14 @@
           "logConfiguration": {
               "logDriver": "awslogs",
               "options": {
-                  "awslogs-group": "/ecs/greebu-backend-dev-td",
+                  "awslogs-group": "/ecs/geebu-backend-dev-td",
                   "awslogs-region": "ap-southeast-1",
                   "awslogs-stream-prefix": "ecs"
               }
           }
       }
   ],
-  "family": "greebu-backend-dev-td",
+  "family": "geebu-backend-dev-td",
   "executionRoleArn": "arn:aws:iam::675146749892:role/ecsTaskExecutionRole",
   "networkMode": "awsvpc",
   "volumes": [],

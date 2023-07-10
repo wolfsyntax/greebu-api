@@ -9,10 +9,10 @@ on:
 env:
   BUILD_RUN_ID: ${{github.run_number}}
   AWS_REGION: ap-southeast-1
-  ECR_REPOSITORY: 675146749892.dkr.ecr.ap-southeast-1.amazonaws.com/greebu-backend-dev
-  ECS_SERVICE: greebu-backend-dev-service
-  ECS_CLUSTER: greebu-backend-dev-cluster
-  CONTAINER_NAME: greebu-backend-dev
+  ECR_REPOSITORY: 675146749892.dkr.ecr.ap-southeast-1.amazonaws.com/geebu-backend-dev
+  ECS_SERVICE: geebu-backend-dev-service
+  ECS_CLUSTER: geebu-backend-dev-cluster
+  CONTAINER_NAME: geebu-backend-dev
 
   APP_NAME: ${{secrets.STAGING_APP_NAME}}
   APP_ENV: ${{secrets.STAGING_APP_ENV}}
