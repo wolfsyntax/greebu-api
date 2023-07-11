@@ -108,7 +108,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::apiResource('song-requests', SongController::class);
 
-    Route::middleware('role:super-admin')->apiResource('site-settings', SiteSettingsController::class);
+    // Route::middleware('role:super-admin')->apiResource('site-settings', SiteSettingsController::class);
+    Route::apiResource('site-settings', SiteSettingsController::class);
 });
 
 Route::get('fetch/{path}', function ($path) {
@@ -129,12 +130,5 @@ Route::get('hash', function (Request $request) {
     ]);
 });
 
-Route::get('artist-list', function () {
-    return response()->json([
-        'status' => 200,
-        'message' => '...',
-        'result' => [
-            'artist' => App\Models\Artist::get(),
-        ]
-    ]);
-});
+Route::post('file-upload/asssets', [SiteSettingsController::class, 'fileUpload']);
+Route::post('remove/asssets', [SiteSettingsController::class, 'removeFile']);
