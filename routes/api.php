@@ -31,7 +31,9 @@ use App\Http\Controllers\SongController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SiteSettingsController;
 
+// For testing Only
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Models\Activity;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -82,20 +84,8 @@ Route::middleware('auth:api')->group(function () {
                 ]
             ]);
         });
-        // Route::get('/profile', function (Request $request) {
-        //     $roles = [];
-        //     $profiles = App\Models\Profile::with('roles')->where('user_id', auth()->user()->id)->get();
-        //     $roles = collect($profiles)->map(function ($query) {
-        //         return $query->getRoleNames()->first();
-        //     });
-        //     // foreach ($profiles as $profile) {
-        //     //     array_push($roles, $profile->getRoleNames()->first());
-        //     // }
-        //     return response()->json([
-        //         'role2s' => $roles,
-        //         'r' => App\Models\Profile::with('roles')->get(),
-        //     ]);
-        // });
+
+        Route::get('logger', [UserController::class, 'profile']);
     });
     Route::post('/logout', [LoginController::class, 'logout']);
 
@@ -138,6 +128,13 @@ Route::get('hash', function (Request $request) {
         'password' => hash('sha256', $request->password, false),
     ]);
 });
-// Route::get('carbon', function () {
 
-// });
+Route::get('artist-list', function () {
+    return response()->json([
+        'status' => 200,
+        'message' => '...',
+        'result' => [
+            'artist' => App\Models\Artist::get(),
+        ]
+    ]);
+});

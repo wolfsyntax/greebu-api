@@ -10,11 +10,15 @@ use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Models\Activity;
+
 // use Illuminate\Support\Collection;
 // use App\Libraries\Service;
 use App\Traits\UserTrait;
 use App\Http\Resources\ProfileResource;
 use Carbon\Carbon;
+use App\Http\Resources\ArtistCollection;
+use App\Http\Resources\ArtistResource;
 
 class ArtistController extends Controller
 {
@@ -70,13 +74,16 @@ class ArtistController extends Controller
 
         $artists = $artists->whereHas('genres', function ($query) use ($genre) {
             return $query->where('title', 'LIKE', "%$genre%");
-        })->whereHas('artistType', function ($query) use ($artist_type) {
-            return $query->where('title', 'LIKE', "%$artist_type%");
-        })->whereHas('languages', function ($query) use ($language) {
-            return $query->where('name', 'LIKE', "%$language%");
-        })->whereHas('profile', function ($query) use ($city, $province) {
-            return $query->where('city', 'LIKE', "%$city")->orWhere('province', 'LIKE', "%$province");
-        });
+        })
+            ->orWhereHas('artistType', function ($query) use ($artist_type) {
+                return $query->where('title', 'LIKE', "%$artist_type%");
+            })
+            ->orWhereHas('languages', function ($query) use ($language) {
+                return $query->where('name', 'LIKE', "%$language%");
+            })
+            ->orWhereHas('profile', function ($query) use ($city, $province) {
+                return $query->where('city', 'LIKE', "%$city")->orWhere('province', 'LIKE', "%$province");
+            });
 
         // Not belong to authenticated user
         if ($user) {
@@ -85,7 +92,7 @@ class ArtistController extends Controller
             });
         }
 
-        $artists = $artists->whereHas('profile', function ($query) use ($search) {
+        $artists = $artists->orWhereHas('profile', function ($query) use ($search) {
             return $query->where('business_name', 'LIKE', '%' . $search . '%');
         });
 
@@ -99,7 +106,8 @@ class ArtistController extends Controller
             'status' => 200,
             'message' => "Successfully fetched artists list",
             'result' => [
-                'artist' => $artists,
+                // 'artist'  => $artists,
+                'artists' => new ArtistCollection($artists),
                 'total' => $total / $perPage,
             ],
         ], 200);
@@ -131,6 +139,14 @@ class ArtistController extends Controller
                 // ...
             }
             */
+
+            activity()
+                ->performedOn($artist)
+                ->withProperties([
+                    'genres'    => $genres,
+                    'members'   => $members,
+                ])
+                ->log('Fetched artist profile.');
         }
 
         return response()->json([
@@ -195,6 +211,15 @@ class ArtistController extends Controller
 
         $genre = Genre::whereIn('title', $genres)->get();
         $artist_profile->genres()->sync($genre);
+
+        activity()
+            ->performedOn($artist_profile)
+            ->withProperties([
+                'user'      => new ProfileResource($profile),
+                'genres'    => $artist_profile->genres()->get(),
+                'members'   => Member::where('artist_id', $artist_profile->id)->get(),
+            ])
+            ->log('Artist Profile updated');
 
         return response()->json([
             'status' => 200,
@@ -404,6 +429,15 @@ class ArtistController extends Controller
         }
 
         $member = $artist->members()->create($data);
+
+        activity()
+            ->performedOn($member)
+            ->withProperties([
+                'member'    => $member,
+                'members'   => $artist->members()->get(),
+                'artist'    => $artist,
+            ])
+            ->log('Artist/Group member added.');
 
         return response()->json([
             'status'        => 200,

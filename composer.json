@@ -15,6 +15,7 @@
         "laravel/ui": "^4.2",
         "league/flysystem-aws-s3-v3": "^3.15",
         "nesbot/carbon": "^2.68",
+        "spatie/laravel-activitylog": "^4.7",
         "spatie/laravel-permission": "^5.10",
         "twilio/sdk": "^7.5"
     },
