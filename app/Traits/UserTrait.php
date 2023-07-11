@@ -118,6 +118,6 @@ trait UserTrait
     {
         return Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
             $query->where('name', $role);
-        })->exists();
+        })->first();
     }
 }

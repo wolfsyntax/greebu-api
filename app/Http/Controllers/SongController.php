@@ -108,6 +108,12 @@ class SongController extends Controller
             'page_status'       => $request->page_status,
         ]);
 
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($songs)
+            ->log('Create a song request.');
+
         $this->successResponse('...', [
             'song_request' => $songs,
         ]);
@@ -161,8 +167,6 @@ class SongController extends Controller
             ], 203);
         }
 
-        $songRequest;
-
         $songRequest->artist_type_id = $request->input('artist_type_id');
         $songRequest->genre_id = $request->input('genre_id');
         $songRequest->song_type_id = $request->input('song_type_id');
@@ -178,6 +182,11 @@ class SongController extends Controller
         $songRequest->page_status = $request->input('page_status');
         $songRequest->estimate_date = $request->input('estimate_date', 3);
         $songRequest->save();
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($songRequest)
+            ->log('Update a song request.');
 
         $this->successResponse('...', [
             'song_request' => $songRequest,
@@ -219,6 +228,11 @@ class SongController extends Controller
 
         $songRequest->save();
 
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($songRequest)
+            ->log('Update Song Request request_status.');
+
         $this->successResponse('...', [
             'song_request' => $songRequest,
         ]);
@@ -251,6 +265,11 @@ class SongController extends Controller
 
         $songRequest->save();
 
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($songRequest)
+            ->log('Update Song Request approval_status.');
+
         $this->successResponse('...', [
             'song_request' => $songRequest,
         ]);
@@ -275,6 +294,11 @@ class SongController extends Controller
         $songRequest->verification_status = $request->input('verification_status', false);
 
         $songRequest->save();
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($songRequest)
+            ->log('Update Song Request verification_status.');
 
         $this->successResponse('...', [
             'song_request' => $songRequest,

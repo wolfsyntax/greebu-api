@@ -85,6 +85,14 @@ class UserController extends Controller
             'name' => $user->fullname,
         ]);
 
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->withProperties([
+                'profile' => new ProfileResource($profile),
+            ])
+            ->log('Update customer profile.');
+
         return response()->json([
             'status'        => 200,
             'message'       => 'Profile update successfully.',
@@ -125,6 +133,32 @@ class UserController extends Controller
         $profile = Profile::with('roles')->where('user_id', $user->id)->whereHas('roles', function ($query) use ($role) {
             $query->where('name', $role);
         })->first();
+
+        if ($profile) {
+            return response()->json([
+                'status'        => 200,
+                'message'       => 'Profile switch successfully.',
+                'result'        => [
+                    'user'      => $user,
+                    'profile'   => new ProfileResource($profile),
+                ],
+            ]);
+        } else {
+            return response()->json([
+                'status'    => 404,
+                'message'   => 'Failed to switch profile.',
+                'result'    => [
+                    'profile' => null,
+                ]
+            ], 203);
+        }
+    }
+
+    public function profile(Request $request)
+    {
+        $user = auth()->user();
+        $role =  $request->input('role', 'customers');
+        $profile = $this->checkRoles($role);
 
         if ($profile) {
             return response()->json([

@@ -3,7 +3,13 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\ArtistType;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Profile;
+use App\Models\Artist;
+use App\Models\Genre;
 
 class DatabaseSeeder extends Seeder
 {
@@ -28,5 +34,27 @@ class DatabaseSeeder extends Seeder
             DurationSeeder::class,
             TestSeeder::class,
         ]);
+
+        User::factory()->count(100)->create()->each(function ($user) {
+            $profile = Profile::create([
+                'user_id'           => $user->id,
+                'street_address'    => fake()->streetAddress(),
+                'business_email'    => $user->email,
+                'business_name'     => $user->full_name,
+                'city'              => fake()->city(),
+                'zip_code'          => fake()->postcode(),
+                'phone'             => $user->phone,
+                'province'          => fake()->state(),
+                'country'           => fake()->country(),
+            ])->assignRole('artists');
+
+            $artist = Artist::create([
+                'profile_id' => $profile->id,
+                'artist_type_id' => fake()->randomElement(ArtistType::get()->pluck('id')->toArray()),
+            ]);
+
+            $genre = Genre::get();
+            $artist->genres()->sync(fake()->randomElements($genre->pluck('id')->toArray(), 3));
+        });
     }
 }
