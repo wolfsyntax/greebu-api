@@ -1,0 +1,140 @@
+name: Deploy to AWS ECS
+
+on:
+  push:
+    branches:
+       - develop
+       - infrastructure-setup
+
+env:
+  BUILD_RUN_ID: ${{github.run_number}}
+  AWS_REGION: ap-southeast-1
+  ECR_REPOSITORY: 675146749892.dkr.ecr.ap-southeast-1.amazonaws.com/geebu-backend-dev
+  ECS_SERVICE: geebu-backend-dev-service
+  ECS_CLUSTER: geebu-backend-dev-cluster
+  CONTAINER_NAME: geebu-backend-dev
+
+  APP_NAME: ${{secrets.STAGING_APP_NAME}}
+  APP_ENV: ${{secrets.STAGING_APP_ENV}}
+  APP_KEY: ${{secrets.STAGING_APP_KEY}}
+  APP_DEBUG: ${{secrets.STAGING_APP_DEBUG}}
+  APP_URL: ${{secrets.STAGING_APP_URL}}
+
+  LOG_CHANNEL: ${{secrets.STAGING_LOG_CHANNEL}}
+  LOG_DEPRECATIONS_CHANNEL: ${{secrets.STAGING_LOG_DEPRECATIONS_CHANNEL}}
+  LOG_LEVEL: ${{secrets.STAGING_LOG_LEVEL}}
+
+  DB_CONNECTION: ${{secrets.STAGING_DB_CONNECTION}}
+  DB_HOST: ${{secrets.STAGING_DB_HOST}}
+  DB_PORT: ${{secrets.STAGING_DB_PORT}}
+  DB_DATABASE: ${{secrets.STAGING_DB_DATABASE}}
+  DB_USERNAME: ${{secrets.STAGING_DB_USERNAME}}
+  DB_PASSWORD: ${{secrets.STAGING_DB_PASSWORD}}
+
+  BROADCAST_DRIVER: ${{secrets.STAGING_BROADCAST_DRIVER}}
+  CACHE_DRIVER: ${{secrets.STAGING_CACHE_DRIVER}}
+  FILESYSTEM_DISK: ${{secrets.STAGING_FILESYSTEM_DISK}}
+  QUEUE_CONNECTION: ${{secrets.STAGING_QUEUE_CONNECTION}}
+  SESSION_DRIVER: ${{secrets.STAGING_SESSION_DRIVER}}
+  SESSION_LIFETIME: ${{secrets.STAGING_SESSION_LIFETIME}}
+
+  MEMCACHED_HOST: ${{secrets.STAGING_MEMCACHED_HOST}}
+
+  REDIS_HOST: ${{secrets.STAGING_REDIS_HOST}}
+  REDIS_PASSWORD: ${{secrets.STAGING_REDIS_PASSWORD}}
+  REDIS_PORT: ${{secrets.STAGING_REDIS_PORT}}
+
+  MAIL_FROM_ADDRESS: ${{secrets.STAGING_MAIL_FROM_ADDRESS}}
+  MAIL_FROM_NAME: ${{secrets.STAGING_MAIL_FROM_NAME}}
+  MAIL_MAILER: ${{secrets.STAGING_MAIL_MAILER}}
+  MAIL_HOST: ${{secrets.STAGING_MAIL_HOST}}
+  MAIL_PORT: ${{secrets.STAGING_MAIL_PORT}}
+  MAIL_USERNAME: ${{secrets.STAGING_MAIL_USERNAME}}
+  MAIL_PASSWORD: ${{secrets.STAGING_MAIL_PASSWORD}}
+  MAIL_ENCRYPTION: ${{secrets.STAGING_MAIL_ENCRYPTION}}
+
+  AWS_ACCESS_KEY_ID: ${{secrets.STAGING_AWS_ACCESS_KEY_ID}}
+  AWS_SECRET_ACCESS_KEY: ${{secrets.STAGING_AWS_SECRET_ACCESS_KEY}}
+  AWS_DEFAULT_REGION: ${{secrets.STAGING_AWS_DEFAULT_REGION}}
+  AWS_BUCKET: ${{secrets.STAGING_AWS_BUCKET}}
+  AWS_USE_PATH_STYLE_ENDPOINT: ${{secrets.STAGING_AWS_USE_PATH_STYLE_ENDPOINT}}
+
+  PUSHER_APP_ID: ${{secrets.STAGING_PUSHER_APP_ID}}
+  PUSHER_APP_KEY: ${{secrets.STAGING_PUSHER_APP_KEY}}
+  PUSHER_APP_SECRET: ${{secrets.STAGING_PUSHER_APP_SECRET}}
+  PUSHER_HOST: ${{secrets.STAGING_PUSHER_HOST}}
+  PUSHER_PORT: ${{secrets.STAGING_PUSHER_PORT}}
+  PUSHER_SCHEME: ${{secrets.STAGING_PUSHER_SCHEME}}
+  PUSHER_APP_CLUSTER: ${{secrets.STAGING_PUSHER_APP_CLUSTER}}
+
+  APPLE_CLIENT_ID: ${{secrets.STAGING_APPLE_CLIENT_ID}}
+  APPLE_CLIENT_SECRET: ${{secrets.STAGING_APPLE_CLIENT_SECRET}}
+  APPLE_REDIRECT_URI: ${{secrets.STAGING_APPLE_REDIRECT_URI}}
+
+  FACEBOOK_CLIENT_ID: ${{secrets.STAGING_FACEBOOK_CLIENT_ID}}
+  FACEBOOK_CLIENT_SECRET: ${{secrets.STAGING_FACEBOOK_CLIENT_SECRET}}
+  FACEBOOK_REDIRECT_URI: ${{secrets.STAGING_FACEBOOK_REDIRECT_URI}}
+
+  GOOGLE_CLIENT_ID: ${{secrets.STAGING_GOOGLE_CLIENT_ID}}
+  GOOGLE_CLIENT_SECRET: ${{secrets.STAGING_GOOGLE_CLIENT_SECRET}}
+  GOOGLE_REDIRECT_URI: ${{secrets.STAGING_GOOGLE_REDIRECT_URI}}
+
+  PASSPORT_PRIVATE_KEY: ${{secrets.STAGING_PASSPORT_PRIVATE_KEY}}
+
+  PASSPORT_PUBLIC_KEY: ${{secrets.STAGING_PASSPORT_PUBLIC_KEY}}
+
+
+jobs:
+  deploy-backend-to-aws-ecs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Prepare Backend Application
+      run: |
+        mv .env.example.pipeline .env
+        bash ./pipeline/alter-env.sh
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    # - name: Upload .env file as artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: env-file
+    #     path: .env
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: latest
+      run: |
+        DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REPOSITORY:$IMAGE_TAG
+        echo "::set-output name=image::$ECR_REPOSITORY:$IMAGE_TAG"
+
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition-dev.json
+        container-name: ${{ env.CONTAINER_NAME }}
+        image: ${{ steps.build-image.outputs.image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
