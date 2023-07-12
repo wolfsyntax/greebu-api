@@ -179,4 +179,26 @@ class UserController extends Controller
             ], 203);
         }
     }
+
+    public function followUser(Request $request, $role, Profile $profile)
+    {
+        $user = auth()->user();
+
+        $authProfile = Profile::with('roles', 'following', 'followers')->where('user_id', $user->id)->whereHas('roles', function ($query) use ($role) {
+            $query->where('name', $role);
+        })->first();
+
+        // profile - followed by auth profile
+        $authProfile->following()->sync($profile);
+
+        return response()->json([
+            'status'        => 200,
+            'message'       => '...',
+            'result'        => [
+                'user'      => $user,
+                'profile'   => $authProfile,
+                'followers' => $authProfile->followers(),
+            ],
+        ]);
+    }
 }

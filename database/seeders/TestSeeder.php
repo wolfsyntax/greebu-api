@@ -36,6 +36,7 @@ class TestSeeder extends Seeder
             'country'           => 'Philippines',
             'business_email'    => $user->business_email,
             'business_name'     => $user->fullname,
+            'avatar'            => fake()->imageUrl(width: 424, height: 424, category: 'cats'),
         ])->assignRole('customers')->customer()->update([
             'name' => $user->fullname,
         ]);
@@ -53,6 +54,7 @@ class TestSeeder extends Seeder
             'country'           => 'Philippines',
             'business_email'    => $user->business_email,
             'business_name'     => $user->fullname,
+            'avatar'            => fake()->imageUrl(width: 424, height: 424, category: 'avatar')
         ])->assignRole('artists');
 
         $artistType = ArtistType::first();

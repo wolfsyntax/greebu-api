@@ -80,4 +80,14 @@ class Profile extends Model
     {
         return $this->hasOne(ServiceProvider::class);
     }
+
+    public function followers()
+    {
+        return $this->belongsToMany(Profile::class, 'followers', 'following_id', 'follower_id')->withTimestamps();
+    }
+
+    public function following()
+    {
+        return $this->belongsToMany(Profile::class, 'followers', 'follower_id', 'following_id')->withTimestamps();
+    }
 }

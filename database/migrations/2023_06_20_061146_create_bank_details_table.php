@@ -19,6 +19,8 @@ return new class extends Migration
 
             $table->string('account_name');
             $table->string('account_number');
+            $table->string('payment_mode', 64)->nullable();
+            $table->enum('account_type', ['savings', 'checking']);
             $table->boolean('is_default')->nullable()->default(false);
 
             $table->timestamps();

@@ -27,7 +27,7 @@ class Artist extends Model
     ];
 
     protected $appends = [
-        'avgRating'
+        // 'avgRating'
     ];
 
     /**
@@ -52,6 +52,11 @@ class Artist extends Model
     public function profile()
     {
         return $this->belongsTo(Profile::class);
+    }
+
+    public function followers()
+    {
+        return $this->belongsTo(Profile::class)->with('followers');
     }
 
     public function artistType()
