@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('short_name');
+            $table->string('bank_code', 64)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

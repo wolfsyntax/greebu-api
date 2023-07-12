@@ -55,7 +55,7 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/auth/{provider}/firebase', [NetworkController::class, 'firebaseProvider'])->where('provider', 'facebook|google');
 
 Route::get('artist', [ArtistController::class, 'index'])->name('artists.index-g');
-Route::get('artist/forms', [ArtistController::class, 'form']);
+Route::get('artist/forms', [ArtistController::class, 'forms']);
 
 Route::get('/country', [AdminCountryController::class, 'index']);
 Route::get('subscriptions/plan/{plan}', [SubscriptionController::class, 'pricings'])->where('plan', 'artists|organizer|service-provider');
@@ -85,7 +85,7 @@ Route::middleware('auth:api')->group(function () {
             ]);
         });
 
-        Route::get('logger', [UserController::class, 'profile']);
+        Route::get('user-details', [UserController::class, 'profile']);
     });
     Route::post('/logout', [LoginController::class, 'logout']);
 
@@ -101,6 +101,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('user/profile', [UserController::class, 'create']);
 
     Route::apiResource('users', UserController::class);
+    Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
 
     Route::post('song-requests/{songRequest}/verified', [SongController::class, 'updateVerificationStatus']);
     Route::post('song-requests/{songRequest}/request', [SongController::class, 'updateRequestStatus']);
@@ -120,6 +121,34 @@ Route::get('fetch/{path}', function ($path) {
         'result' => [
             'path' => $path,
             'files' => Storage::disk('s3priv')->files($path),
+        ]
+    ]);
+});
+
+Route::get('/mass-update', function (Request $request) {
+    // $user = App\Models\User::all();
+
+    // $updated = App\Models\User::whereNot('email', 'johndoe@gmail.com')->update([
+    //     'email_verified_at' => now()->addDays(5),
+    // ]);
+
+    // return response()->json([
+    //     'status' => 200,
+    //     'message' => 'Mass update test',
+    //     'result' => [
+    //         'old'   => $user,
+    //         'new'   => $updated,
+    //     ]
+    // ]);
+
+    $users = App\Models\User::cursorPaginate(10);
+    // $users = App\Models\User::paginate(10);
+    // $users = App\Models\User::simplePaginate(10);
+    return response()->json([
+        'status' => 200,
+        'message' => 'Cursor pagination',
+        'result' => [
+            'user' => $users
         ]
     ]);
 });

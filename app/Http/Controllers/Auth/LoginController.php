@@ -58,7 +58,7 @@ class LoginController extends Controller
     {
 
         if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
-            $rules = 'required|email:rfc,dns';
+            $rules = app()->isLocal() ? 'required|email' : 'required|email:rfc,dns';
             $loginType = 'email';
         } else if (preg_match("/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/", $request->email)) {
             $rules = ['required', 'string', 'regex:/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/',];
@@ -87,14 +87,14 @@ class LoginController extends Controller
 
         if ($user) {
 
-            $profile = Profile::where('user_id', $user->id)->first();
+            $profile = Profile::with(['followers', 'following'])->where('user_id', $user->id)->first();
 
             auth()->login($user, $request->input('remember_me', false));
 
             // $request->session()->regenerate();
             // $role = $profile->roles->first()->name;
 
-            $userProfiles = Profile::with('roles')->where('user_id', $user->id)->get();
+            $userProfiles = Profile::with('roles', 'followers', 'following')->where('user_id', $user->id)->get();
             $userRoles = collect($userProfiles)->map(function ($query) {
                 return $query->getRoleNames()->first();
             });

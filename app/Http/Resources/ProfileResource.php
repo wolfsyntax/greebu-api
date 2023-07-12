@@ -21,6 +21,7 @@ class ProfileResource extends JsonResource
         $roles = $this->roles ? $this->roles->first()->name : '';
 
         return [
+            'id'                => $this->id,
             'user_id'           => $this->user_id,
             'avatar'            => $avatar,
             'phone'             => $this->phone,

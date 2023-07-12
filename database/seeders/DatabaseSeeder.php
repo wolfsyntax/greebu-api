@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
             $profile = Profile::create([
                 'user_id'           => $user->id,
                 'street_address'    => fake()->streetAddress(),
+                'avatar'            => fake()->imageUrl(width: 424, height: 424),
                 'business_email'    => $user->email,
                 'business_name'     => $user->full_name,
                 'city'              => fake()->city(),

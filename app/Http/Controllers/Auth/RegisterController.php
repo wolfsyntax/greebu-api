@@ -73,7 +73,7 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
 
-        $email_rules = ['required', 'string', 'email', 'max:255', 'unique:users'];
+        $email_rules = app()->isLocal() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'];
 
         if ($request->input('reg_type') === 'phone') {
             $email_rules = ['required', 'string', 'regex:/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/i'];

@@ -10,28 +10,40 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Duration extends Model
 {
-    use HasFactory, SoftDeletes, HasUuids;
+  use HasFactory, SoftDeletes, HasUuids;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'title', 'value', 'cost', 'duration_type',
-    ];
+  /**
+   * The attributes that are mass assignable.
+   *
+   * @var array<int, string>
+   */
+  protected $fillable = [
+    'title', 'value', 'cost', 'duration_type',
+  ];
 
-    protected $appends = [];
+  protected $appends = [];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'title'         => 'string',
-        'value'         => 'integer',
-        'cost'          => 'decimal:2',
-        'duration_type' => 'string',
-    ];
+  /**
+   * The attributes that should be cast.
+   *
+   * @var array<string, string>
+   */
+  protected $casts = [
+    'title'         => 'string',
+    'value'         => 'integer',
+    'cost'          => 'decimal:2',
+    'duration_type' => 'string',
+  ];
+
+  /**
+   * Get Duration with minutes
+   * @return string
+   */
+  public function getDurationAttribute(): string
+  {
+    $duration = $this->value;
+    if ($this->duration_type === 'hour') {
+    }
+    return $this->first_name . ' ' . $this->last_name;
+  }
 }

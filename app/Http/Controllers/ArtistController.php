@@ -15,10 +15,13 @@ use Spatie\Activitylog\Models\Activity;
 // use Illuminate\Support\Collection;
 // use App\Libraries\Service;
 use App\Traits\UserTrait;
+use App\Http\Resources\ArtistShowResource;
 use App\Http\Resources\ProfileResource;
 use Carbon\Carbon;
 use App\Http\Resources\ArtistCollection;
 use App\Http\Resources\ArtistResource;
+
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArtistController extends Controller
 {
@@ -43,74 +46,86 @@ class ArtistController extends Controller
     public function index(Request $request)
     {
         //
-        $user = $request->user();
-        // $genre = explode(',', $request->query('genre'));
-        $genre = strtolower($request->query('genre'));
-        $artist_type = strtolower($request->query('type'));
-        $language = strtolower($request->query('language'));
-        $city = strtolower($request->query('city'));
-        $province = strtolower($request->query('province'));
-        $orderBy = $request->query('sortBy', 'ASC');
-        $filter = $request->query('filterBy', 'created_at');
-        $search = $request->query('search');
+        try {
+            $user = $request->user();
+            // $genre = explode(',', $request->query('genre'));
+            $genre = strtolower($request->query('genre'));
+            $artist_type = strtolower($request->query('type'));
+            $language = strtolower($request->query('language'));
+            $city = strtolower($request->query('city'));
+            $province = strtolower($request->query('province'));
+            $orderBy = $request->query('sortBy', 'ASC');
+            $filter = $request->query('filterBy', 'created_at');
+            $search = $request->query('search');
 
-        $page = 1;
-        $offset = 0;
-        $perPage = 10;
+            $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+            $offset = 0;
+            $perPage = 10;
 
-        if (isset($request->per_page)) {
-            $perPage = intval($request->query('per_page', 10));
-        }
+            if (isset($request->per_page)) {
+                $perPage = intval($request->query('per_page', 10));
+                $offset = ($page - 1) * $perPage;
+            }
 
-        if (isset($request->page)) {
-            $page = intval($request->query('page', 1));
-            $offset = ($page - 1) * $perPage;
-        }
+            $artists = Artist::query();
 
-        $artists = Artist::query();
+            $artists = $artists->with(['artistType', 'profile', 'genres', 'languages', 'reviews'])
+                ->withCount('albums', 'albums', 'reviews');
 
-        $artists = $artists->with(['artistType', 'profile', 'genres', 'languages', 'reviews'])
-            ->withCount('albums', 'albums', 'reviews');
-
-        $artists = $artists->whereHas('genres', function ($query) use ($genre) {
-            return $query->where('title', 'LIKE', "%$genre%");
-        })
-            ->orWhereHas('artistType', function ($query) use ($artist_type) {
-                return $query->where('title', 'LIKE', "%$artist_type%");
+            $artists = $artists->whereHas('genres', function ($query) use ($genre) {
+                return $query->where('title', 'LIKE', "%$genre%");
             })
-            ->orWhereHas('languages', function ($query) use ($language) {
-                return $query->where('name', 'LIKE', "%$language%");
-            })
-            ->orWhereHas('profile', function ($query) use ($city, $province) {
-                return $query->where('city', 'LIKE', "%$city")->orWhere('province', 'LIKE', "%$province");
+                ->orWhereHas('artistType', function ($query) use ($artist_type) {
+                    return $query->where('title', 'LIKE', "%$artist_type%");
+                })
+                ->orWhereHas('languages', function ($query) use ($language) {
+                    return $query->where('name', 'LIKE', "%$language%");
+                })
+                ->orWhereHas('profile', function ($query) use ($city, $province) {
+                    return $query->where('city', 'LIKE', "%$city")->orWhere('province', 'LIKE', "%$province");
+                });
+
+            // Not belong to authenticated user
+            if ($user) {
+                $artists = $artists->whereHas('profile', function ($query) use ($user) {
+                    return $query->where('user_id', '!=', $user->id);
+                });
+            }
+
+            $artists = $artists->orWhereHas('profile', function ($query) use ($search) {
+                return $query->where('business_name', 'LIKE', '%' . $search . '%');
             });
 
-        // Not belong to authenticated user
-        if ($user) {
-            $artists = $artists->whereHas('profile', function ($query) use ($user) {
-                return $query->where('user_id', '!=', $user->id);
-            });
+            $total = $artists->count();
+
+            $artists = $artists->orderBy($filter, $orderBy);
+            //->skip($offset)
+            // ->take($perPage)
+            // ->get();
+
+            // ->paginate(perPage: $perPage, columns: ['*'], pageName: 'page', page: $page);
+
+            $data = $artists->skip($offset)->take($perPage)->get();
+            $total = $artists->count();
+
+            return response()->json([
+                'status' => 200,
+                'message' => "Successfully fetched artists list",
+                'result' => [
+                    'current_page' => $page,
+                    'data'         => new ArtistCollection($data),
+                    'last_page'     => ceil($total / $perPage),
+                    'per_page'      => $perPage,
+                    'total'         => $total,
+                ],
+            ], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => "Server Error",
+                'result' => [],
+            ], 200);
         }
-
-        $artists = $artists->orWhereHas('profile', function ($query) use ($search) {
-            return $query->where('business_name', 'LIKE', '%' . $search . '%');
-        });
-
-        $total = $artists->count();
-
-        $artists = $artists->orderBy($filter, $orderBy)->skip($offset)
-            ->take($perPage)
-            ->get();
-
-        return response()->json([
-            'status' => 200,
-            'message' => "Successfully fetched artists list",
-            'result' => [
-                // 'artist'  => $artists,
-                'artists' => new ArtistCollection($artists),
-                'total' => $total / $perPage,
-            ],
-        ], 200);
     }
 
     /**
@@ -239,12 +254,15 @@ class ArtistController extends Controller
     public function show(Artist $artist)
     {
         //
+        $artist->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
+
+        $profile = Profile::withCount('followers', 'following')->where('id', $artist->profile_id)->first();
 
         return response()->json([
             'status' => 200,
             'message' => 'Artist Show Profile.',
             'result' => [
-                'artist' => $artist,
+                'artist'    => new ArtistShowResource($artist),
             ],
         ]);
     }
@@ -373,8 +391,9 @@ class ArtistController extends Controller
             'status'    => 200,
             'message'   => 'Artist form options successfully fetched.',
             'result'    => [
-                'artist_types'      => ArtistType::get(),
-                'genres'            => Genre::get(),
+                'artist_types'      => ArtistType::select('id', 'title')->get(),
+                'genres'            => Genre::select('id', 'title')->get(),
+                'user-agent'        => $request->header('User-Agent'),
             ],
         ], 200);
     }
