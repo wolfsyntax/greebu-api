@@ -68,20 +68,10 @@ class LoginController extends Controller
             $loginType = 'username';
         }
 
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'email'     => $rules,
             'password'  => 'required|min:8',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status'    => 422,
-                'message'   => 'Unprocessible Entity',
-                'result'   => [
-                    'errors' => $validator->errors(),
-                ],
-            ], 203);
-        }
 
         $user = User::where([$loginType => $request->email, 'password' => hash('sha256', $request->password, false)])->first();
 
