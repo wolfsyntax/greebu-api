@@ -21,4 +21,4 @@ RUN php artisan config:cache && \
     a2enmod rewrite &&\
     chmod +x start-script.sh
 
-ENTRYPOINT [ "bash","start-script.sh" ]
+CMD [ "/app/start-script.sh" ]
