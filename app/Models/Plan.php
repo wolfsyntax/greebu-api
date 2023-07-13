@@ -30,10 +30,7 @@ class Plan extends Model
         'description'   => 'string',
         'plan_type'     => 'string',
         'is_active'     => 'boolean',
-<<<<<<< HEAD
-=======
         'account_type'  => 'string',
->>>>>>> dev
     ];
 
     public function inclusions()
