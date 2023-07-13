@@ -94,7 +94,7 @@ class ArtistController extends Controller
 
             $artists = $artists->orWhereHas('profile', function ($query) use ($search) {
                 return $query->where('business_name', 'LIKE', '%' . $search . '%');
-            });
+            })->where('isAccepting_request', true);
 
             $total = $artists->count();
 
