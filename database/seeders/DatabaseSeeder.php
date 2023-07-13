@@ -35,6 +35,29 @@ class DatabaseSeeder extends Seeder
             TestSeeder::class,
         ]);
 
+        User::factory()->count(20)->create()->each(function ($user) {
+            $profile = Profile::create([
+                'user_id'           => $user->id,
+                'street_address'    => fake()->streetAddress(),
+                'avatar'            => fake()->imageUrl(width: 424, height: 424),
+                'business_email'    => $user->email,
+                'business_name'     => $user->full_name,
+                'city'              => fake()->city(),
+                'zip_code'          => fake()->postcode(),
+                'phone'             => $user->phone,
+                'province'          => fake()->state(),
+                'country'           => fake()->country(),
+            ])->assignRole('artists');
+
+            $artist = Artist::create([
+                'profile_id'        => $profile->id,
+                'artist_type_id'    => fake()->randomElement(ArtistType::get()->pluck('id')->toArray()),
+            ]);
+
+            $genre = Genre::get();
+            $artist->genres()->sync(fake()->randomElements($genre->pluck('id')->toArray(), 3));
+        });
+
         User::factory()->count(100)->create()->each(function ($user) {
             $profile = Profile::create([
                 'user_id'           => $user->id,
@@ -50,8 +73,9 @@ class DatabaseSeeder extends Seeder
             ])->assignRole('artists');
 
             $artist = Artist::create([
-                'profile_id' => $profile->id,
-                'artist_type_id' => fake()->randomElement(ArtistType::get()->pluck('id')->toArray()),
+                'profile_id'            => $profile->id,
+                'artist_type_id'        => fake()->randomElement(ArtistType::get()->pluck('id')->toArray()),
+                'isAccepting_request'   => true,
             ]);
 
             $genre = Genre::get();
