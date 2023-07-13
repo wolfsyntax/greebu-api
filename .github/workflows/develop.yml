@@ -95,6 +95,8 @@ jobs:
       run: |
         mv .env.example.pipeline .env
         bash ./pipeline/alter-env.sh
+        echo "APP_KEY=base64:UYrzOGsBkLPw3tK0t1qoBjiM2FDznQ0JshDCzEF86IQ=" >> .env
+        mv ./pipeline/oauth-* ./storage/
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
