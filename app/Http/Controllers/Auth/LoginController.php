@@ -58,7 +58,7 @@ class LoginController extends Controller
     {
 
         if (filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
-            $rules = app()->isLocal() ? 'required|email' : 'required|email:rfc,dns';
+            $rules = !app()->isProduction() ? 'required|email' : 'required|email:rfc,dns';
             $loginType = 'email';
         } else if (preg_match("/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/", $request->email)) {
             $rules = ['required', 'string', 'regex:/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/',];
