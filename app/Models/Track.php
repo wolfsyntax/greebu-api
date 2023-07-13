@@ -39,7 +39,7 @@ class Track extends Model
         'file_path'     => 'string',
     ];
 
-    public function albums()
+    public function album()
     {
         return $this->belongsToMany(Album::class)->withTimestamps();
     }

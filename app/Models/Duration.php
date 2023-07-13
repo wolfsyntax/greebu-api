@@ -18,7 +18,7 @@ class Duration extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'title', 'length', 'cost',
+        'title', 'value', 'cost', 'duration_type',
     ];
 
     protected $appends = [];
@@ -29,8 +29,21 @@ class Duration extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'title' => 'string',
-        'length' => 'integer',
-        'cost' => 'decimal:2',
+        'title'         => 'string',
+        'value'         => 'integer',
+        'cost'          => 'decimal:2',
+        'duration_type' => 'string',
     ];
+
+    /**
+     * Get Duration with minutes
+     * @return string
+     */
+    public function getDurationAttribute(): string
+    {
+        $duration = $this->value;
+        if ($this->duration_type === 'hour') {
+        }
+        return $this->first_name . ' ' . $this->last_name;
+    }
 }

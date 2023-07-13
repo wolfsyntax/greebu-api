@@ -10,8 +10,7 @@ class PlansInclusion extends Model
 {
     use HasFactory, HasUuids;
 
-    use HasFactory;
-
+    protected $table = 'plan_inclusions';
     protected $fillable = [
         'plan_id', 'inclusions',
     ];
