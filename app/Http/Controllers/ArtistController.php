@@ -48,57 +48,82 @@ class ArtistController extends Controller
         //
         try {
             $user = $request->user();
+
+            $validator = Validator::make($request->all(), [
+                'artist_type'   => ['sometimes', 'required', 'exists:artist_types,id', 'uuid',],
+                'genre'         => ['sometimes', 'required', 'exists:genres,id', 'uuid',],
+                'search'        => ['sometimes', 'required', 'string',],
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 422,
+                    'message' => "Invalid data",
+                    'result' => [
+                        'errors' => $validator->errors(),
+                    ],
+                ], 203);
+            }
+
             // $genre = explode(',', $request->query('genre'));
-            $genre = strtolower($request->query('genre'));
-            $artist_type = strtolower($request->query('type'));
-            $language = strtolower($request->query('language'));
-            $city = strtolower($request->query('city'));
-            $province = strtolower($request->query('province'));
-            $orderBy = $request->query('sortBy', 'ASC');
-            $filter = $request->query('filterBy', 'created_at');
-            $search = $request->query('search');
+            $genre = strtolower($request->input('genre', ''));
+            $artist_type = strtolower($request->input('artist_type', ''));
+            $language = strtolower($request->input('language', ''));
+            $city = strtolower($request->input('city', ''));
+            $province = strtolower($request->input('province', ''));
+            $orderBy = $request->input('sortBy', 'ASC');
+            $filter = $request->input('filterBy', 'created_at');
+            $search = $request->input('search', '');
 
             $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
-            $offset = 0;
-            $perPage = 10;
 
-            if (isset($request->per_page)) {
-                $perPage = intval($request->query('per_page', 10));
-                $offset = ($page - 1) * $perPage;
-            }
+            $perPage = intval($request->input('per_page', 9));
+            $offset = ($page - 1) * $perPage;
 
             $artists = Artist::query();
 
             $artists = $artists->with(['artistType', 'profile', 'genres', 'languages', 'reviews'])
                 ->withCount('albums', 'albums', 'reviews');
 
-            $artists = $artists->whereHas('genres', function ($query) use ($genre) {
-                return $query->where('title', 'LIKE', "%$genre%");
-            })
-                ->orWhereHas('artistType', function ($query) use ($artist_type) {
-                    return $query->where('title', 'LIKE', "%$artist_type%");
-                })
-                ->orWhereHas('languages', function ($query) use ($language) {
-                    return $query->where('name', 'LIKE', "%$language%");
-                })
-                ->orWhereHas('profile', function ($query) use ($city, $province) {
+            $artists = $artists->whereHas('profile', function ($query) use ($search) {
+                return $query->where('business_name', 'LIKE', '%' . $search . '%');
+            })->where('isAccepting_request', true);
+
+            if ($genre) {
+                $artists = $artists->whereHas('genres', function ($query) use ($genre) {
+                    return $query->where('id', $genre);
+                });
+            }
+
+            if ($artist_type)
+                $artists = $artists->whereHas('artistType', function ($query) use ($artist_type) {
+                    return $query->where('id', $artist_type);
+                });
+
+            if ($language) {
+                $artists = $artists->whereHas('languages', function ($query) use ($language) {
+                    return $query->where('id', $language);
+                });
+            }
+
+            if ($province || $city) {
+                $artists = $artists->whereHas('profile', function ($query) use ($city, $province) {
                     return $query->where('city', 'LIKE', "%$city")->orWhere('province', 'LIKE', "%$province");
                 });
+            }
 
             // Not belong to authenticated user
             if ($user) {
                 $artists = $artists->whereHas('profile', function ($query) use ($user) {
                     return $query->where('user_id', '!=', $user->id);
                 });
-            }
-
-            $artists = $artists->orWhereHas('profile', function ($query) use ($search) {
-                return $query->where('business_name', 'LIKE', '%' . $search . '%');
-            })->where('isAccepting_request', true);
+            };
 
             $total = $artists->count();
 
-            $artists = $artists->orderBy($filter, $orderBy);
+            // $artists = $artists->orderBy('created_at', 'ASC');
+
+            $artists = $artists->orderBy(Profile::select('business_name')->whereColumn('profiles.id', 'artists.profile_id'), $orderBy);
             //->skip($offset)
             // ->take($perPage)
             // ->get();
@@ -113,17 +138,30 @@ class ArtistController extends Controller
                 'message' => "Successfully fetched artists list",
                 'result' => [
                     'current_page' => $page,
+                    'offset' => $offset,
                     'data'         => new ArtistCollection($data),
                     'last_page'     => ceil($total / $perPage),
                     'per_page'      => $perPage,
                     'total'         => $total,
+                    'query'         => [
+                        'genre'         => $genre,
+                        'artist_type'   => $artist_type,
+                        'language'      => $language,
+                        'city'          => $city,
+                        'province'      => $province,
+                        'orderBy'       => $orderBy,
+                        'filter'        => $filter,
+                        'search'        => $search,
+                    ]
                 ],
             ], 200);
         } catch (\Throwable $e) {
             return response()->json([
                 'status' => 500,
                 'message' => "Server Error",
-                'result' => [],
+                'result' => [
+                    'errors' => $e->getMessage(),
+                ],
             ], 200);
         }
     }

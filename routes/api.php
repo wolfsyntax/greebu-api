@@ -54,7 +54,7 @@ Route::post('/register', [RegisterController::class, 'register']);
 
 Route::post('/auth/{provider}/firebase', [NetworkController::class, 'firebaseProvider'])->where('provider', 'facebook|google');
 
-Route::get('artist', [ArtistController::class, 'index'])->name('artists.index-g');
+Route::post('/artist-filter', [ArtistController::class, 'index'])->name('artists.index-g');
 Route::get('artist/forms', [ArtistController::class, 'forms']);
 
 Route::get('/country', [AdminCountryController::class, 'index']);
@@ -88,8 +88,8 @@ Route::middleware('auth:api')->group(function () {
         Route::get('user-details', [UserController::class, 'profile']);
     });
     Route::post('/logout', [LoginController::class, 'logout']);
-
-    Route::resource('artists', ArtistController::class); //->except(['index']);
+    Route::post('/artists-filter', [ArtistController::class, 'index']);
+    Route::resource('artists', ArtistController::class)->except(['index']);
     Route::post('artists/member', [ArtistController::class, 'members']);
     Route::put('artists/member/{member}', [ArtistController::class, 'editMember']);
     Route::delete('artists/member/{member}', [ArtistController::class, 'removeMember']);
