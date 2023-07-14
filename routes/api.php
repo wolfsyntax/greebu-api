@@ -109,6 +109,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('song-requests/{songRequest}/request', [SongController::class, 'updateRequestStatus']);
     Route::post('song-requests/{songRequest}/approval', [SongController::class, 'updateApprovalStatus']);
 
+    Route::get('song-requests/create', [SongController::class, 'create']);
+
     Route::apiResource('song-requests', SongController::class);
 
     // Route::middleware('role:super-admin')->apiResource('site-settings', SiteSettingsController::class);
