@@ -18,4 +18,8 @@ RUN php artisan config:cache && \
     php artisan route:cache && \
     chmod 777 -R /var/www/html/storage/ && \
     chown -R www-data:www-data /var/www/ && \
-    a2enmod rewrite
+    a2enmod rewrite &&\
+    chmod 444 ./storage/oauth-* &&\
+    chmod +x start-script.sh
+
+# CMD [ "/var/www/html/start-script.sh" ]
