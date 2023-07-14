@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             $table->foreignUuid('creator_id')->constrained(table: 'profiles');
-            $table->foreignUuid('artist_id')->constrained();
+            // $table->foreignUuid('artist_id')->constrained();
             $table->foreignUuid('artist_type_id')->constrained();
             $table->foreignUuid('genre_id')->constrained();
             $table->foreignUuid('song_type_id')->constrained();
