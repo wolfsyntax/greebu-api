@@ -23,6 +23,7 @@ class ArtistResource extends JsonResource
             'avatar'        => $this->profile->avatar,
             'ratings'       => $this->avgRating,
             'reviews'       => count($this->reviews),
+            'song_requests' => $this->song_requests_count ?? 0,
             'genres'        => new GenreCollection($this->genres),
         ];
         return parent::toArray($request);

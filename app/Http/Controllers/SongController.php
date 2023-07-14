@@ -6,6 +6,7 @@ use App\Models\ArtistType;
 use App\Models\Duration;
 use App\Models\Genre;
 use App\Models\Purpose;
+use App\Models\Profile;
 use App\Models\SongRequest;
 use App\Models\SongType;
 use App\Models\SupportedLanguage;
@@ -60,14 +61,15 @@ class SongController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, $role = 'customers')
     {
 
         $validator = Validator::make($request->all(), [
             'artist_type_id'    => ['required', 'exists:artist_types,id',],
-            'artist_id'         => ['required', 'exists:artists,id',],
+            'artists'            => ['required', 'array', 'max:3'],
+            'artists.*.id'       => ['required', 'exists:artists,id',],
             'genre_id'          => ['required', 'exists:genres,id',],
-            'song_type_id'      => ['required', 'exists:song_types',], // mood
+            'song_type_id'      => ['required', 'exists:song_types,id',], // mood
             'language_id'       => ['required', '',], // supported_languages
             'duration_id'       => ['required', '',], // durations
             'purpose_id'        => ['required', '',], // purposes
@@ -90,8 +92,12 @@ class SongController extends Controller
             ], 203);
         }
 
+        $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
+            $query->where('name', 'LIKE', '%' . $role . '%');
+        })->first();
+
         $songs = SongRequest::create([
-            'creator_id'        => auth()->user()->id,
+            'creator_id'        => $profile->id,
             'artist_type_id'    => $request->artist_type_id,
             'genre_id'          => $request->genre_id,
             'song_type_id'      => $request->song_type_id,
@@ -108,15 +114,32 @@ class SongController extends Controller
             'page_status'       => $request->page_status,
         ]);
 
+        $artist = \App\Models\Artist::whereIn('id', collect($request->artists)->pluck('id'))->get();
+        $sync = [];
+
+        foreach ($artist as $a) {
+            array_push($sync, [
+                'artist_id' => $a->id,
+                'request_status'    => 'pending',
+            ]);
+        }
+        $songs->artists()->sync($sync);
 
         activity()
             ->causedBy(auth()->user())
             ->performedOn($songs)
             ->log('Create a song request.');
 
-        $this->successResponse('...', [
-            'song_request' => $songs,
-        ]);
+        $songs->load('artists');
+
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Song request successfully created.',
+            'result'    => [
+                'song_request' => $songs,
+            ],
+        ], 200);
     }
 
     /**

@@ -56,6 +56,7 @@ Route::post('/auth/{provider}/firebase', [NetworkController::class, 'firebasePro
 
 Route::post('/artist-filter', [ArtistController::class, 'index'])->name('artists.index-g');
 Route::get('artist/forms', [ArtistController::class, 'forms']);
+Route::get('/artists/trending', [ArtistController::class, 'trendingArtists']);
 
 Route::get('/country', [AdminCountryController::class, 'index']);
 Route::get('subscriptions/plan/{plan}', [SubscriptionController::class, 'pricings'])->where('plan', 'artists|organizer|service-provider');
@@ -89,12 +90,13 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::post('/logout', [LoginController::class, 'logout']);
     Route::post('/artists-filter', [ArtistController::class, 'index']);
+
     Route::resource('artists', ArtistController::class)->except(['index']);
-    Route::post('artists/member', [ArtistController::class, 'members']);
-    Route::put('artists/member/{member}', [ArtistController::class, 'editMember']);
-    Route::delete('artists/member/{member}', [ArtistController::class, 'removeMember']);
-    Route::post('artists/social-account', [ArtistController::class, 'updateSocialAccount']);
-    Route::delete('artists/social-account/{category}/destroy', [ArtistController::class, 'removeMediaAccount'])->whereIn('category', ['youtube', 'instagram', 'twitter', 'spotify']);
+    Route::post('/artists/member', [ArtistController::class, 'members']);
+    Route::put('/artists/member/{member}', [ArtistController::class, 'editMember']);
+    Route::delete('/artists/member/{member}', [ArtistController::class, 'removeMember']);
+    Route::post('/artists/social-account', [ArtistController::class, 'updateSocialAccount']);
+    Route::delete('/artists/social-account/{category}/destroy', [ArtistController::class, 'removeMediaAccount'])->whereIn('category', ['youtube', 'instagram', 'twitter', 'spotify']);
 
     Route::apiResource('posts', PostController::class);
     Route::post('users/{role}/switch', [UserController::class, 'switchAccount'])->whereIn('role', ['service-provider', 'organizer', 'artists', 'customers']);
@@ -106,6 +108,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('song-requests/{songRequest}/verified', [SongController::class, 'updateVerificationStatus']);
     Route::post('song-requests/{songRequest}/request', [SongController::class, 'updateRequestStatus']);
     Route::post('song-requests/{songRequest}/approval', [SongController::class, 'updateApprovalStatus']);
+
+    Route::get('song-requests/create', [SongController::class, 'create']);
 
     Route::apiResource('song-requests', SongController::class);
 

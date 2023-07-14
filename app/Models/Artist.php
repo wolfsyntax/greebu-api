@@ -83,6 +83,11 @@ class Artist extends Model
         return $this->hasMany(ArtistReview::class);
     }
 
+    public function songRequests(): HasMany
+    {
+        return $this->hasMany(SongRequest::class);
+        // return $this->belongsToMany(Profile::class, 'followers', 'following_id', 'follower_id')->withTimestamps();
+    }
     public function avgRating()
     {
         return $this->reviews()

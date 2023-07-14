@@ -20,7 +20,7 @@ use App\Http\Resources\ProfileResource;
 use Carbon\Carbon;
 use App\Http\Resources\ArtistCollection;
 use App\Http\Resources\ArtistResource;
-
+use Illuminate\Support\Str;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ArtistController extends Controller
@@ -49,10 +49,11 @@ class ArtistController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'artist_type'   => ['nullable', 'exists:artist_types,id', 'uuid',],
-            'genre'         => ['nullable', 'exists:genres,id', 'uuid',],
+            'artist_type'   => ['nullable', 'string',],
+            'genre'         => ['nullable', 'string',],
             'search'        => ['nullable', 'string',],
         ]);
+
 
         $genre = strtolower($request->input('genre', ''));
         $artist_type = strtolower($request->input('artist_type', ''));
@@ -62,6 +63,9 @@ class ArtistController extends Controller
         $orderBy = $request->input('sortBy', 'ASC');
         $filter = $request->input('filterBy', 'created_at');
         $search = $request->input('search', '');
+
+        $isGenreUuid = Str::isUuid($genre);
+        $isArtistTypeUuid = Str::isUuid($artist_type);
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
@@ -78,14 +82,16 @@ class ArtistController extends Controller
         })->where('isAccepting_request', true);
 
         if ($genre) {
-            $artists = $artists->whereHas('genres', function ($query) use ($genre) {
-                return $query->where('id', $genre);
+            $artists = $artists->whereHas('genres', function ($query) use ($genre, $isGenreUuid) {
+                if ($isGenreUuid) return $query->where('id', $genre);
+                else return $query->where('title', 'LIKE', '%' . $genre . '%');
             });
         }
 
         if ($artist_type)
-            $artists = $artists->whereHas('artistType', function ($query) use ($artist_type) {
-                return $query->where('id', $artist_type);
+            $artists = $artists->whereHas('artistType', function ($query) use ($artist_type, $isArtistTypeUuid) {
+                if ($isArtistTypeUuid) return $query->where('id', $artist_type);
+                return $query->where('title', 'LIKE', '%' . $artist_type . '%');
             });
 
         if ($language) {
@@ -675,5 +681,56 @@ class ArtistController extends Controller
                 'artist_profile'    => $artist,
             ],
         ], 200);
+    }
+
+    public function trendingArtists(Request $request, Artist $artist_type)
+    {
+
+        $artists = Artist::query();
+
+        $artists = $artists->with(['artistType', 'profile', 'genres', 'languages', 'reviews'])
+            ->withCount('albums', 'albums', 'reviews', 'songRequests');
+
+        $total = $artists->count();
+
+        $perPage = intval($request->input('per_page', 3));
+        $last_page = ceil($total / $perPage);
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+        $page = $page > $last_page ? $page % $last_page : $page;
+        $orderBy = $request->input('sortBy', 'ASC');
+
+        $offset = ($page - 1) * $perPage;
+
+        $total = $artists->count();
+        $artists = $artists->orderBy('reviews_count', 'ASC');
+        // $artists = $artists->orderBy(Profile::select('business_name')->whereColumn('profiles.id', 'artists.profile_id'), 'ASC');
+        $data = $artists->skip($offset)->take($perPage)->get();
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Successfully fetched artists list",
+            'result' => [
+                'current_page' => $page,
+                'offset' => $offset,
+                //'artist'    => $data,
+                'data'         => new ArtistCollection($data),
+                'last_page'     => $last_page,
+                'per_page'      => $perPage,
+                'total'         => $total,
+            ],
+        ], 200);
+
+        return response()->json([
+            'status'        => 200,
+            'message'       => 'Trending artist fetched successfully.',
+            'result'        => [
+                'artists'   => $artists,
+            ],
+        ]);
+    }
+
+    public function rateArtists(Request $request, Artist $artist)
+    {
+        $artist->reviews()->attach([]);
     }
 }
