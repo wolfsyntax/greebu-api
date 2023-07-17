@@ -65,6 +65,20 @@ Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccou
 // Routes that required authentication
 Route::middleware('auth:api')->group(function () {
 
+    Route::get('/', function () {
+        if (auth()->user()) {
+            return response()->json([
+                'status'    => 200,
+                'message'   => 'Token not expired.',
+                'result'    => []
+            ]);
+        }
+        return response()->json([
+            'status'    => 403,
+            'message'   => 'Token not expired.',
+            'result'    => []
+        ], 203);
+    });
     Route::prefix('test')->group(function () {
         Route::post('/url', function (Request $request) {
             return response()->json([
