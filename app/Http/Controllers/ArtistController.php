@@ -416,7 +416,6 @@ class ArtistController extends Controller
             'result'    => [
                 'artist_types'      => ArtistType::select('id', 'title')->get(),
                 'genres'            => Genre::select('id', 'title')->get(),
-                'user-agent'        => $request->header('User-Agent'),
             ],
         ], 200);
     }

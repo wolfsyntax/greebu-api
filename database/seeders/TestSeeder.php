@@ -34,9 +34,9 @@ class TestSeeder extends Seeder
             'zip_code'          => '4400',
             'province'          => 'Camarines Sur',
             'country'           => 'Philippines',
-            'business_email'    => $user->business_email,
+            'business_email'    => $user->email,
             'business_name'     => $user->fullname,
-            'avatar'            => fake()->imageUrl(width: 424, height: 424, category: 'cats'),
+            'avatar'            => 'https://via.placeholder.com/424x424.png/006644?text=Lorem',
         ])->assignRole('customers')->customer()->update([
             'name' => $user->fullname,
         ]);
@@ -52,9 +52,9 @@ class TestSeeder extends Seeder
             'zip_code'          => '4400',
             'province'          => 'Camarines Sur',
             'country'           => 'Philippines',
-            'business_email'    => $user->business_email,
+            'business_email'    => $user->email,
             'business_name'     => $user->fullname,
-            'avatar'            => fake()->imageUrl(width: 424, height: 424, category: 'avatar')
+            'avatar'            => 'https://via.placeholder.com/424x424.png/006644?text=Ipsum'
         ])->assignRole('artists');
 
         $artistType = ArtistType::first();
