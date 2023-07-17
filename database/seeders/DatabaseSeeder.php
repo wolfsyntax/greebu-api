@@ -10,9 +10,21 @@ use App\Models\User;
 use App\Models\Profile;
 use App\Models\Artist;
 use App\Models\Genre;
+use Faker\Factory as Faker;
 
 class DatabaseSeeder extends Seeder
 {
+    protected $faker;
+
+    // public function __construct()
+    // {
+    //     $this->faker = $this->withFaker();
+    // }
+
+    // protected function withFaker()
+    // {
+    //     return Container::getInstance()->make(Generator::class);
+    // }
     /**
      * Seed the application's database.
      */
@@ -35,51 +47,53 @@ class DatabaseSeeder extends Seeder
             TestSeeder::class,
         ]);
 
+        $this->faker = Faker::create();
+
         User::factory()->count(20)->create()->each(function ($user) {
             $profile = Profile::create([
                 'user_id'           => $user->id,
-                'street_address'    => fake()->streetAddress(),
-                'avatar'            => fake()->imageUrl(width: 424, height: 424),
+                'street_address'    => $this->faker->streetAddress(),
+                'avatar'            => $this->faker->imageUrl(width: 424, height: 424),
                 'business_email'    => $user->email,
                 'business_name'     => $user->full_name,
-                'city'              => fake()->city(),
-                'zip_code'          => fake()->postcode(),
+                'city'              => $this->faker->city, // fake()->city(),
+                'zip_code'          => $this->faker->postCode, // fake()->postcode(),
                 'phone'             => $user->phone,
-                'province'          => fake()->state(),
-                'country'           => fake()->country(),
+                'province'          => $this->faker->state, // fake()->state(),
+                'country'           => $this->faker->country, // fake()->country(),
             ])->assignRole('artists');
 
             $artist = Artist::create([
                 'profile_id'        => $profile->id,
-                'artist_type_id'    => fake()->randomElement(ArtistType::get()->pluck('id')->toArray()),
+                'artist_type_id'    => $this->faker->randomElement(ArtistType::get()->pluck('id')->toArray()),
             ]);
 
             $genre = Genre::get();
-            $artist->genres()->sync(fake()->randomElements($genre->pluck('id')->toArray(), 3));
+            $artist->genres()->sync($this->faker->randomElements($genre->pluck('id')->toArray(), 3));
         });
 
         User::factory()->count(100)->create()->each(function ($user) {
             $profile = Profile::create([
                 'user_id'           => $user->id,
-                'street_address'    => fake()->streetAddress(),
-                'avatar'            => fake()->imageUrl(width: 424, height: 424),
+                'street_address'    => $this->faker->streetAddress(),
+                'avatar'            => $this->faker->imageUrl(width: 424, height: 424),
                 'business_email'    => $user->email,
                 'business_name'     => $user->full_name,
-                'city'              => fake()->city(),
-                'zip_code'          => fake()->postcode(),
+                'city'              => $this->faker->city,
+                'zip_code'          => $this->faker->postcode,
                 'phone'             => $user->phone,
-                'province'          => fake()->state(),
-                'country'           => fake()->country(),
+                'province'          => $this->faker->state(),
+                'country'           => $this->faker->country(),
             ])->assignRole('artists');
 
             $artist = Artist::create([
                 'profile_id'            => $profile->id,
-                'artist_type_id'        => fake()->randomElement(ArtistType::get()->pluck('id')->toArray()),
+                'artist_type_id'        => $this->faker->randomElement(ArtistType::get()->pluck('id')->toArray()),
                 'isAccepting_request'   => true,
             ]);
 
             $genre = Genre::get();
-            $artist->genres()->sync(fake()->randomElements($genre->pluck('id')->toArray(), 3));
+            $artist->genres()->sync($this->faker->randomElements($genre->pluck('id')->toArray(), 3));
         });
     }
 }
