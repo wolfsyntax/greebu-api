@@ -22,4 +22,4 @@ RUN php artisan config:cache && \
     chmod 444 ./storage/oauth-* &&\
     chmod +x start-script.sh
 
-# CMD [ "/var/www/html/start-script.sh" ]
+CMD php artisan migrate --force && apache2-foreground
