@@ -25,6 +25,7 @@ class ArtistResource extends JsonResource
             'reviews'       => count($this->reviews),
             'song_requests' => $this->song_requests_count ?? 0,
             'genres'        => new GenreCollection($this->genres),
+            'song'          => 'https://res.cloudinary.com/daorvtlls/video/upload/v1687411869/merrow-rock-skyline-pigeon-elton-john_h0chm4.mp3'
         ];
         return parent::toArray($request);
     }
