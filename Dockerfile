@@ -20,6 +20,6 @@ RUN php artisan config:cache && \
     chown -R www-data:www-data /var/www/ && \
     a2enmod rewrite &&\
     chmod 444 ./storage/oauth-* &&\
-    chmod +x start-script.sh
+    php artisan optimize
 
-# CMD [ "/var/www/html/start-script.sh" ]
+CMD php artisan migrate --force && apache2-foreground
