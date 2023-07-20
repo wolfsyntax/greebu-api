@@ -2,25 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-// use Laravel\Sanctum\HasApiTokens;
-use Laravel\Passport\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-// use Spatie\Permission\Traits\HasRoles;
-use App\Traits\TwilioTrait;
 
-class User extends Authenticatable
+class UserPH extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasUuids, TwilioTrait;
+    use HasFactory, SoftDeletes, HasUuids;
 
-    // public $incrementing = false;
-    // protected $keyType = 'string';
-    protected $guard_name = 'api';
+    protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.
@@ -54,16 +45,6 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function sendCode()
-    {
-        return $this->sendOTP($this->phone);
-    }
-
-    public function verifyCode($code)
-    {
-        return $this->verifyOTP($this->phone, $code);
-    }
-
     /**
      * The attributes that should be cast.
      *
@@ -71,7 +52,6 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        //'password' => 'hashed',
         'id' => 'string',
         'last_login' => 'datetime',
     ];
@@ -88,10 +68,5 @@ class User extends Authenticatable
     public function setPasswordAttribute(string $value): string
     {
         return $this->attributes['password'] = hash('sha256', $value, false);
-    }
-
-    public function profiles()
-    {
-        return $this->hasMany(Profile::class);
     }
 }

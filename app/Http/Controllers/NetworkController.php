@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\ProfileResource;
 use App\Models\User;
 use App\Models\Profile;
+use App\Rules\PhoneCheck;
 use Auth;
 
 class NetworkController extends Controller
@@ -106,7 +107,7 @@ class NetworkController extends Controller
                 'last_name'     => ['required', 'string', 'max:255',],
                 'provider_id'   => ['required', 'string', 'max:255',],
                 'username'      => ['sometimes', 'required', 'string', 'max:255',],
-                'phone'         => ['sometimes', 'required', 'string', 'max:64',],
+                'phone'         => ['sometimes', 'required', 'string', new PhoneCheck()],
             ]);
 
             if ($validator->fails()) {

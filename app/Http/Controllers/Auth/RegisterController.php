@@ -79,24 +79,6 @@ class RegisterController extends Controller
             $email_rules = ['required', 'string', 'regex:/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/i'];
         }
 
-        // $validator = Validator::make($request->all(), [
-        //     'first_name'    => ['required', 'string', 'max:255'],
-        //     'last_name'     => ['required', 'string', 'max:255'],
-        //     'email'         => $email_rules,
-        //     'username'      => ['required', 'string',  'max:255', 'unique:users'],
-        //     'password'      => ['required', 'string', 'min:8', 'confirmed'],
-        //     'account_type'  => ['string', Rule::in(['customers', 'artists', 'organizer', 'service-provider']),],
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'status'    => 422,
-        //         'message'   => 'Unprocessible Entity',
-        //         'results'   => [
-        //             'errors' => $validator->errors(),
-        //         ],
-        //     ], 203);
-        // }
         $request->validate([
             'first_name'    => ['required', 'string', 'max:255'],
             'last_name'     => ['required', 'string', 'max:255'],

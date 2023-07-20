@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Models\ArtistType;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\UserPH;
 use App\Models\Profile;
 use App\Models\Artist;
 use App\Models\Genre;
@@ -48,6 +49,32 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->faker = Faker::create();
+
+        UserPH::factory()->count(20)->create()->each(function ($user) {
+
+            $this->faker->addProvider(new \Faker\Provider\en_PH\Address($this->faker));
+
+            $profile = Profile::create([
+                'user_id'           => $user->id,
+                'street_address'    => $this->faker->barangay(),
+                'avatar'            => $this->faker->imageUrl(width: 424, height: 424),
+                'business_email'    => $user->email,
+                'business_name'     => $user->full_name,
+                'city'              => $this->faker->city, // fake()->city(),
+                'zip_code'          => $this->faker->postCode, // fake()->postcode(),
+                'phone'             => $user->phone,
+                'province'          => $this->faker->province(),
+                'country'           => 'Philippines',
+            ])->assignRole('artists');
+
+            $artist = Artist::create([
+                'profile_id'        => $profile->id,
+                'artist_type_id'    => $this->faker->randomElement(ArtistType::get()->pluck('id')->toArray()),
+            ]);
+
+            $genre = Genre::get();
+            $artist->genres()->sync($this->faker->randomElements($genre->pluck('id')->toArray(), 3));
+        });
 
         User::factory()->count(20)->create()->each(function ($user) {
             $profile = Profile::create([

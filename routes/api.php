@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use Twilio\Rest\Client;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -179,3 +180,7 @@ Route::get('hash', function (Request $request) {
 
 Route::post('file-upload/asssets', [SiteSettingsController::class, 'fileUpload']);
 Route::post('remove/asssets', [SiteSettingsController::class, 'removeFile']);
+
+// Route::get('twilio/{user}', [UserController::class, 'twilio']);
+Route::post('phone/send', [UserController::class, 'phone']);
+Route::post('phone/verify', [UserController::class, 'phoneVerify']);
