@@ -12,10 +12,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 // use Spatie\Permission\Traits\HasRoles;
+use App\Traits\TwilioTrait;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasUuids;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasUuids, TwilioTrait;
 
     // public $incrementing = false;
     // protected $keyType = 'string';
@@ -53,6 +54,16 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function sendCode()
+    {
+        return $this->sendOTP($this->phone);
+    }
+
+    public function verifyCode($code)
+    {
+        return $this->verifyOTP($this->phone, $code);
+    }
+
     /**
      * The attributes that should be cast.
      *
@@ -83,19 +94,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Profile::class);
     }
-
-
-    // Alternative for UUIDs
-    // public static function boot()
-    // {
-
-    //     parent::boot();
-
-    //     static::creating(function ($query) {
-    //         $query->id = Str::uuid()->toString();
-    //     });
-
-    //     static::saving(function ($query) {
-    //     });
-    // }
 }

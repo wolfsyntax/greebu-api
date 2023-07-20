@@ -27,7 +27,7 @@ class UserPHFactory extends Factory
             'email' => fake()->unique()->freeEmail(),
             'email_verified_at' => now(),
             'password' => 'password', // password
-            'phone' => '+639' . fake()->unique()->numerify('#########'),
+            'phone' => fake()->mobileNumber, //'+639' . fake()->unique()->numerify('#########'),
             'remember_token' => Str::random(10),
             'username' => fake()->userName(),
         ];

@@ -181,64 +181,6 @@ Route::get('hash', function (Request $request) {
 Route::post('file-upload/asssets', [SiteSettingsController::class, 'fileUpload']);
 Route::post('remove/asssets', [SiteSettingsController::class, 'removeFile']);
 
-use Illuminate\Support\Str;
-
-Route::post('send/sms', function (Request $request) {
-
-    $recipient = $request->input('phone');
-    $message = $request->input('body');
-    $test = $request->input('test');
-
-    $account_sid = getenv("TWILIO_SID");
-    $auth_token = getenv("TWILIO_AUTH_TOKEN");
-    $twilio_number = getenv("TWILIO_NUMBER");
-    $client = new Client($account_sid, $auth_token);
-    // $client->messages->create(
-    //     $recipient,
-    //     ['from' => $twilio_number, 'body' => $message]
-    // );
-
-    // $client->verify->v2->services
-    //     ->create("Geebu Service");
-
-    // $verify = $client->verify->v2->services("VAd2d223fe4a6bfcda7ff935602a1dd3de")
-    //     ->verifications->create($recipient, "sms");
-
-    // preg_split('/\([0-9]{4} [0-9]{3}-[0-9]{4}/', $recipient);
-    $match = preg_match('/\([0-9]{4}\) [0-9]{3}\-[0-9]{4}/', $recipient, $output_array);
-    $phone = filter_var($recipient, FILTER_SANITIZE_NUMBER_INT);
-
-    // $recipient = preg_replace('/(\(|\)|\-)/', '', $recipient);
-
-    $match = preg_match('/^\+\d\(\d{3}\) (\d{3})(\d{4})$/', $recipient,  $matches);
-
-    /*
-
-      'trim' => preg_replace('/(\(|\)|\-)/', '', $recipient),
-            'preg_split' => preg_split('/^\(/', $recipient, 1),
-            'filter_var' => $phone,
-            'match' => $match,
-            'phone' => $recipient,
-            'mm'    => $matches,
-    */
-    $cleanPhone = preg_replace("/[^0-9]/", "", $test);
-
-    return response()->json([
-        'status' => 200,
-        'message'   => 'SMS',
-        'result'    => [
-            'phone' => [
-                'filter_var' => filter_var($recipient, FILTER_SANITIZE_NUMBER_INT),
-            ],
-            'test' => [
-                'filter_var' => filter_var($test, FILTER_SANITIZE_NUMBER_INT),
-                'match' => preg_match('/^\s+/', $test),
-                'x' => $cleanPhone,
-                '0' => Str::substr($cleanPhone, 1, 3)
-            ],
-            'auth'  => [
-                'twid' => env("TWILIO_SID")
-            ]
-        ]
-    ]);
-});
+// Route::get('twilio/{user}', [UserController::class, 'twilio']);
+Route::post('phone/send', [UserController::class, 'phone']);
+Route::post('phone/verify', [UserController::class, 'phoneVerify']);

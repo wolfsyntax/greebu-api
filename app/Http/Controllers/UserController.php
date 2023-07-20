@@ -9,13 +9,16 @@ use App\Rules\MatchCurrentPassword;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use App\Rules\PhoneCheck;
 use App\Traits\UserTrait;
+use App\Traits\TwilioTrait;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
     use UserTrait;
+    use TwilioTrait;
 
     public function __construct()
     {
@@ -61,7 +64,7 @@ class UserController extends Controller
             'username'          => ['required', 'string', 'min:8', 'max:255',],
             'avatar'            => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
             'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
-            'phone'             => ['required',],
+            'phone'             => ['required', new PhoneCheck()],
             'current_password'  => ['sometimes', 'required', 'string', 'min:8', 'max:255', new MatchCurrentPassword],
             'password'          => ['required', 'string', 'min:8', 'max:255', 'confirmed'],
         ]);
@@ -198,6 +201,56 @@ class UserController extends Controller
                 'user'      => $user,
                 'profile'   => $authProfile,
                 'followers' => $authProfile->followers(),
+            ],
+        ]);
+    }
+
+    public function twilio(Request $request, User $user)
+    {
+        return response()->json([
+            'status' => 200,
+            'message' => 'Twlio workspace here',
+            'result'    => [
+                'isSent'    => $user->sendCode(),
+                'phone'     => $user->phone,
+                'user' => $user,
+            ]
+        ]);
+    }
+
+    public function phone(Request $request)
+    {
+        $request->validate([
+            'phone' => [
+                'required', new PhoneCheck(),
+            ],
+        ]);
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Send OTP to ',
+            'result'    => [
+                'request'   => $request->all(),
+                'isVerified' => $this->sendOTP($request->input('phone'))
+            ],
+        ]);
+    }
+
+    public function phoneVerify(Request $request)
+    {
+        $request->validate([
+            'phone' => [
+                'required', new PhoneCheck(),
+                'code'  => ['required', 'size:6'],
+            ],
+        ]);
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Verification Code Checker',
+            'result'    => [
+                'request'   => $request->all(),
+                'isVerified' => $this->verifyOTP($request->input('phone'), $request->input('code'))
             ],
         ]);
     }
