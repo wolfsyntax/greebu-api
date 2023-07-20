@@ -38,6 +38,7 @@ class User extends Authenticatable
         'google_id', 'facebook_id', 'email_verified_at',
         'remember_token',
         'last_login',
+        'phone_verified_at',
     ];
 
     protected $appends = [
@@ -71,6 +72,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',
         //'password' => 'hashed',
         'id' => 'string',
         'last_login' => 'datetime',

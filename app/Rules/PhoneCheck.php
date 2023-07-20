@@ -16,10 +16,6 @@ class PhoneCheck implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        //
-        if (empty($value)) {
-            $fail('The :attribute is required.');
-        }
 
         try {
             $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
@@ -28,7 +24,7 @@ class PhoneCheck implements ValidationRule
                 ->phoneNumbers($value)
                 ->fetch();
         } catch (TwilioException $e) {
-            $fail('The :attribute is invalid phone number.');
+            $fail('The :attribute is must be in international standard format.');
         }
     }
 }

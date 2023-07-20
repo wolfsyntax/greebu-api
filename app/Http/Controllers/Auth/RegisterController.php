@@ -17,6 +17,9 @@ use Illuminate\Auth\Events\Registered;
 use App\Models\User;
 use App\Models\Profile;
 
+use App\Rules\PhoneCheck;
+use App\Traits\TwilioTrait;
+
 class RegisterController extends Controller
 {
     /*
@@ -31,7 +34,7 @@ class RegisterController extends Controller
     */
 
     // use RegistersUsers;
-
+    use TwilioTrait;
     /**
      * Where to redirect users after registration.
      *
@@ -73,16 +76,17 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
 
-        $email_rules = !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'];
+        // $email_rules = !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'];
 
-        if ($request->input('reg_type') === 'phone') {
-            $email_rules = ['required', 'string', 'regex:/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/i'];
-        }
+        // if ($request->input('reg_type') === 'phone') {
+        //     $email_rules = ['required', 'string', 'regex:/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/i'];
+        // }
 
         $request->validate([
             'first_name'    => ['required', 'string', 'max:255'],
             'last_name'     => ['required', 'string', 'max:255'],
-            'email'         => $email_rules,
+            'email'         => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'],
+            'phone'         => ['required', new PhoneCheck()],
             'username'      => ['required', 'string',  'max:255', 'unique:users'],
             'password'      => ['required', 'string', 'min:8', 'confirmed'],
             'account_type'  => ['string', Rule::in(['customers', 'artists', 'organizer', 'service-provider']),],
@@ -94,6 +98,7 @@ class RegisterController extends Controller
             'username'      => $request->username,
             'email'         => $request->email,
             'password'      => $request->password,
+            'phone'         => $request->phone,
         ];
 
         if ($request->input('reg_type') === 'phone') {
@@ -107,6 +112,7 @@ class RegisterController extends Controller
             ];
         }
 
+        // $this->sendCode()
         $user = User::create($formData);
 
         $profile = Profile::create([
@@ -140,10 +146,17 @@ class RegisterController extends Controller
             ]);
         }
 
+        if ($user->phone) {
+            $user->sendCode();
+        }
         event(new Registered($user));
 
         return response()->json([
-            'message' => 'Account successfully registered.',
+            'status'    => 200,
+            'message'   => 'Account successfully registered.',
+            'result'    => [
+                'user_id'   => $user->id,
+            ]
         ], 201);
 
         return redirect()->to('/login');

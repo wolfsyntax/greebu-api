@@ -207,15 +207,17 @@ class UserController extends Controller
 
     public function twilio(Request $request, User $user)
     {
+        $flag = false;
+
+        if ($user->phone) {
+            $flag = $user->sendCode();
+        }
+
         return response()->json([
-            'status' => 200,
-            'message' => 'Twlio workspace here',
-            'result'    => [
-                'isSent'    => $user->sendCode(),
-                'phone'     => $user->phone,
-                'user' => $user,
-            ]
-        ]);
+            'status' => $flag ? 200 : 203,
+            'message' => 'Resend Verification Code',
+            'result'    => []
+        ], $flag ? 200 : 203);
     }
 
     public function phone(Request $request)
@@ -236,22 +238,29 @@ class UserController extends Controller
         ]);
     }
 
-    public function phoneVerify(Request $request)
+    public function phoneVerify(Request $request, User $user)
     {
         $request->validate([
-            'phone' => [
-                'required', new PhoneCheck(),
-                'code'  => ['required', 'size:6'],
-            ],
+            'code'  => ['required', 'size:6'],
         ]);
 
-        return response()->json([
-            'status'    => 200,
-            'message'   => 'Verification Code Checker',
-            'result'    => [
-                'request'   => $request->all(),
-                'isVerified' => $this->verifyOTP($request->input('phone'), $request->input('code'))
-            ],
-        ]);
+        if ($user->phone) {
+
+            if ($this->verifyOTP($user->phone, $request->input('code'))) {
+                $user->phone_verified_at = now();
+                $user->save();
+            }
+            return response()->json([
+                'status'    => 200,
+                'message'   => 'Verification Code Checker',
+                'result'    => [],
+            ]);
+        } else {
+            return response()->json([
+                'status'    => 422,
+                'message'   => "User does not have a phone number.",
+                'result'    => [],
+            ], 203);
+        }
     }
 }
