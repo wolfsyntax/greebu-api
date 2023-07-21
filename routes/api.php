@@ -64,7 +64,7 @@ Route::get('subscriptions/plan/{plan}', [SubscriptionController::class, 'pricing
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);
 
 // Routes that required authentication
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::get('/', function () {
         if (auth()->user()) {
@@ -130,6 +130,13 @@ Route::middleware('auth:api')->group(function () {
 
     // Route::middleware('role:super-admin')->apiResource('site-settings', SiteSettingsController::class);
     Route::apiResource('site-settings', SiteSettingsController::class);
+
+    //
+
+});
+Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
+    Route::post('phone/send', [UserController::class, 'phone']);
+    Route::post('phone/verify', [UserController::class, 'phoneVerify2'])->middleware(['throttle:4,10']);
 });
 
 Route::get('fetch/{path}', function ($path) {
@@ -180,8 +187,6 @@ Route::get('hash', function (Request $request) {
 
 Route::post('file-upload/asssets', [SiteSettingsController::class, 'fileUpload']);
 Route::post('remove/asssets', [SiteSettingsController::class, 'removeFile']);
-
-use Illuminate\Support\Str;
 
 // Route::post('send/sms', function (Request $request) {
 
@@ -255,21 +260,23 @@ use Illuminate\Support\Str;
 // });
 
 // Can only request every 00:02:30 (hh:mm:ss)
-Route::post('phone/send', [UserController::class, 'phone'])->middleware(['throttle:4,10']);
+// Route::post('phone/send', [UserController::class, 'phone'])->middleware(['throttle:4,10']);
+// Route::post('phone/verify/{user}', [UserController::class, 'phoneVerify'])->middleware(['throttle:4,10']);
 Route::get('phone/resend/{user}', [UserController::class, 'twilio'])->middleware(['throttle:4,10']);
 Route::post('phone/verify/{user}', [UserController::class, 'phoneVerify'])->middleware(['throttle:4,10']);
+// Route::get('check/throttle', function () {
+//     return response()->json([
+//         'status' => 200,
+//         'message' => 'Check throttle',
+//         'result'    => []
+//     ]);
+// })->middleware(['throttle:4,10']);
 
-Route::get('check/throttle', function () {
-    return response()->json([
-        'status' => 200,
-        'message' => 'Check throttle',
-        'result'    => []
-    ]);
-})->middleware(['throttle:5,10']);
+// Route::post('check/e164', function (Request $request) {
+//     if (preg_match('/^\+[1-9]\d{1,14}$/i', $request->phone)) {
+//         return response()->json([], 200);
+//     }
+//     return response()->json([], 203);
+// });
 
-Route::post('check/e164', function (Request $request) {
-    if (preg_match('/^\+[1-9]\d{1,14}$/i', $request->phone)) {
-        return response()->json([], 200);
-    }
-    return response()->json([], 203);
-});
+// Route::get('twilio/test', [UserController::class, 'twilioLimiter']);

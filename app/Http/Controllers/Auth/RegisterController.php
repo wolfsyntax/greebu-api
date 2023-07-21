@@ -86,7 +86,7 @@ class RegisterController extends Controller
             'first_name'    => ['required', 'string', 'max:255'],
             'last_name'     => ['required', 'string', 'max:255'],
             'email'         => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'],
-            'phone'         => ['required', new PhoneCheck()],
+            'phone'         => ['required', 'unique:users', <ne></ne>w PhoneCheck()],
             'username'      => ['required', 'string',  'max:255', 'unique:users'],
             'password'      => ['required', 'string', 'min:8', 'confirmed'],
             'account_type'  => ['string', Rule::in(['customers', 'artists', 'organizer', 'service-provider']),],

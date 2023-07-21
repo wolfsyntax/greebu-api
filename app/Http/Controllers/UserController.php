@@ -228,12 +228,21 @@ class UserController extends Controller
             ],
         ]);
 
+        $user = User::where('id', auth()->user()->id)->first();
+        $user->phone = $request->input('phone');
+
+        if ($user->sendCode()) {
+            $user->phone_verified_at = null;
+        }
+
+        $user->save();
+
         return response()->json([
             'status'    => 200,
-            'message'   => 'Send OTP to ',
+            'message'   => 'Send OTP to ' . $request->input('phone'),
             'result'    => [
-                'request'   => $request->all(),
-                'isVerified' => $this->sendOTP($request->input('phone'))
+                'user'  => $user,
+                // 'isVerified' => $this->sendOTP($request->input('phone'))
             ],
         ]);
     }
@@ -262,5 +271,48 @@ class UserController extends Controller
                 'result'    => [],
             ], 203);
         }
+    }
+
+    public function phoneVerify2(Request $request)
+    {
+        $request->validate([
+            'code'  => ['required', 'size:6'],
+        ]);
+
+        $user = User::where('id', auth()->user()->id)->first();
+
+        if ($user->phone) {
+
+            if ($this->verifyOTP($user->phone, $request->input('code'))) {
+                $user->phone_verified_at = now();
+                $user->save();
+            }
+            return response()->json([
+                'status'    => 200,
+                'message'   => 'Verification Code Checker',
+                'result'    => [],
+            ]);
+        } else {
+            return response()->json([
+                'status'    => 422,
+                'message'   => "User does not have a phone number.",
+                'result'    => [],
+            ], 203);
+        }
+    }
+    public function twilioLimiter(Request $request)
+    {
+        return response()->json([
+            'status' => 200,
+            'message'   => '...',
+            'result' => [
+                '1' => $this->sendOTP('+639184592272'),
+                '2' => $this->sendOTP('+6309184592272'),
+                '3' => $this->sendOTP('+639184592272'),
+                '4' => $this->sendOTP('+639184592272'),
+                '5' => $this->sendOTP('+6309184592272'),
+                '6' => $this->sendOTP('+6309184592272'),
+            ]
+        ]);
     }
 }
