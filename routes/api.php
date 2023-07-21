@@ -64,7 +64,7 @@ Route::get('subscriptions/plan/{plan}', [SubscriptionController::class, 'pricing
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);
 
 // Routes that required authentication
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::get('/', function () {
         if (auth()->user()) {
@@ -130,6 +130,13 @@ Route::middleware('auth:api')->group(function () {
 
     // Route::middleware('role:super-admin')->apiResource('site-settings', SiteSettingsController::class);
     Route::apiResource('site-settings', SiteSettingsController::class);
+
+    //
+
+});
+Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
+    Route::post('phone/send', [UserController::class, 'phone']);
+    Route::post('phone/verify', [UserController::class, 'phoneVerify2'])->middleware(['throttle:4,10']);
 });
 
 Route::get('fetch/{path}', function ($path) {
@@ -181,6 +188,95 @@ Route::get('hash', function (Request $request) {
 Route::post('file-upload/asssets', [SiteSettingsController::class, 'fileUpload']);
 Route::post('remove/asssets', [SiteSettingsController::class, 'removeFile']);
 
-// Route::get('twilio/{user}', [UserController::class, 'twilio']);
-Route::post('phone/send', [UserController::class, 'phone']);
-Route::post('phone/verify', [UserController::class, 'phoneVerify']);
+// Route::post('send/sms', function (Request $request) {
+
+//     $recipient = $request->input('phone');
+//     $message = $request->input('body');
+//     $test = $request->input('test');
+
+//     $account_sid = getenv("TWILIO_SID");
+//     $auth_token = getenv("TWILIO_AUTH_TOKEN");
+//     $twilio_number = getenv("TWILIO_NUMBER");
+//     $client = new Client($account_sid, $auth_token);
+//     // $client->messages->create(
+//     //     $recipient,
+//     //     ['from' => $twilio_number, 'body' => $message]
+//     // );
+
+//     // $client->verify->v2->services
+//     //     ->create("Geebu Service");
+
+//     // Working
+//     // $verify = $client->verify->v2->services("VAd2d223fe4a6bfcda7ff935602a1dd3de")
+//     //     ->verifications->create($recipient, "sms");
+//     // -----------------------------
+
+
+//     // preg_split('/\([0-9]{4} [0-9]{3}-[0-9]{4}/', $recipient);
+//     $match = preg_match('/\([0-9]{4}\) [0-9]{3}\-[0-9]{4}/', $recipient, $output_array);
+//     $phone = filter_var($recipient, FILTER_SANITIZE_NUMBER_INT);
+
+//     // $recipient = preg_replace('/(\(|\)|\-)/', '', $recipient);
+
+//     $match = preg_match('/^\+\d\(\d{3}\) (\d{3})(\d{4})$/', $recipient,  $matches);
+
+//     $cleanPhone = preg_replace("/[^0-9]/", "", $test);
+//     $clean = preg_replace("/[^0-9]/", '', filter_var($recipient, FILTER_SANITIZE_NUMBER_INT));
+//     $lookup = $client->lookups->v1->phoneNumbers($recipient)->fetch();
+//     return response()->json([
+//         'status' => 200,
+//         'message'   => 'SMS',
+//         'result'    => [
+//             'twilio'    => [
+//                 'lookup'    => [
+//                     'phone_number' => $lookup->phoneNumber,
+//                     'national_format' => $lookup->nationalFormat,
+//                     'self'  => $lookup,
+//                     // 'valid' => $lookup->valid,
+//                 ],
+//             ],
+//             'phone' => [
+//                 'match' => preg_match('/^\+[1-9]\d{1,14}$/i', $recipient),
+//                 'filter_var' => filter_var($recipient, FILTER_SANITIZE_NUMBER_INT),
+//                 'clean' => $clean,
+//                 'local_length' => Str::length($clean),
+//                 'substr' => Str::substr($clean, -10),
+//                 'flag' => (Str::length(Str::substr($clean, -10))) >= 10
+//             ],
+//             'test' => [
+//                 'filter_var' => filter_var($test, FILTER_SANITIZE_NUMBER_INT),
+//                 'match' => preg_match('/^\s+/', $test),
+//                 'x' => $cleanPhone,
+//                 '0' => Str::substr($cleanPhone, 1, 3),
+//                 'preg_match' => preg_match('/^\(\d{4}\) \d{3}\-\d{4}$/i', $test),
+//                 'local' => Str::substr($cleanPhone, -10),
+//                 'local_length' => Str::length(Str::substr($cleanPhone, -10))
+//             ],
+//             'auth'  => [
+//                 'twid' => env("TWILIO_SID")
+//             ]
+//         ]
+//     ]);
+// });
+
+// Can only request every 00:02:30 (hh:mm:ss)
+// Route::post('phone/send', [UserController::class, 'phone'])->middleware(['throttle:4,10']);
+// Route::post('phone/verify/{user}', [UserController::class, 'phoneVerify'])->middleware(['throttle:4,10']);
+Route::get('phone/resend/{user}', [UserController::class, 'twilio'])->middleware(['throttle:4,10']);
+Route::post('phone/verify/{user}', [UserController::class, 'phoneVerify'])->middleware(['throttle:4,10']);
+// Route::get('check/throttle', function () {
+//     return response()->json([
+//         'status' => 200,
+//         'message' => 'Check throttle',
+//         'result'    => []
+//     ]);
+// })->middleware(['throttle:4,10']);
+
+// Route::post('check/e164', function (Request $request) {
+//     if (preg_match('/^\+[1-9]\d{1,14}$/i', $request->phone)) {
+//         return response()->json([], 200);
+//     }
+//     return response()->json([], 203);
+// });
+
+// Route::get('twilio/test', [UserController::class, 'twilioLimiter']);

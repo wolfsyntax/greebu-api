@@ -89,6 +89,12 @@ class LoginController extends Controller
                 return $query->getRoleNames()->first();
             });
 
+            if (!$user->phone_verified_at) return response()->json([
+                'status' => 403,
+                'message' => 'Your phone number is not verified.',
+                'result' => []
+            ], 203);
+
             return response()->json([
                 'status'        => 200,
                 'message'       => 'Login Successfully.',
