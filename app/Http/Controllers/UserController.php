@@ -6,6 +6,7 @@ use App\Models\Profile;
 use App\Models\User;
 use App\Models\Customer;
 use App\Rules\MatchCurrentPassword;
+use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -66,7 +67,13 @@ class UserController extends Controller
             'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
             'phone'             => ['required', new PhoneCheck()],
             'current_password'  => ['sometimes', 'required', 'string', 'min:8', 'max:255', new MatchCurrentPassword],
-            'password'          => ['required', 'string', 'min:8', 'max:255', 'confirmed'],
+            'password'          => !app()->isProduction() ? ['required', 'confirmed',] : [
+                'required', 'confirmed', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised(),
+            ],
         ]);
 
         if ($validator->fails()) {

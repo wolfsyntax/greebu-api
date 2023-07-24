@@ -63,8 +63,5 @@ class ForgotPasswordController extends Controller
                 'mail'  => $mail,
             ],
         ]);
-        // return $response == Password::RESET_LINK_SENT
-        //     ? $this->sendResetLinkResponse($request, $response)
-        //     : $this->sendResetLinkFailedResponse($request, $response);
     }
 }
