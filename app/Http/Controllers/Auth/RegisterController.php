@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Validation\Rules;
 
 use App\Models\User;
 use App\Models\Profile;
@@ -88,7 +89,13 @@ class RegisterController extends Controller
             'email'         => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'],
             'phone'         => ['required', 'unique:users', new PhoneCheck()],
             'username'      => ['required', 'string',  'max:255', 'unique:users'],
-            'password'      => ['required', 'string', 'min:8', 'confirmed'],
+            'password'      => !app()->isProduction() ? ['required', 'confirmed', 'min:8',] : [
+                'required', 'confirmed', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised(),
+            ],
             'account_type'  => ['string', Rule::in(['customers', 'artists', 'organizer', 'service-provider']),],
         ]);
 
