@@ -7,12 +7,18 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
 use App\Models\User;
+use App\Traits\UserTrait;
 
 use DB;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Lang;
+use App\Notifications\ForgotPass;
+
 // use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use App\Mail\ResetPassword;
+use Illuminate\Notifications\Notification;
 
 class ForgotPasswordController extends Controller
 {
@@ -28,7 +34,7 @@ class ForgotPasswordController extends Controller
     */
 
     // use SendsPasswordResetEmails;
-
+    use UserTrait;
     /**
      * Send a reset link to the given user.
      *
@@ -49,18 +55,31 @@ class ForgotPasswordController extends Controller
             'created_at' => now()
         ]);
 
-        $user = User::select('first_name')->where('email', $request->input('email'))->first();
-        $mail = Mail::send('email.reset_link', ['token' => $token, 'first_name' => $user->first_name], function ($message) use ($request) {
-            $message->to($request->input('email'));
-            $message->subject('Reset Password');
-        });
+        $user = User::select('first_name', 'email')->where('email', $request->input('email'))->first();
+
+        $url = 'http://localhost:5173/password/reset/' . $token;
+
+        // $mail = Mail::send('email.reset_link', ['token' => $token, 'first_name' => $user->first_name], function ($message) use ($request) {
+        //     $message->to($request->input('email'));
+        //     $message->subject('Reset Password');
+        // });
+
+        $user->notify(new ForgotPass($token, $user));
+        // $this->forgotEmail($url);
+
+        // $status = Password::sendResetLink($request->only('email'));
 
         return response()->json([
-            'status'    => 200,
-            'message'   => 'Forgot password',
-            'result'    => [
-                'token' => $token,
-                'mail'  => $mail,
+            'status'        => 200,
+            'message'       => 'Forgot password',
+            'result'        => [
+                'token'     => $token,
+                'u'         => $user,
+                'status'    => $this->forgotEmail($url),
+                // 'mail'  => $mail,
+                // 'status'    => $status,
+                // 'm2'    => $mx,
+                // 'm'     => $mx,
             ],
         ]);
     }

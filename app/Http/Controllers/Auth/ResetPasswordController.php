@@ -11,6 +11,8 @@ use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Support\MessageBag;
 use DB;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Str;
 
 class ResetPasswordController extends Controller
 {
@@ -81,12 +83,25 @@ class ResetPasswordController extends Controller
             else $error->add('token', 'Token is invalid or not matched.');
         }
 
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => $password
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
+
+                event(new PasswordReset($user));
+            }
+        );
 
         return response()->json([
-            'status'    => 422,
-            'message'   => 'Unprocessible Entity.',
-            'result'    => [
-                'errors' => $error->getMessages(),
+            'status'        => 422,
+            'message'       => 'Unprocessible Entity.',
+            'result'        => [
+                'errors'    => $error->getMessages(),
+                'status'    => $status,
             ],
         ], 203);
     }
