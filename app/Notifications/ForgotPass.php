@@ -45,7 +45,6 @@ class ForgotPass extends Notification
         return (new MailMessage)
             ->subject(Lang::get('Reset Password Notification'))
             ->greeting('Dear ' . $this->user->first_name)
-            ->action('Reset Password', $this->url)
             ->line(Lang::get("You've requested a password reset for your Geebu  account. Click the link below to set a new password securely:"))
             ->action(Lang::get('Reset Password'), $this->url)
             ->line(Lang::get("If you didn't make this request, please contact us immediately at [Support Email or Phone Number]."))
