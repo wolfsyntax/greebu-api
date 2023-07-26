@@ -64,7 +64,7 @@ class SongController extends Controller
     public function store(Request $request, $role = 'customers')
     {
 
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'artist_type_id'    => ['required', 'exists:artist_types,id',],
             'artists'            => ['required', 'array', 'max:3'],
             'artists.*.id'       => ['required', 'exists:artists,id',],
@@ -81,16 +81,6 @@ class SongController extends Controller
             'user_story'        => ['required', 'string', 'max:500',],
             'page_status'       => ['required', 'string', 'max:64'],
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'message' => "Invalid data",
-                'result' => [
-                    'errors' => $validator->errors(),
-                ],
-            ], 203);
-        }
 
         $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
             $query->where('name', 'LIKE', '%' . $role . '%');
@@ -163,7 +153,7 @@ class SongController extends Controller
     public function update(Request $request, SongRequest $songRequest)
     {
         //
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'artist_type_id'    => ['required', 'exists:artist_types,id',],
             'genre_id'          => ['required', 'exists:genres,id',],
             'song_type_id'      => ['required', 'exists:song_types',], // mood
@@ -179,16 +169,6 @@ class SongController extends Controller
             'page_status'       => ['required', 'string', 'max:64'],
             'estimate_date'     => ['required', 'integer',],
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'message' => "Invalid data",
-                'result' => [
-                    'errors' => $validator->errors(),
-                ],
-            ], 203);
-        }
 
         $songRequest->artist_type_id = $request->input('artist_type_id');
         $songRequest->genre_id = $request->input('genre_id');

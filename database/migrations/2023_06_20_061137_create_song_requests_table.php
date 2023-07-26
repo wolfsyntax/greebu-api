@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('song_requests', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
-            $table->foreignUuid('creator_id')->constrained(table: 'profiles');
+            $table->foreignUuid('creator_id')->nullable()->constrained(table: 'profiles');
             // $table->foreignUuid('artist_id')->constrained();
-            $table->foreignUuid('artist_type_id')->constrained();
-            $table->foreignUuid('genre_id')->constrained();
-            $table->foreignUuid('song_type_id')->constrained();
-            $table->foreignUuid('language_id')->constrained(table: 'supported_languages');
-            $table->foreignUuid('duration_id')->constrained();
-            $table->foreignUuid('purpose_id')->constrained();
+            $table->foreignUuid('artist_type_id')->nullable()->constrained();
+            $table->foreignUuid('genre_id')->nullable()->constrained();
+            $table->foreignUuid('song_type_id')->nullable()->constrained();
+            $table->foreignUuid('language_id')->nullable()->constrained(table: 'supported_languages');
+            $table->foreignUuid('duration_id')->nullable()->constrained();
+            $table->foreignUuid('purpose_id')->nullable()->constrained();
 
             $table->string('first_name');
             $table->string('last_name');
