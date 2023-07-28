@@ -16,8 +16,9 @@ return new class extends Migration
 
             $table->foreignUuid('creator_id')->nullable()->constrained(table: 'profiles');
             // $table->foreignUuid('artist_id')->constrained();
-            $table->foreignUuid('artist_type_id')->nullable()->constrained();
-            $table->foreignUuid('genre_id')->nullable()->constrained();
+
+            // $table->foreignUuid('artist_type_id')->nullable()->constrained();
+            // $table->foreignUuid('genre_id')->nullable()->constrained();
             $table->foreignUuid('song_type_id')->nullable()->constrained();
             $table->foreignUuid('language_id')->nullable()->constrained(table: 'supported_languages');
             $table->foreignUuid('duration_id')->nullable()->constrained();
@@ -30,10 +31,10 @@ return new class extends Migration
             // can declined a song request
             // $table->enum('request_status', ['pending', 'accepted', 'declined']); // customer -> artist
 
-            $table->string('sender');
-            $table->string('receiver');
-            $table->longText('user_story');
-            $table->string('page_status')->default('info'); // current form page
+            $table->string('sender')->nullable();
+            $table->string('receiver')->nullable();
+            $table->longText('user_story')->nullable();
+            $table->enum('page_status', ['info', 'song', 'story', 'review',])->default('info'); // current form page
 
             // can validate artist song submission
             $table->boolean('verification_status')->nullable()->default(0); // artist output -> approval by admin

@@ -115,6 +115,12 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
 
+    Route::post('song-requests/info/{song?}', [SongController::class, 'stepOne']);
+    Route::post('song-requests/song/{song}', [SongController::class, 'stepTwo'])->middleware(['restrictEdit']);
+    Route::post('song-requests/story/{song}', [SongController::class, 'stepThree'])->middleware(['restrictEdit']);
+    Route::post('song-requests/review/{song}', [SongController::class, 'stepFinal'])->middleware(['restrictEdit']);
+
+
     Route::post('song-requests/{songRequest}/verified', [SongController::class, 'updateVerificationStatus']);
     Route::post('song-requests/{songRequest}/request', [SongController::class, 'updateRequestStatus']);
     Route::post('song-requests/{songRequest}/approval', [SongController::class, 'updateApprovalStatus']);
@@ -127,7 +133,21 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::apiResource('site-settings', SiteSettingsController::class);
 
     //
-
+    Route::get('/sample/{song}', function (Request $request, App\Models\SongRequest $song) {
+        $flag = ($request->user()->load('profiles')->id === $request->route()->parameter('song')->creator_id);
+        return response()->json([
+            'status'        => 200,
+            'message'       => '...',
+            'result'        => [
+                'song'      => $song,
+                'route'     => $request->route()->parameter('song'),
+                'user'      => $request->user()->load('profiles'),
+                'isOwned'   => $flag,
+                'creator_id' => $request->route()->parameter('song')->creator_id,
+                'profile_id' => $request->user()->load('profiles')->id,
+            ]
+        ]);
+    })->middleware(['restrictEdit']);
 });
 
 Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
@@ -206,3 +226,17 @@ Route::post('phone/verify/{user}', [UserController::class, 'phoneVerify'])->midd
 // });
 
 // Route::get('twilio/test', [UserController::class, 'twilioLimiter']);
+Route::get('test', function (Request $request) {
+    $request->validate([
+        'role' => ['required', 'in:service-provider,artists,organizer,customers',],
+        'name'  => ['required', 'string',],
+    ]);
+
+    return response()->json([
+        'status' => 200,
+        'message'   => '',
+        'result'    => [
+            $request->all(),
+        ],
+    ]);
+});
