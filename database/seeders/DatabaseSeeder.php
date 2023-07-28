@@ -46,6 +46,8 @@ class DatabaseSeeder extends Seeder
             CountrySeeder::class,
             DurationSeeder::class,
             TestSeeder::class,
+            OrganizerSeeder::Class,
+            EventSeeder::Class,
         ]);
 
         $this->faker = Faker::create();
@@ -124,3 +126,5 @@ class DatabaseSeeder extends Seeder
         });
     }
 }
+
+
