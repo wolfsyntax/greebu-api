@@ -40,7 +40,7 @@ return new class extends Migration
             $table->boolean('verification_status')->nullable()->default(0); // artist output -> approval by admin
             $table->timestamp('delivery_date')->nullable();
             $table->unsignedInteger('estimate_date')->nullable()->default(3);
-            $table->timestamp('approved_at')->nullable()->default(now());
+            $table->timestamp('approved_at')->nullable();
 
             // can request resubmission (can request a custom song to be edited)
             // can review song request
