@@ -32,6 +32,7 @@ return new class extends Migration
             $table->timestamp('last_accessed')->nullable()->useCurrent();
             $table->unsignedDecimal('credit_balance', 10)->nullable()->default(0.00);
             $table->string('bucket')->nullable();
+            $table->boolean('is_freeloader')->default(false)->comment('true - not required subscription (company artist), false - required subscription');
             $table->timestamps();
             $table->softDeletes('deactivated_at');
         });

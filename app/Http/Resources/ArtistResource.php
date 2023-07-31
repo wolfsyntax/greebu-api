@@ -15,7 +15,7 @@ class ArtistResource extends JsonResource
      */
     public function toArray(Request $request)
     {
-
+        $this->profile->loadCount('followers', 'following');
         return [
             'id'            => $this->id,
             'artist_name'   => $this->profile->business_name,
@@ -23,9 +23,12 @@ class ArtistResource extends JsonResource
             'avatar'        => $this->profile->avatar,
             'ratings'       => $this->avgRating,
             'reviews'       => count($this->reviews),
+            'bio'           => $this->profile->bio,
             'song_requests' => $this->song_requests_count ?? 0,
             'genres'        => new GenreCollection($this->genres),
-            'song'          => 'https://res.cloudinary.com/daorvtlls/video/upload/v1687411869/merrow-rock-skyline-pigeon-elton-john_h0chm4.mp3'
+            'song'          => 'https://res.cloudinary.com/daorvtlls/video/upload/v1687411869/merrow-rock-skyline-pigeon-elton-john_h0chm4.mp3',
+            'follower'      => $this->profile->followers_count,
+            'following'     => $this->profile->following_count,
         ];
         return parent::toArray($request);
     }

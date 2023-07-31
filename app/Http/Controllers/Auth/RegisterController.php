@@ -163,6 +163,7 @@ class RegisterController extends Controller
             'message'   => 'Account successfully registered.',
             'result'    => [
                 'user_id'   => $user->id,
+                'user'  => $user,
             ]
         ], 201);
 

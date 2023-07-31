@@ -72,5 +72,6 @@ class Kernel extends HttpKernel
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
 
         'phoneVerified' => \App\Http\Middleware\EnsurePhoneIsVerified::class,
+        'restrictEdit'  => \App\Http\Middleware\RestrictRequestEditor::class,
     ];
 }

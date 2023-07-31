@@ -64,11 +64,11 @@ class SongController extends Controller
     public function store(Request $request, $role = 'customers')
     {
 
-        $validator = Validator::make($request->all(), [
-            'artist_type_id'    => ['required', 'exists:artist_types,id',],
+        $request->validate([
+            // 'artist_type_id'    => ['required', 'exists:artist_types,id',],
             'artists'            => ['required', 'array', 'max:3'],
             'artists.*.id'       => ['required', 'exists:artists,id',],
-            'genre_id'          => ['required', 'exists:genres,id',],
+            // 'genre_id'          => ['required', 'exists:genres,id',],
             'song_type_id'      => ['required', 'exists:song_types,id',], // mood
             'language_id'       => ['required', '',], // supported_languages
             'duration_id'       => ['required', '',], // durations
@@ -81,16 +81,6 @@ class SongController extends Controller
             'user_story'        => ['required', 'string', 'max:500',],
             'page_status'       => ['required', 'string', 'max:64'],
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'message' => "Invalid data",
-                'result' => [
-                    'errors' => $validator->errors(),
-                ],
-            ], 203);
-        }
 
         $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
             $query->where('name', 'LIKE', '%' . $role . '%');
@@ -163,7 +153,7 @@ class SongController extends Controller
     public function update(Request $request, SongRequest $songRequest)
     {
         //
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'artist_type_id'    => ['required', 'exists:artist_types,id',],
             'genre_id'          => ['required', 'exists:genres,id',],
             'song_type_id'      => ['required', 'exists:song_types',], // mood
@@ -179,16 +169,6 @@ class SongController extends Controller
             'page_status'       => ['required', 'string', 'max:64'],
             'estimate_date'     => ['required', 'integer',],
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 422,
-                'message' => "Invalid data",
-                'result' => [
-                    'errors' => $validator->errors(),
-                ],
-            ], 203);
-        }
 
         $songRequest->artist_type_id = $request->input('artist_type_id');
         $songRequest->genre_id = $request->input('genre_id');
@@ -326,5 +306,154 @@ class SongController extends Controller
         $this->successResponse('...', [
             'song_request' => $songRequest,
         ]);
+    }
+
+    public function stepOne(Request $request, SongRequest $song = null)
+    {
+        $request->validate([
+            // 'artist_type_id'    => ['required', 'exists:artist_types,id',],
+            'first_name'        => ['required', 'string', 'max:255',],
+            'last_name'         => ['required', 'string', 'max:255',],
+            'email'             => ['required', 'email:rfc,dns', 'max:255',],
+            'role'              => ['required', 'in:service-provider,artists,organizer,customers',],
+        ]);
+
+        if (!$song) {
+
+            $role = $request->query('role');
+
+            $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
+                $query->where('name', 'LIKE', '%' . $role . '%');
+            })->first();
+
+            $song = SongRequest::create([
+                'creator_id'        => $profile->id,
+                'first_name'        => $request->first_name,
+                'last_name'         => $request->last_name,
+                'email'             => $request->email,
+                'page_status'       => 'info',
+            ]);
+        } else {
+
+            $song->update([
+                'first_name'        => $request->first_name,
+                'last_name'         => $request->last_name,
+                'email'             => $request->email,
+                'page_status'       => 'info',
+            ]);
+        }
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($song)
+            ->log('Create a song request [Step 1 - Info]');
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Song request successfully created.',
+            'result'    => [
+                'song_request' => $song,
+            ],
+        ], 200);
+    }
+
+    public function stepTwo(Request $request, SongRequest $song)
+    {
+        // $request->merge([
+        //     'artists' => json_decode($request->artists),
+        // ]);
+
+        // return response()->json([
+        //     'status'    => 200,
+        //     'message'   => '...',
+        //     'result'    => [
+        //         'type'  => gettype($request->artists),
+        //         'decode' => json_decode($request->artists),
+        //     ]
+        // ]);
+
+        $request->validate([
+            'artists'            => ['required', 'array', 'max:3'],
+            'artists.*.*'       => ['required', 'exists:artists,id',],
+            'song_type_id'      => ['required', 'exists:song_types,id',], // mood
+            'language_id'       => ['required', 'exists:supported_languages,id',], // supported_languages
+            'duration_id'       => ['required', 'exists:durations,id',], // durations
+            'role'              => ['required', 'in:service-provider,artists,organizer,customers',],
+        ]);
+
+        $song->update([
+            'song_type_id'  => $request->input('song_type_id'),
+            'language_id'   => $request->input('language_id'),
+            'duration_id'   => $request->input('duration_id'),
+            'page_status'   => 'song',
+        ]);
+
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($song)
+            ->log('Create a song request [Step 2 - Song]');
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Song request successfully created.',
+            'result'    => [
+                'song_request' => $song,
+            ],
+        ], 200);
+    }
+
+    public function stepThree(Request $request, SongRequest $song)
+    {
+        $request->validate([
+            'purpose_id'        => ['required', 'exists:purposes,id',], // purposes
+            'sender'            => ['required', 'string', 'max:255',],
+            'receiver'          => ['required', 'string', 'max:255',],
+            'user_story'        => ['required', 'string', 'max:500',],
+            'role'              => ['required', 'in:service-provider,artists,organizer,customers',],
+        ]);
+
+        $song->update([
+            'purpose_id'    => $request->input('purpose_id'),
+            'sender'        => $request->input('sender'),
+            'receiver'      => $request->input('receiver'),
+            'user_story'    => $request->input('user_story'),
+            'page_status'   => 'story',
+        ]);
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($song)
+            ->log('Create a song request [Step 3 - Song]');
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Song request successfully created.',
+            'result'    => [
+                'song_request' => $song,
+            ],
+        ], 200);
+    }
+
+    public function stepFinal(Request $request, SongRequest $song)
+    {
+
+        $song->update([
+            'page_status'   => 'review',
+            'role'          => ['required', 'in:service-provider,artists,organizer,customers',],
+        ]);
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($song)
+            ->log('Create a song request [Step 3 - Song]');
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Song request successfully created.',
+            'result'    => [
+                'song_request' => $song,
+            ],
+        ], 200);
     }
 }
