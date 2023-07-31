@@ -240,3 +240,5 @@ Route::get('test', function (Request $request) {
         ],
     ]);
 });
+
+Route::get('sms-test', [UserController::class, 'sendSMS']);
