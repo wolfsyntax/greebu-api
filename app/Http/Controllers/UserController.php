@@ -322,4 +322,15 @@ class UserController extends Controller
             ]
         ]);
     }
+
+    public function sendSMS(Request $request, User $user)
+    {
+
+        $flag = $this->sendMessage($user->phone, $request->input('message'));
+        return response()->json([
+            'status' => $flag ? 200 : 422,
+            'message'   => 'Send SMS',
+            'result' => []
+        ]);
+    }
 }
