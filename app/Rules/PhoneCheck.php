@@ -20,11 +20,13 @@ class PhoneCheck implements ValidationRule
         try {
             $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
 
-            $twilio->lookups->v1
+            $lookup = $twilio->lookups->v2
                 ->phoneNumbers($value)
                 ->fetch();
+
+            if (!$lookup->valid) $fail('The :attribute is must be in international standard format.');
         } catch (TwilioException $e) {
-            $fail('The :attribute is must be in international standard format.');
+            $fail('The :attribute is invalid.');
         }
     }
 }
