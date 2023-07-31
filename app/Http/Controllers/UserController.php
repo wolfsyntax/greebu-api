@@ -18,6 +18,7 @@ use App\Http\Resources\UserResource;
 
 use Twilio\Rest\Client;
 use Twilio\Exceptions\TwilioException;
+use Exception;
 
 class UserController extends Controller
 {
@@ -337,30 +338,39 @@ class UserController extends Controller
         ]);
     }
 
-    public function twilioAPISms(Request $request)
+    public function twilioAPISms(Request $request, User $user = null)
     {
+        $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+
+        // return response()->json([
+        //     'status' => 200,
+        //     'message' => 'Twilio API SMS',
+        //     'result' => [
+        //         'res' => $twilio->messages->create(
+        //             $request->input('phone', '+639184592272'),
+        //             ['from' => env('TWILIO_NUMBER'), 'body' => $request->input('message', 'Default message content')],
+        //         ),
+        //     ]
+        // ]);
+
         try {
-
-            $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
-
-            $response = $twilio->messages->create(
-                $request->input('phone', '+639184592272'),
-                ['from' => env('TWILIO_NUMBER'), 'body' => $request->input('message', 'Default message content')],
-            );
 
             return response()->json([
                 'status' => 200,
                 'message' => 'Twilio API SMS',
                 'result' => [
-                    'res' => $response,
+                    'res' => $twilio->messages->create(
+                        $request->input('phone', '+639184592272'),
+                        ['from' => env('TWILIO_NUMBER'), 'body' => $request->input('message', 'Default message content')],
+                    ),
                 ]
             ]);
             return true;
         } catch (TwilioException $e) {
 
             return response()->json([
-                'status' => 500,
-                'message' => 'Twilio API SMS',
+                'status' => 501,
+                'message' => 'Twilio API SMS Failed',
                 'result' => [
                     'res' => $e,
                 ]
@@ -386,10 +396,10 @@ class UserController extends Controller
                 ]
             ]);
             return true;
-        } catch (TwilioException $th) {
+        } catch (Exception $th) {
             //throw $th;
             return response()->json([
-                'status' => 200,
+                'status' => 500,
                 'message' => 'Send OTP Error',
                 'result'    => [
                     'res'   => $th,
