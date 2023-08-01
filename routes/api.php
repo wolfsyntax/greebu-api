@@ -248,6 +248,8 @@ Route::post('sms-otp/{user?}', [UserController::class, 'twilioAPIOtp']);
 
 
 use App\Traits\TwilioTrait;
+
+
 Route::get('r-otp', function (Request $request) {
 
     $receiverNumber = "+639184592272";
@@ -268,17 +270,19 @@ Route::get('r-otp', function (Request $request) {
             'status' => 200,
             'message'   => 'Sent',
             'result'    => [
-                $request->all(),
+                $account_sid,$auth_token,
             ],
-    ]);
+        ]);
 
     } catch (Exception $e) {
+
         return response()->json([
             'status' => 403,
-            'message'   => '',
+            'message'   => 'Message sending failed',
             'result'    => [
-                $e->getMessage(),
+                $e->getMessage(),$account_sid,$auth_token,
             ],
-        ]);        
+        ]);
+
     }
 });
