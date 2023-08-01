@@ -85,6 +85,11 @@ return [
                 'log',
             ],
         ],
+
+        // SendGrid
+        'sendgrid' => [
+            'transport' => 'sendgrid',
+        ],
     ],
 
     /*

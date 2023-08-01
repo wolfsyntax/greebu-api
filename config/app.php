@@ -170,6 +170,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         // AWS
         Aws\Laravel\AwsServiceProvider::class,
+        // Sendgrid Driver
+        Sichikawa\LaravelSendgridDriver\SendgridTransportServiceProvider::class,
     ])->toArray(),
 
     /*

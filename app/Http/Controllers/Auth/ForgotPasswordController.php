@@ -39,30 +39,39 @@ class ForgotPasswordController extends Controller
     public function sendResetLinkEmail(Request $request)
     {
         $request->validate([
-            'email' => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'exists:users,email',] : ['required', 'string', 'email:rfc,dns', 'max:255', 'exists:users,email',],
-        ]);
-
-        $token = Str::random(64);
-
-        DB::table('password_resets')->insert([
-            'email' => $request->input('email'),
-            'token' => $token,
-            'created_at' => now()
+            'email' => !app()->isProduction() ? ['required', 'string', 'email', 'max:255',] : ['required', 'string', 'email:rfc,dns', 'max:255',],
         ]);
 
         $user = User::select('first_name', 'email')->where('email', $request->input('email'))->first();
 
-        $user->notify(new ForgotPass($token, $user));
+        if ($user) {
+            $token = Str::random(64);
 
-        // $status = Password::sendResetLink($request->only('email'));
+            DB::table('password_resets')->insert([
+                'email' => $request->input('email'),
+                'token' => $token,
+                'created_at' => now()
+            ]);
 
-        return response()->json([
-            'status'        => 200,
-            'message'       => 'Forgot password.',
-            'result'        => [
-                'token'     => $token,
-                'user'         => $user,
-            ],
-        ]);
+
+            $user->notify(new ForgotPass($token, $user));
+
+            // $status = Password::sendResetLink($request->only('email'));
+
+            return response()->json([
+                'status'        => 200,
+                'message'       => 'Forgot password.',
+                'result'        => [
+                    'token'     => $token,
+                    'user'         => $user,
+                ],
+            ]);
+        } else {
+            return response()->json([
+                'status'        => 200,
+                'message'       => 'Email not registered.',
+                'result'        => [],
+            ]);
+        }
     }
 }
