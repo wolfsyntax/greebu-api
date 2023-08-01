@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "aws/aws-sdk-php": "^3.277",
         "aws/aws-sdk-php-laravel": "^3.8",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
@@ -15,6 +16,8 @@
         "laravel/ui": "^4.2",
         "league/flysystem-aws-s3-v3": "^3.15",
         "nesbot/carbon": "^2.68",
+        "s-ichikawa/laravel-sendgrid-driver": "^4.0",
+        "sendgrid/sendgrid": "^8.0",
         "spatie/laravel-activitylog": "^4.7",
         "spatie/laravel-permission": "^5.10",
         "twilio/sdk": "^7.5"
