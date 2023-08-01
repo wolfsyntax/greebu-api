@@ -14,7 +14,7 @@ COPY docker/php/conf.d/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 COPY --from=build /app /var/www/html
 COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-RUN composer dump-autoload && \
+RUN composer dump-autoload --optimize && \
     php artisan cache:clear && \
     php artisan config:clear && \
     php artisan view:clear && \
