@@ -340,7 +340,8 @@ class UserController extends Controller
 
     public function twilioAPISms(Request $request, User $user = null)
     {
-        $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+        // $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+        // $twilio = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
 
         // return response()->json([
         //     'status' => 200,
@@ -354,7 +355,7 @@ class UserController extends Controller
         // ]);
 
         try {
-
+            $twilio = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
             return response()->json([
                 'status' => 200,
                 'message' => 'Twilio API SMS',
@@ -383,7 +384,7 @@ class UserController extends Controller
     public function twilioAPIOtp(Request $request, User $user = null)
     {
         try {
-            $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+            $twilio = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
 
             $response = $twilio->verify->v2->services(env('TWILIO_SERVICE_ID'))
                 ->verifications->create($request->input('phone', '+639184592272'), "sms");

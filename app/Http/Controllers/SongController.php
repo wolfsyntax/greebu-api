@@ -10,7 +10,7 @@ use App\Models\Profile;
 use App\Models\SongRequest;
 use App\Models\SongType;
 use App\Models\SupportedLanguage;
-
+use App\Http\Resources\SongRequestResource;
 use Carbon\Carbon;
 
 use Illuminate\Support\Facades\Validator;
@@ -135,14 +135,33 @@ class SongController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SongRequest $songRequest)
+    public function show(Request $request, SongRequest $songRequest)
     {
         //
+        $songRequest->load(['language', 'mood', 'duration', 'purpose', 'artists']);
+        $user = $request->user();
+        $user->load('profiles');
+
+        $userIds = $user->profiles()->pluck('id');
+
+        $song = $songRequest->whereHas('artists', function ($query) use ($userIds) {
+            // $user->profiles()->pluck('id')
+            return $query->whereIn('profile_id', $userIds);
+        });
+
+        if (!array_search($songRequest->creator_id, $request->toArray($userIds)) || !$song) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'Unauthorized Request or song request not owned',
+                'result' => [],
+            ]);
+        }
+
         return response()->json([
             'status' => 200,
             'message'   => '...',
             'result'    => [
-                'song_request' => $songRequest,
+                'song_request' => new SongRequestResource($songRequest),
             ],
         ]);
     }
