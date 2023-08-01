@@ -244,3 +244,41 @@ Route::get('test', function (Request $request) {
 Route::post('sms-test/{user}', [UserController::class, 'sendSMS']);
 Route::post('sms-client/{user?}', [UserController::class, 'twilioAPISms']);
 Route::post('sms-otp/{user?}', [UserController::class, 'twilioAPIOtp']);
+
+
+
+use App\Traits\TwilioTrait;
+Route::get('r-otp', function (Request $request) {
+
+    $receiverNumber = "+639184592272";
+    $message = "Test from ed";
+
+    try {
+
+        $account_sid = env('TWILIO_SID');
+        $auth_token = env('TWILIO_AUTH_TOKEN');
+        $twilio_number = '+639191610141';
+
+        $client = new Client($account_sid, $auth_token);
+        $client->messages->create($receiverNumber, [
+            'from' => $twilio_number,
+            'body' => $message]);
+
+        return response()->json([
+            'status' => 200,
+            'message'   => 'Sent',
+            'result'    => [
+                $request->all(),
+            ],
+    ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'status' => 403,
+            'message'   => '',
+            'result'    => [
+                $e->getMessage(),
+            ],
+        ]);        
+    }
+});
