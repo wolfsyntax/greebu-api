@@ -9,6 +9,13 @@ use Twilio\Rest\Client;
 
 class PhoneCheck implements ValidationRule
 {
+    protected $params;
+
+    public function __construct($param = 'PH')
+    {
+        $this->params = $param;
+    }
+
     /**
      * Run the validation rule.
      *
@@ -18,11 +25,11 @@ class PhoneCheck implements ValidationRule
     {
 
         try {
-            $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+            $twilio = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
 
-            $lookup = $twilio->lookups->v2
+            $lookup = $twilio->lookups->v1
                 ->phoneNumbers($value)
-                ->fetch();
+                ->fetch(['countryCode' => $this->params]);
 
             if (!$lookup->valid) $fail('The :attribute is must be in international standard format.');
         } catch (TwilioException $e) {
