@@ -150,6 +150,10 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     })->middleware(['restrictEdit']);
 });
 
+Route::get('/email/verify', 'VerificationController@show')->name('verification.notice');
+Route::get('/email/verify/{id}/{hash}', 'VerificationController@verify')->name('verification.verify')->middleware(['signed']);
+Route::post('/email/resend', 'VerificationController@resend')->name('verification.resend');
+
 Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
     Route::post('phone/send', [UserController::class, 'phone']);
     Route::post('phone/verify', [UserController::class, 'phoneVerify2']);
@@ -245,4 +249,5 @@ Route::post('sms-test/{user}', [UserController::class, 'sendSMS']);
 Route::post('sms-client/{user?}', [UserController::class, 'twilioAPISms']);
 Route::post('sms-otp/{user?}', [UserController::class, 'twilioAPIOtp'])->middleware('throttle:4,10');
 
-// Route::post('phone-validate', [UserController::class, 'phoneValidator']);
+Route::post('phone-validate', [UserController::class, 'phoneValidator']);
+// Auth::routes(['verify' => true]);
