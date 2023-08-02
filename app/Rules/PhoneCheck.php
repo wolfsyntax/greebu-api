@@ -27,7 +27,7 @@ class PhoneCheck implements ValidationRule
         try {
             $twilio = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
 
-            $lookup = $twilio->lookups->v1
+            $lookup = $twilio->lookups->v2
                 ->phoneNumbers($value)
                 ->fetch(['countryCode' => $this->params]);
 
