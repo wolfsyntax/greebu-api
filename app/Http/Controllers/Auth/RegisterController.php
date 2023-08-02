@@ -153,9 +153,9 @@ class RegisterController extends Controller
             ]);
         }
 
-        if ($user->phone) {
-            $user->sendCode();
-        }
+        // if ($user->phone) {
+        //     $user->sendCode();
+        // }
         event(new Registered($user));
 
         return response()->json([

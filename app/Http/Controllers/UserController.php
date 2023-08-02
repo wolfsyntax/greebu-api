@@ -311,21 +311,21 @@ class UserController extends Controller
             ], 203);
         }
     }
-    public function twilioLimiter(Request $request)
-    {
-        return response()->json([
-            'status' => 200,
-            'message'   => '...',
-            'result' => [
-                '1' => $this->sendOTP('+639184592272'),
-                '2' => $this->sendOTP('+6309184592272'),
-                '3' => $this->sendOTP('+639184592272'),
-                '4' => $this->sendOTP('+639184592272'),
-                '5' => $this->sendOTP('+6309184592272'),
-                '6' => $this->sendOTP('+6309184592272'),
-            ]
-        ]);
-    }
+    // public function twilioLimiter(Request $request)
+    // {
+    //     return response()->json([
+    //         'status' => 200,
+    //         'message'   => '...',
+    //         'result' => [
+    //             '1' => $this->sendOTP('+639184592272'),
+    //             '2' => $this->sendOTP('+6309184592272'),
+    //             '3' => $this->sendOTP('+639184592272'),
+    //             '4' => $this->sendOTP('+639184592272'),
+    //             '5' => $this->sendOTP('+6309184592272'),
+    //             '6' => $this->sendOTP('+6309184592272'),
+    //         ]
+    //     ]);
+    // }
 
     public function sendSMS(Request $request, User $user)
     {
@@ -384,10 +384,14 @@ class UserController extends Controller
     public function twilioAPIOtp(Request $request, User $user = null)
     {
         try {
-            $twilio = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
+            $client = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
 
-            $response = $twilio->verify->v2->services(env('TWILIO_SERVICE_ID'))
-                ->verifications->create($request->input('phone', '+639184592272'), "sms");
+            $twilio = $client->verify->v2->services(env('TWILIO_SERVICE_ID'))
+                ->verifications;
+
+
+            $response = !$user ? $twilio->create($request->input('phone', '+639184592272'), "sms")
+                : $twilio->create($user->phone, "sms");
 
             return response()->json([
                 'status' => 200,
@@ -396,7 +400,6 @@ class UserController extends Controller
                     'res'   => $response,
                 ]
             ]);
-            return true;
         } catch (Exception $th) {
             //throw $th;
             return response()->json([

@@ -243,6 +243,6 @@ Route::get('test', function (Request $request) {
 
 Route::post('sms-test/{user}', [UserController::class, 'sendSMS']);
 Route::post('sms-client/{user?}', [UserController::class, 'twilioAPISms']);
-Route::post('sms-otp/{user?}', [UserController::class, 'twilioAPIOtp']);
+Route::post('sms-otp/{user?}', [UserController::class, 'twilioAPIOtp'])->middleware('throttle:4,10');
 
 // Route::post('phone-validate', [UserController::class, 'phoneValidator']);
