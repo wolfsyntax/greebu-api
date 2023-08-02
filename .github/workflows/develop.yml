@@ -12,12 +12,13 @@ env:
   ECS_SERVICE: geebu-backend-dev-service
   ECS_CLUSTER: geebu-backend-dev-cluster
   CONTAINER_NAME: geebu-backend-dev
-
+  
   APP_NAME: ${{secrets.STAGING_APP_NAME}}
   APP_ENV: ${{secrets.STAGING_APP_ENV}}
   APP_KEY: ${{secrets.STAGING_APP_KEY}}
   APP_DEBUG: ${{secrets.STAGING_APP_DEBUG}}
   APP_URL: ${{secrets.STAGING_APP_URL}}
+  FRONTEND_URL: ${{secrets.STAGING_FRONTEND_URL}}
 
   LOG_CHANNEL: ${{secrets.STAGING_LOG_CHANNEL}}
   LOG_DEPRECATIONS_CHANNEL: ${{secrets.STAGING_LOG_DEPRECATIONS_CHANNEL}}
