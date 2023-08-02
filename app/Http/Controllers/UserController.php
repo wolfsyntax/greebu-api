@@ -410,4 +410,17 @@ class UserController extends Controller
             return false;
         }
     }
+
+    public function phoneValidator(Request $request)
+    {
+        $request->validate([
+            'phone'             => ['required', new PhoneCheck()],
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Checking Phone number',
+            'result'    => []
+        ]);
+    }
 }
