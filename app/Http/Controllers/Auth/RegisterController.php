@@ -20,6 +20,9 @@ use App\Models\Profile;
 
 use App\Rules\PhoneCheck;
 use App\Traits\TwilioTrait;
+use App\Notifications\EmailVerification;
+use Egulias\EmailValidator\EmailValidator;
+use App\Http\Resources\ProfileResource;
 
 class RegisterController extends Controller
 {
@@ -132,7 +135,7 @@ class RegisterController extends Controller
             'province'          => 'Camarines Sur',
         ])->assignRole($request->input('account_type', 'customers'));
 
-        if ($request->input('account_type', 'customers') === 'artists') {
+        if ($request->input('account_type') === 'artists') {
 
             $artistType = \App\Models\ArtistType::first();
             $genre = \App\Models\Genre::where('title', 'Others')->first();
@@ -153,18 +156,39 @@ class RegisterController extends Controller
             ]);
         }
 
-        // if ($user->phone) {
-        //     $user->sendCode();
-        // }
+        if ($user->phone) {
+            $user->sendCode();
+        }
+
         event(new Registered($user));
 
+        $user->notify(new EmailVerification($user));
+
+        $userProfiles = Profile::with('roles', 'followers', 'following')->where('user_id', $user->id)->get();
+        $userRoles = collect($userProfiles)->map(function ($query) {
+            return $query->getRoleNames()->first();
+        });
+
+        $data = [
+            'user_id'       => $user->id,
+            'user'          => $user,
+            'profile'       => new ProfileResource($profile, 's3'),
+            'roles'         => $userRoles,
+            'token'         => '',
+        ];
+
+        if ($request->input('account_type') === 'customers') {
+
+            // auth()->login($user, true);
+
+            $data['token'] = $user->createToken("user_auth")->accessToken;
+        }
+
+        // $token = $request->input('account_type') === 'customers' ? $user->createToken("user_auth")->accessToken : '';
         return response()->json([
-            'status'    => 200,
-            'message'   => 'Account successfully registered.',
-            'result'    => [
-                'user_id'   => $user->id,
-                'user'  => $user,
-            ]
+            'status'            => 200,
+            'message'           => 'Account successfully registered.',
+            'result'            => $data,
         ], 201);
 
         return redirect()->to('/login');
