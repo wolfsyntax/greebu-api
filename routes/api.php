@@ -150,9 +150,9 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     })->middleware(['restrictEdit']);
 });
 
-Route::get('/email/verify', 'VerificationController@show')->name('verification.notice');
-Route::get('/email/verify/{id}/{hash}', 'VerificationController@verify')->name('verification.verify')->middleware(['signed']);
-Route::post('/email/resend', 'VerificationController@resend')->name('verification.resend');
+// Route::get('/email/verify', [VerificationController::class, 'show'])->name('verification.notice');
+// Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify')->middleware(['signed']);
+// Route::post('/email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
 
 Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
     Route::post('phone/send', [UserController::class, 'phone']);

@@ -97,4 +97,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Profile::class);
     }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \App\Notifications\EmailVerification($this));
+    }
 }
