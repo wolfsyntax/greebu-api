@@ -288,8 +288,13 @@ class UserController extends Controller
     {
         $request->validate([
             'code'  => ['required', 'size:6'],
+            'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
         ]);
-
+        return response()->json([
+            'status' => 200,
+            'message' => 'Phone Verification',
+            'result'    => [],
+        ]);
         $user = User::where('id', auth()->user()->id)->first();
 
         if ($user->phone) {
@@ -298,10 +303,34 @@ class UserController extends Controller
                 $user->phone_verified_at = now();
                 $user->save();
             }
+
+            $role = $request->input('role', 'customers');
+
+            $profile = Profile::with(['followers', 'following', 'roles'])->where('user_id', $user->id)->whereHas('roles', function ($query) use ($role) {
+                $query->where('name', $role);
+            })->first();
+
+            $userProfiles = Profile::with('roles', 'followers', 'following')->where('user_id', $user->id)->get();
+            $userRoles = collect($userProfiles)->map(function ($query) {
+                return $query->getRoleNames()->first();
+            });
+
+            $data = [
+                'user'      => $user,
+                'profile'   => new ProfileResource($profile, 's3'),
+            ];
+
+            if ($request->input('role', 'customers') === 'customers') {
+
+                // $data['profile'] = new ProfileResource($profile, 's3');
+                $data['token'] = $user->createToken("user_auth")->accessToken;
+                $data['roles'] = $userRoles;
+            }
+
             return response()->json([
-                'status'    => 200,
-                'message'   => 'Verification Code Checker',
-                'result'    => [],
+                'status'        => 200,
+                'message'       => 'Verification Code Checker',
+                'result'        => $data
             ]);
         } else {
             return response()->json([
@@ -384,14 +413,10 @@ class UserController extends Controller
     public function twilioAPIOtp(Request $request, User $user = null)
     {
         try {
-            $client = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
+            $twilio = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
 
-            $twilio = $client->verify->v2->services(env('TWILIO_SERVICE_ID'))
-                ->verifications;
-
-
-            $response = !$user ? $twilio->create($request->input('phone', '+639184592272'), "sms")
-                : $twilio->create($user->phone, "sms");
+            $response = $twilio->verify->v2->services(env('TWILIO_SERVICE_ID'))
+                ->verifications->create($request->input('phone', '+639184592272'), "sms");
 
             return response()->json([
                 'status' => 200,
@@ -400,6 +425,7 @@ class UserController extends Controller
                     'res'   => $response,
                 ]
             ]);
+            return true;
         } catch (Exception $th) {
             //throw $th;
             return response()->json([
