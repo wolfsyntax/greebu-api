@@ -80,12 +80,6 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
 
-        // $email_rules = !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'];
-
-        // if ($request->input('reg_type') === 'phone') {
-        //     $email_rules = ['required', 'string', 'regex:/^((\+63)|0)[.\- ]?9[0-9]{2}[.\- ]?[0-9]{3}[.\- ]?[0-9]{4}$/i'];
-        // }
-
         $request->validate([
             'first_name'    => ['required', 'string', 'max:255'],
             'last_name'     => ['required', 'string', 'max:255'],
@@ -99,7 +93,7 @@ class RegisterController extends Controller
                     ->symbols()
                     ->uncompromised(),
             ],
-            'account_type'  => ['string', Rule::in(['customers', 'artists', 'organizer', 'service-provider']),],
+            'account_type'  => ['required', 'string', Rule::in(['customers', 'artists', 'organizer', 'service-provider']),],
         ]);
 
         $formData = [
@@ -111,60 +105,35 @@ class RegisterController extends Controller
             'phone'         => $request->phone,
         ];
 
-        if ($request->input('reg_type') === 'phone') {
+        // if ($request->input('reg_type') === 'phone') {
 
-            $formData = [
-                'first_name'    => $request->first_name,
-                'last_name'     => $request->last_name,
-                'username'      => $request->username,
-                'phone'         => $request->phone,
-                'password'      => $request->password,
-            ];
-        }
+        //     $formData = [
+        //         'first_name'    => ucfirst($request->first_name),
+        //         'last_name'     => ucfirst($request->last_name),
+        //         'username'      => $request->username,
+        //         'phone'         => $request->phone,
+        //         'password'      => $request->password,
+        //     ];
+        // }
 
         // $this->sendCode()
         $user = User::create($formData);
+        $account = $request->input('account_type', 'customers');
 
         $profile = Profile::create([
             'user_id' => $user->id,
+            'avatar'            => 'https://via.placeholder.com/424x424.png/006644?text=' . substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1),
             'business_email'    => $user->email,
             'phone'             => $user->phone,
             'business_name'     => $user->fullname,
             'city'              => 'Naga City',
             'zip_code'          => '4400',
             'province'          => 'Camarines Sur',
-        ])->assignRole($request->input('account_type', 'customers'));
-
-        if ($request->input('account_type') === 'artists') {
-
-            $artistType = \App\Models\ArtistType::first();
-            $genre = \App\Models\Genre::where('title', 'Others')->first();
-
-            $client_profile = \App\Models\Artist::create([
-                'profile_id'        => $profile->id,
-                'artist_type_id'    => $artistType->id,
-            ]);
-
-            $languages = \App\Models\SupportedLanguage::get();
-            $client_profile->genres()->sync($genre);
-            $client_profile->languages()->sync($languages);
-        } else {
-
-            $client_profile = \App\Models\Customer::create([
-                'profile_id'    => $profile->id,
-                'name'          => $user->fullname,
-            ]);
-        }
-
-        if ($user->phone) {
-            $user->sendCode();
-        }
-
-        event(new Registered($user));
-
-        $user->notify(new EmailVerification($user));
+            'is_freeloader'     => $account === 'customers',
+        ])->assignRole($request->input('account_type'));
 
         $userProfiles = Profile::with('roles', 'followers', 'following')->where('user_id', $user->id)->get();
+
         $userRoles = collect($userProfiles)->map(function ($query) {
             return $query->getRoleNames()->first();
         });
@@ -177,14 +146,39 @@ class RegisterController extends Controller
             'token'         => '',
         ];
 
-        if ($request->input('account_type') === 'customers') {
+        if ($account === 'artists') {
 
-            // auth()->login($user, true);
+            $artistType = \App\Models\ArtistType::first();
+            $genre = \App\Models\Genre::where('title', 'Others')->first();
 
-            $data['token'] = $user->createToken("user_auth")->accessToken;
+            $client_profile = \App\Models\Artist::create([
+                'profile_id'        => $profile->id,
+                'artist_type_id'    => $artistType->id,
+            ]);
+
+            $languages = \App\Models\SupportedLanguage::get();
+            $client_profile->genres()->sync($genre);
+            $client_profile->languages()->sync($languages);
+        } else if ($account === 'customers') {
+
+            $client_profile = \App\Models\Customer::create([
+                'profile_id'    => $profile->id,
+                'name'          => $user->fullname,
+            ]);
+        } else if ($account === 'organizer') {
+        } else {
         }
 
-        // $token = $request->input('account_type') === 'customers' ? $user->createToken("user_auth")->accessToken : '';
+        if ($user->phone) {
+            $user->sendCode();
+        }
+
+        event(new Registered($user));
+
+        $user->notify(new EmailVerification($user));
+
+        $data['token'] = $user->createToken("user_auth")->accessToken;
+
         return response()->json([
             'status'            => 200,
             'message'           => 'Account successfully registered.',

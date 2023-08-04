@@ -176,7 +176,7 @@ class NetworkController extends Controller
                 'result'        => [
                     'profile'   => new ProfileResource($profile, 's3'),
                     'user'      => $user,
-                    'token'     => $user->createToken("user_auth")->accessToken,
+                    'token'     => $user->phone_verified_at ? $user->createToken("user_auth")->accessToken : '',
                     'roles'     => $userRoles,
                 ],
             ]);
