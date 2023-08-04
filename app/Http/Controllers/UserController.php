@@ -290,11 +290,7 @@ class UserController extends Controller
             'code'  => ['required', 'size:6'],
             'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
         ]);
-        return response()->json([
-            'status' => 200,
-            'message' => 'Phone Verification',
-            'result'    => [],
-        ]);
+
         $user = User::where('id', auth()->user()->id)->first();
 
         if ($user->phone) {

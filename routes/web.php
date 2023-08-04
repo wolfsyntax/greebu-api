@@ -43,4 +43,6 @@ Route::get('/email/verify', [VerificationController::class, 'show'])->name('veri
 
 // Route::get('/email/verify/{user}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
 // Route::get('/email/verify/{user}/{hash}', [VerificationController::class, 'verify'])->middleware(['auth', 'signed'])->name('verification.verify');
+
 Route::get('/email/verify/{user}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+// Route::get('/email/verify/{user}/{hash}', [VerificationController::class, 'unsecuredVerification'])->name('verification.unsecured-verify');

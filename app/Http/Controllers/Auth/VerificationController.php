@@ -119,15 +119,10 @@ class VerificationController extends Controller
         $this->middleware('throttle:6,1')->only('verify', 'resend');
     }
 
-    public function verify(Request $request, User $user, $hash)
-    {
-        // if (!hash_equals((string) $request->route('id'), (string) $request->user()->getKey())) {
-        //     throw new AuthorizationException;
-        // }
 
-        // if (!hash_equals((string) $request->route('hash'), sha1($request->user()->getEmailForVerification()))) {
-        //     throw new AuthorizationException;
-        // }
+    // Verify email without authentication - verify()
+    public function unsecuredVerification(Request $request, User $user, $hash)
+    {
 
         if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
             throw new AuthorizationException;
@@ -159,5 +154,41 @@ class VerificationController extends Controller
         // return $request->wantsJson()
         //     ? new JsonResponse([], 204)
         //     : redirect(env('FRONTEND_URL'))->with('verified', true);
+    }
+
+    public function show(Request $request)
+    {
+        return $request->user()->hasVerifiedEmail()
+            ? ($request->user()->phone_verified_at ? redirect(env('FRONTEND_URL'))->with('verified', true) : redirect(env('FRONTEND_URL') . '/register?id=' . $request->user()->id)->with('verified', true))
+            : view('auth.verify');
+    }
+
+    public function verify(Request $request)
+    {
+        if (!hash_equals((string) $request->route('id'), (string) $request->user()->getKey())) {
+            throw new AuthorizationException;
+        }
+
+        if (!hash_equals((string) $request->route('hash'), sha1($request->user()->getEmailForVerification()))) {
+            throw new AuthorizationException;
+        }
+
+        if ($request->user()->hasVerifiedEmail()) {
+            return $request->wantsJson()
+                ? new JsonResponse([], 204)
+                : redirect($this->redirectPath());
+        }
+
+        if ($request->user()->markEmailAsVerified()) {
+            event(new Verified($request->user()));
+        }
+
+        if ($response = $this->verified($request)) {
+            return $response;
+        }
+
+        return $request->wantsJson()
+            ? new JsonResponse([], 204)
+            : redirect($this->redirectPath())->with('verified', true);
     }
 }

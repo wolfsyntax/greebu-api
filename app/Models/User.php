@@ -43,7 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $appends = [
-        'fullname',
+        'fullname', 'phonemask',
     ];
 
     /**
@@ -86,6 +86,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getFullnameAttribute(): string
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    /**
+     * Get Full name
+     * @return string
+     */
+    public function getPhonemaskAttribute(): string
+    {
+        return Str::of($this->phone)->mask('x', (Str::startsWith($this->phone, '+') ? 4 : 3), -2);
     }
 
     public function setPasswordAttribute(string $value): string

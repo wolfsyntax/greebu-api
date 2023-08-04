@@ -32,6 +32,8 @@ use App\Http\Controllers\SongController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SiteSettingsController;
 
+use App\Http\Controllers\TwilioController;
+
 // For testing Only
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
@@ -57,6 +59,10 @@ Route::get('/artists/trending', [ArtistController::class, 'trendingArtists']);
 Route::get('/country', [AdminCountryController::class, 'index']);
 Route::get('subscriptions/plan/{plan}', [SubscriptionController::class, 'pricings'])->where('plan', 'artists|organizer|service-provider');
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);
+
+Route::post('/user/{user}/send-otp', [TwilioController::class, 'sendOTP']);
+Route::post('/user/{user}/verify', [TwilioController::class, 'verify']);
+Route::get('/user/{user}/resend-otp', [TwilioController::class, 'twilio']);
 
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
@@ -158,6 +164,7 @@ Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
     Route::post('phone/send', [UserController::class, 'phone']);
     Route::post('phone/verify', [UserController::class, 'phoneVerify2']);
 });
+
 
 Route::get('fetch/{path}', function ($path) {
     //Storage::disk('s3priv')->deleteDirectory($path);
