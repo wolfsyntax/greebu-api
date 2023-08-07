@@ -37,7 +37,7 @@ class TwilioController extends Controller
 
         $request->validate([
             'phone' => [
-                'required', new PhoneCheck(),
+                'required', new PhoneCheck(), 'unique:users,phone,' . $user->id,
             ],
         ]);
 

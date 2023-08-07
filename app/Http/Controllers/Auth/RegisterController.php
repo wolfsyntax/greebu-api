@@ -146,28 +146,28 @@ class RegisterController extends Controller
             'token'         => '',
         ];
 
-        if ($account === 'artists') {
+        // if ($account === 'artists') {
 
-            $artistType = \App\Models\ArtistType::first();
-            $genre = \App\Models\Genre::where('title', 'Others')->first();
+        //     $artistType = \App\Models\ArtistType::first();
+        //     $genre = \App\Models\Genre::where('title', 'Others')->first();
 
-            $client_profile = \App\Models\Artist::create([
-                'profile_id'        => $profile->id,
-                'artist_type_id'    => $artistType->id,
-            ]);
+        //     $client_profile = \App\Models\Artist::create([
+        //         'profile_id'        => $profile->id,
+        //         'artist_type_id'    => $artistType->id,
+        //     ]);
 
-            $languages = \App\Models\SupportedLanguage::get();
-            $client_profile->genres()->sync($genre);
-            $client_profile->languages()->sync($languages);
-        } else if ($account === 'customers') {
+        //     $languages = \App\Models\SupportedLanguage::get();
+        //     $client_profile->genres()->sync($genre);
+        //     $client_profile->languages()->sync($languages);
+        // } else if ($account === 'customers') {
 
-            $client_profile = \App\Models\Customer::create([
-                'profile_id'    => $profile->id,
-                'name'          => $user->fullname,
-            ]);
-        } else if ($account === 'organizer') {
-        } else {
-        }
+        //     $client_profile = \App\Models\Customer::create([
+        //         'profile_id'    => $profile->id,
+        //         'name'          => $user->fullname,
+        //     ]);
+        // } else if ($account === 'organizer') {
+        // } else {
+        // }
 
         if ($user->phone) {
             $user->sendCode();
