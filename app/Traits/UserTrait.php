@@ -19,7 +19,14 @@ trait UserTrait
         $user->last_name = $request->last_name;
         $user->username = $request->username;
         $user->email = $request->email;
-        $user->phone = $request->phone;
+
+        if ($user->phone !== $request->input('phone')) {
+
+            $user->phone = $request->phone;
+            $user->phone_verified_at = null;
+            $user->sendCode();
+        }
+
         $user->password = $request->password;
         $user->save();
 
