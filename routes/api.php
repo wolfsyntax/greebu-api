@@ -35,7 +35,7 @@ use App\Http\Controllers\SiteSettingsController;
 use App\Http\Controllers\TwilioController;
 
 use App\Http\Controllers\API\VerificationController;
-
+use App\Http\Controllers\ProfileController;
 // For testing Only
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
@@ -121,6 +121,9 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::apiResource('posts', PostController::class);
     Route::post('users/{role}/switch', [UserController::class, 'switchAccount'])->whereIn('role', ['service-provider', 'organizer', 'artists', 'customers']);
     Route::get('user/profile', [UserController::class, 'create']);
+
+    Route::post('user/detail', [ProfileController::class, 'update']);
+    Route::post('user/profile', [ProfileController::class, 'store']);
 
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);

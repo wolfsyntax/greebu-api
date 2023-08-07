@@ -32,7 +32,7 @@ class ProfileController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['throttle:6,1', 'auth'])->only('store', 'update');
+        $this->middleware(['throttle:5,1', 'auth'])->only('store', 'update');
     }
     public function store(Request $request)
     {
