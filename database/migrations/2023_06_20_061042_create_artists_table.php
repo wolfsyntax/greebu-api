@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('artists', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('profile_id')->constrained();
-            $table->foreignUuid('artist_type_id')->constrained();
+            $table->foreignUuid('artist_type_id')->nullable()->constrained();
 
             $table->string('youtube_channel')->nullable()->default('');
             $table->string('twitter_username')->nullable()->default('');

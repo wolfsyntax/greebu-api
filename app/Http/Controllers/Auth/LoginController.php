@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\ProfileResource;
+use App\Models\Customer;
+use App\Models\Organizer;
+use App\Models\ServiceProvider;
+use App\Models\Artist;
 use App\Models\User;
 use App\Models\Profile;
 use Auth;
@@ -95,12 +99,26 @@ class LoginController extends Controller
                 'result' => []
             ], 203);
 
+            $profile = new ProfileResource($profile, 's3');
+
+            $account = null;
+            if ($profile->role === 'customers') {
+                $account = Customer::where('profile_id', $profile->id)->first();
+            } else if ($profile->role === 'organizer') {
+                $account = Organizer::where('profile_id', $profile->id)->first();
+            } else if ($profile->role === 'artists') {
+                $account = Artist::where('profile_id', $profile->id)->first();
+            } else {
+                $account = ServiceProvider::where('profile', $profile->id)->first();
+            }
+
             return response()->json([
                 'status'        => 200,
                 'message'       => 'Login Successfully.',
                 'result'        => [
-                    'profile'   =>  new ProfileResource($profile, 's3'),
+                    'profile'   =>  $profile,
                     'user'      => $user,
+                    'account'   => $account,
                     'token'     => $user->createToken("user_auth")->accessToken,
                     'roles'     => $userRoles,
                 ],
