@@ -177,7 +177,8 @@ class RegisterController extends Controller
 
         $user->notify(new EmailVerification($user));
 
-        $data['token'] = $user->createToken("user_auth")->accessToken;
+        $data['token'] = '';
+        // $data['token'] = $user->createToken("user_auth")->accessToken;
 
         return response()->json([
             'status'            => 200,

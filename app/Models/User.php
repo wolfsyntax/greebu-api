@@ -94,7 +94,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getPhonemaskAttribute(): string
     {
-        return Str::of($this->phone)->mask('x', (Str::startsWith($this->phone, '+') ? 4 : 3), -2);
+        return Str::of($this->phone)->mask('x', (Str::startsWith($this->phone, '+') ? 4 : 3), -4);
     }
 
     public function setPasswordAttribute(string $value): string

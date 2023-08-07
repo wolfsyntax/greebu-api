@@ -13,6 +13,8 @@ use App\Http\Resources\ProfileResource;
 use App\Traits\UserTrait;
 use App\Traits\TwilioTrait;
 
+use Twilio\Rest\Client;
+
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Validator;
 
@@ -28,8 +30,8 @@ class TwilioController extends Controller
     {
         // $this->middleware('auth');
         // $this->middleware('signed')->only('verify');
-        $this->middleware('throttle:3,10')->only('sendOTP');
-        $this->middleware('throttle:3,1')->only('verify');
+        $this->middleware('throttle:4,10')->only('sendOTP');
+        $this->middleware('throttle:5,1')->only('verify');
     }
 
     public function sendOTP(Request $request, User $user)
@@ -94,7 +96,7 @@ class TwilioController extends Controller
             if ($request->input('role', 'customers') === 'customers') {
 
                 // $data['profile'] = new ProfileResource($profile, 's3');
-                $data['token'] = $user->createToken("user_auth")->accessToken;
+                $data['token'] = $flag ? $user->createToken("user_auth")->accessToken : '';
                 $data['roles'] = $userRoles;
             }
 
