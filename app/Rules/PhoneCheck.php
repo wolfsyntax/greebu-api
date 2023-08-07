@@ -31,7 +31,8 @@ class PhoneCheck implements ValidationRule
                 ->phoneNumbers($value)
                 ->fetch(['countryCode' => $this->params]);
 
-            if (!$lookup->valid) $fail('The :attribute is must be in international standard format.');
+            // if (!$lookup->valid) $fail('The :attribute is must be in international standard format.');
+            if (!$lookup->valid) $fail('Please provide a valid phone number.');
         } catch (TwilioException $e) {
             $fail('The :attribute is invalid.');
         }
