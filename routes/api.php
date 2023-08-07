@@ -23,7 +23,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ConfirmPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\VerificationController;
+// use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\PostController;
 use App\Models\Subscription;
 use App\Http\Controllers\Admin\CountryController as AdminCountryController;
@@ -33,6 +33,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SiteSettingsController;
 
 use App\Http\Controllers\TwilioController;
+
+use App\Http\Controllers\API\VerificationController;
 
 // For testing Only
 use Illuminate\Support\Facades\Storage;
@@ -63,6 +65,8 @@ Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccou
 Route::post('/user/{user}/send-otp', [TwilioController::class, 'sendOTP']);
 Route::post('/user/{user}/verify', [TwilioController::class, 'verify']);
 Route::get('/user/{user}/resend-otp', [TwilioController::class, 'twilio']);
+
+Route::post('/email/resend/{user}', [VerificationController::class, 'resend'])->name('verification.resend');
 
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
