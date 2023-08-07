@@ -18,7 +18,7 @@ class VerificationController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
+        // $this->middleware('auth');
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
     }
@@ -32,25 +32,24 @@ class VerificationController extends Controller
     }
 
     // Mark the authenticate user's email address as verified.
-    public function verify(Request $request)
+    public function verify(Request $request, User $user)
     {
-        if (!hash_equals((string) $request->route('id'), (string) $request->user()->getKey())) {
-            throw new AuthorizationException;
+        // $user = User::findOrFail($request->route('user'));
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/email/verify/verified');
         }
 
-        if (!hash_equals((string) $request->route('hash'), sha1($request->user()->getEmailForVerification()))) {
-            throw new AuthorizationException;
+        if (!hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
+            return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/email/verify/invalid'); // Invalid Hash
         }
 
-        if ($request->user()->hasVerifiedEmail()) {
-            return $request->wantsJson()
-                ? new JsonResponse([], 204)
-                : redirect($this->redirectPath());
-        }
-
-        if ($request->user()->markEmailAsVerified()) {
+        if ($user->markEmailAsVerified()) {
             event(new Verified($request->user()));
+            return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/email/verify/success'); // Successful verification
         }
+
+        return redirect(env('FRONTEND_URL', 'http://localhost:5173'));
 
         if ($response = $this->verified($request)) {
             return $response;
@@ -61,18 +60,22 @@ class VerificationController extends Controller
             : redirect($this->redirectPath())->with('verified', true);
     }
 
-    public function resend(Request $request)
+    public function resend(Request $request, User $user)
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return $request->wantsJson()
-                ? new JsonResponse([], 204)
-                : redirect($this->redirectPath());
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'status' => 200,
+                'message'   => 'Resend Email Verification',
+                'result'    => []
+            ]);
         }
 
-        $request->user()->sendEmailVerificationNotification();
+        $user->sendEmailVerificationNotification();
 
-        return $request->wantsJson()
-            ? new JsonResponse([], 202)
-            : back()->with('resent', true);
+        return response()->json([
+            'status' => 201,
+            'message'   => 'Resend Email Verification',
+            'result'    => []
+        ]);
     }
 }
