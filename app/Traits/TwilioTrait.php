@@ -29,8 +29,9 @@ trait TwilioTrait
     public function sendOTP($recipient)
     {
         try {
-            $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
-            $twilio->verify->v2->services(env('TWILIO_SERVICE_ID'))
+
+            $client = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
+            $twilio = $client->verify->v2->services(env('TWILIO_SERVICE_ID'))
                 ->verifications->create($recipient, "sms");
 
             return true;
@@ -43,15 +44,18 @@ trait TwilioTrait
     public function verifyOTP($recipient, $otp)
     {
         try {
+
             //code...
-            $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
-            $twilio->verify->v2->services(env('TWILIO_SERVICE_ID'))
+            $client = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
+            $twilio = $client->verify->v2->services(config('services.twilio.service_id'))
                 ->verificationChecks
                 ->create([
                     'to'    => $recipient,
                     'code'  => $otp,
                 ]);
-            return true;
+
+            return $twilio->status === 'approved';
+            // return true;
         } catch (TwilioException $th) {
             return false;
         }
