@@ -66,7 +66,7 @@ Route::post('/user/{user}/send-otp', [TwilioController::class, 'sendOTP']);
 Route::post('/user/{user}/verify', [TwilioController::class, 'verify']);
 Route::get('/user/{user}/resend-otp', [TwilioController::class, 'twilio']);
 
-Route::post('/email/resend/{user}', [VerificationController::class, 'resend'])->name('verification.resend');
+Route::post('/email/resend/{user}', [VerificationController::class, 'resend']); //->name('verification.resend');
 
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
