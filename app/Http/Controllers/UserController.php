@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Profile;
 use App\Models\User;
 use App\Models\Customer;
+use App\Models\Organizer;
+use App\Models\Artist;
+use App\Models\ServiceProvider;
+
 use App\Rules\MatchCurrentPassword;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Storage;
@@ -149,12 +153,24 @@ class UserController extends Controller
         })->first();
 
         if ($profile) {
+
+            if ($profile->role === 'customers') {
+                $account = Customer::where('profile_id', $profile->id)->first();
+            } else if ($profile->role === 'artists') {
+                $account = Artist::where('profile_id', $profile->id)->first();
+            } else if ($profile->role === 'organizer') {
+                $account = Organizer::where('profile_id', $profile->id)->first();
+            } else {
+                $account = ServiceProvider::where('profile_id', $profile->id)->first();
+            }
+
             return response()->json([
                 'status'        => 200,
                 'message'       => 'Profile switch successfully.',
                 'result'        => [
                     'user'      => $user,
                     'profile'   => new ProfileResource($profile),
+                    'account'   => $account,
                 ],
             ]);
         } else {

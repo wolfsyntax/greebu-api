@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 use App\Models\Profile;
 use App\Models\User;
 
+use App\Models\Customer;
+use App\Models\Artist;
+use App\Models\Organizer;
+use App\Models\ServiceProvider;
+
 use App\Http\Resources\ProfileResource;
 
 use App\Traits\UserTrait;
@@ -91,13 +96,20 @@ class TwilioController extends Controller
             $data = [
                 'user'      => $user,
                 'profile'   => new ProfileResource($profile, 's3'),
+                'roles'     => $userRoles,
+                'token'     => '',
             ];
 
-            if ($request->input('role', 'customers') === 'customers') {
-
+            if ($request->input('role') === 'customers') {
                 // $data['profile'] = new ProfileResource($profile, 's3');
                 $data['token'] = $flag ? $user->createToken("user_auth")->accessToken : '';
-                $data['roles'] = $userRoles;
+                $data['account'] = Customer::where('profile_id', $profile->id)->first();
+            } else if ($request->input('role') === 'artists') {
+                $data['account'] = Artist::where('profile_id', $profile->id)->first();
+            } else if ($request->input('role') === 'organizer') {
+                $data['account'] = Organizer::where('profile_id', $profile->id)->first();
+            } else {
+                $data['account'] = ServiceProvider::where('profile_id', $profile->id)->first();
             }
 
             return response()->json([
