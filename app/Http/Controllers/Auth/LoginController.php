@@ -109,7 +109,7 @@ class LoginController extends Controller
             } else if ($profile->role === 'artists') {
                 $account = Artist::where('profile_id', $profile->id)->first();
             } else {
-                $account = ServiceProvider::where('profile', $profile->id)->first();
+                $account = ServiceProvider::where('profile_id', $profile->id)->first();
             }
 
             return response()->json([
