@@ -110,7 +110,7 @@ class NetworkController extends Controller
                 'username'      => ['sometimes', 'required', 'string', 'max:255',],
                 'phone'         => ['sometimes', 'required', 'string', new PhoneCheck()],
                 'auth_type'     => ['nullable', 'in:login,register',],
-                'account_type'  => ['required', 'string', Rule::in(['customers', 'artists', 'organizer', 'service-provider']),],
+                'account_type'  => ['nullable', 'string', Rule::in(['customers', 'artists', 'organizer', 'service-provider']),],
             ]);
 
             if ($validator->fails()) {
