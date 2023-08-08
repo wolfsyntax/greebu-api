@@ -34,6 +34,7 @@ class ProfileResource extends JsonResource
             'country'           => $this->country,
             'bio'               => $this->bio,
             'credit_balance'    => $this->credit_balance,
+            'is_freeloader'     => $this->is_freeloader,
             'role'              => $roles,
         ];
         return parent::toArray($request);
