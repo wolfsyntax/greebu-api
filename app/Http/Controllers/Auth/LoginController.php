@@ -100,7 +100,7 @@ class LoginController extends Controller
                     'message'       => 'Your phone number is not verified.',
                     'result'        => [
                         'user'      => $user,
-                        'profile'   => $profile,
+                        'profile'   => new ProfileResource($profile, 's3'),
                     ]
                 ], 203);
             }
