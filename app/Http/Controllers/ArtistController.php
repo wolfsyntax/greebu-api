@@ -79,7 +79,7 @@ class ArtistController extends Controller
 
         $artists = $artists->whereHas('profile', function ($query) use ($search) {
             return $query->where('business_name', 'LIKE', '%' . $search . '%');
-        })->where('isAccepting_request', true);
+        })->where('accept_request', true);
 
         if ($genre) {
             $artists = $artists->whereHas('genres', function ($query) use ($genre, $isGenreUuid) {
