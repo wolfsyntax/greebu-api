@@ -90,6 +90,7 @@ class ProfileController extends Controller
                 'spotify_profile'       => $request->input('spotify_profile'),
             ]);
 
+            $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
             $profile = $this->updateProfile($request, $request->user(), role: 'artists');
 
             $genres = $request->input('genre');

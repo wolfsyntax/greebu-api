@@ -265,3 +265,5 @@ Route::post('sms-otp/{user?}', [UserController::class, 'twilioAPIOtp'])->middlew
 
 Route::post('phone-validate', [UserController::class, 'phoneValidator']);
 // Auth::routes(['verify' => true]);
+
+// Route::post('test-sms', [TwilioController::class, 'test']);

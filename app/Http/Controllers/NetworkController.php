@@ -165,6 +165,11 @@ class NetworkController extends Controller
                 $profile->business_email = $user->email;
                 $profile->business_name = $user->fullname;
                 $profile->avatar = $request->input('avatar', 'https://via.placeholder.com/424x424.png/006644?text=' . substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1));
+
+                if ($auth_type === 'register' && $request->input('account_type') === 'customers') {
+                    $profile->is_freeloader = true;
+                }
+
                 $profile->save();
                 $profile->assignRole($request->input('account_type'));
             } else {
