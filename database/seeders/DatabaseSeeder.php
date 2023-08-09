@@ -118,7 +118,7 @@ class DatabaseSeeder extends Seeder
             $artist = Artist::create([
                 'profile_id'            => $profile->id,
                 'artist_type_id'        => $this->faker->randomElement(ArtistType::get()->pluck('id')->toArray()),
-                'isAccepting_request'   => true,
+                'accept_request'        => true,
             ]);
 
             $genre = Genre::get();
@@ -126,5 +126,3 @@ class DatabaseSeeder extends Seeder
         });
     }
 }
-
-

@@ -24,6 +24,11 @@ use App\Notifications\EmailVerification;
 use Egulias\EmailValidator\EmailValidator;
 use App\Http\Resources\ProfileResource;
 
+use App\Models\Artist;
+use App\Models\Customer;
+use App\Models\Organizer;
+use App\Models\ServiceProvider;
+
 class RegisterController extends Controller
 {
     /*
@@ -131,6 +136,16 @@ class RegisterController extends Controller
             'province'          => 'Camarines Sur',
             'is_freeloader'     => $account === 'customers',
         ])->assignRole($request->input('account_type'));
+
+        if ($request->input('account_type') === 'artists') {
+            $account = Artist::firstOrCreate([
+                'profile_id' => $profile->id,
+            ]);
+        } else if ($request->input('account_type') === 'customers') {
+            $account = Customer::firstOrCreate(['profile_id' => $profile->id]);
+        } else if ($request->input('account_type') === 'organizer') {
+            $account = Organizer::firstOrCreate(['profile_id' => $profile->id]);
+        }
 
         $userProfiles = Profile::with('roles', 'followers', 'following')->where('user_id', $user->id)->get();
 
