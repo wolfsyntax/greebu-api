@@ -23,7 +23,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ConfirmPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\VerificationController;
+// use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\PostController;
 use App\Models\Subscription;
 use App\Http\Controllers\Admin\CountryController as AdminCountryController;
@@ -32,6 +32,10 @@ use App\Http\Controllers\SongController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SiteSettingsController;
 
+use App\Http\Controllers\TwilioController;
+
+use App\Http\Controllers\API\VerificationController;
+use App\Http\Controllers\ProfileController;
 // For testing Only
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
@@ -57,6 +61,12 @@ Route::get('/artists/trending', [ArtistController::class, 'trendingArtists']);
 Route::get('/country', [AdminCountryController::class, 'index']);
 Route::get('subscriptions/plan/{plan}', [SubscriptionController::class, 'pricings'])->where('plan', 'artists|organizer|service-provider');
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);
+
+Route::post('/user/{user}/send-otp', [TwilioController::class, 'sendOTP']);
+Route::post('/user/{user}/verify', [TwilioController::class, 'verify']);
+Route::get('/user/{user}/resend-otp', [TwilioController::class, 'twilio']);
+
+Route::post('/email/resend/{user}', [VerificationController::class, 'resend']); //->name('verification.resend');
 
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
@@ -112,6 +122,9 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('users/{role}/switch', [UserController::class, 'switchAccount'])->whereIn('role', ['service-provider', 'organizer', 'artists', 'customers']);
     Route::get('user/profile', [UserController::class, 'create']);
 
+    Route::post('user/detail', [ProfileController::class, 'update']);
+    Route::post('user/profile', [ProfileController::class, 'store']);
+
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
 
@@ -150,10 +163,15 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     })->middleware(['restrictEdit']);
 });
 
+// Route::get('/email/verify', [VerificationController::class, 'show'])->name('verification.notice');
+// Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify')->middleware(['signed']);
+// Route::post('/email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
+
 Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
     Route::post('phone/send', [UserController::class, 'phone']);
     Route::post('phone/verify', [UserController::class, 'phoneVerify2']);
 });
+
 
 Route::get('fetch/{path}', function ($path) {
     //Storage::disk('s3priv')->deleteDirectory($path);
@@ -243,4 +261,7 @@ Route::get('test', function (Request $request) {
 
 Route::post('sms-test/{user}', [UserController::class, 'sendSMS']);
 Route::post('sms-client/{user?}', [UserController::class, 'twilioAPISms']);
-Route::post('sms-otp/{user?}', [UserController::class, 'twilioAPIOtp']);
+Route::post('sms-otp/{user?}', [UserController::class, 'twilioAPIOtp'])->middleware('throttle:4,10');
+
+Route::post('phone-validate', [UserController::class, 'phoneValidator']);
+// Auth::routes(['verify' => true]);

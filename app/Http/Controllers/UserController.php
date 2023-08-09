@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Profile;
 use App\Models\User;
 use App\Models\Customer;
+use App\Models\Organizer;
+use App\Models\Artist;
+use App\Models\ServiceProvider;
+
 use App\Rules\MatchCurrentPassword;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Storage;
@@ -149,12 +153,24 @@ class UserController extends Controller
         })->first();
 
         if ($profile) {
+
+            if ($profile->role === 'customers') {
+                $account = Customer::where('profile_id', $profile->id)->first();
+            } else if ($profile->role === 'artists') {
+                $account = Artist::where('profile_id', $profile->id)->first();
+            } else if ($profile->role === 'organizer') {
+                $account = Organizer::where('profile_id', $profile->id)->first();
+            } else {
+                $account = ServiceProvider::where('profile_id', $profile->id)->first();
+            }
+
             return response()->json([
                 'status'        => 200,
                 'message'       => 'Profile switch successfully.',
                 'result'        => [
                     'user'      => $user,
                     'profile'   => new ProfileResource($profile),
+                    'account'   => $account,
                 ],
             ]);
         } else {
@@ -288,6 +304,7 @@ class UserController extends Controller
     {
         $request->validate([
             'code'  => ['required', 'size:6'],
+            'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
         ]);
 
         $user = User::where('id', auth()->user()->id)->first();
@@ -298,10 +315,34 @@ class UserController extends Controller
                 $user->phone_verified_at = now();
                 $user->save();
             }
+
+            $role = $request->input('role', 'customers');
+
+            $profile = Profile::with(['followers', 'following', 'roles'])->where('user_id', $user->id)->whereHas('roles', function ($query) use ($role) {
+                $query->where('name', $role);
+            })->first();
+
+            $userProfiles = Profile::with('roles', 'followers', 'following')->where('user_id', $user->id)->get();
+            $userRoles = collect($userProfiles)->map(function ($query) {
+                return $query->getRoleNames()->first();
+            });
+
+            $data = [
+                'user'      => $user,
+                'profile'   => new ProfileResource($profile, 's3'),
+            ];
+
+            if ($request->input('role', 'customers') === 'customers') {
+
+                // $data['profile'] = new ProfileResource($profile, 's3');
+                $data['token'] = $user->createToken("user_auth")->accessToken;
+                $data['roles'] = $userRoles;
+            }
+
             return response()->json([
-                'status'    => 200,
-                'message'   => 'Verification Code Checker',
-                'result'    => [],
+                'status'        => 200,
+                'message'       => 'Verification Code Checker',
+                'result'        => $data
             ]);
         } else {
             return response()->json([
@@ -311,21 +352,21 @@ class UserController extends Controller
             ], 203);
         }
     }
-    public function twilioLimiter(Request $request)
-    {
-        return response()->json([
-            'status' => 200,
-            'message'   => '...',
-            'result' => [
-                '1' => $this->sendOTP('+639184592272'),
-                '2' => $this->sendOTP('+6309184592272'),
-                '3' => $this->sendOTP('+639184592272'),
-                '4' => $this->sendOTP('+639184592272'),
-                '5' => $this->sendOTP('+6309184592272'),
-                '6' => $this->sendOTP('+6309184592272'),
-            ]
-        ]);
-    }
+    // public function twilioLimiter(Request $request)
+    // {
+    //     return response()->json([
+    //         'status' => 200,
+    //         'message'   => '...',
+    //         'result' => [
+    //             '1' => $this->sendOTP('+639184592272'),
+    //             '2' => $this->sendOTP('+6309184592272'),
+    //             '3' => $this->sendOTP('+639184592272'),
+    //             '4' => $this->sendOTP('+639184592272'),
+    //             '5' => $this->sendOTP('+6309184592272'),
+    //             '6' => $this->sendOTP('+6309184592272'),
+    //         ]
+    //     ]);
+    // }
 
     public function sendSMS(Request $request, User $user)
     {
@@ -409,5 +450,18 @@ class UserController extends Controller
 
             return false;
         }
+    }
+
+    public function phoneValidator(Request $request)
+    {
+        $request->validate([
+            'phone'             => ['required', new PhoneCheck()],
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Checking Phone number',
+            'result'    => []
+        ]);
     }
 }

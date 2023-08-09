@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\ProfileResource;
+use App\Models\Customer;
+use App\Models\Organizer;
+use App\Models\ServiceProvider;
+use App\Models\Artist;
 use App\Models\User;
 use App\Models\Profile;
 use Auth;
@@ -77,7 +81,7 @@ class LoginController extends Controller
 
         if ($user) {
 
-            $profile = Profile::with(['followers', 'following'])->where('user_id', $user->id)->first();
+            $profile = Profile::with(['followers', 'following', 'roles'])->where('user_id', $user->id)->first();
 
             auth()->login($user, $request->input('remember_me', false));
 
@@ -89,18 +93,39 @@ class LoginController extends Controller
                 return $query->getRoleNames()->first();
             });
 
-            if (!$user->phone_verified_at) return response()->json([
-                'status' => 403,
-                'message' => 'Your phone number is not verified.',
-                'result' => []
-            ], 203);
+            if (!$user->phone_verified_at) {
+                $user->sendCode();
+                return response()->json([
+                    'status'        => 403,
+                    'message'       => 'Your phone number is not verified.',
+                    'result'        => [
+                        'user'      => $user,
+                        'profile'   => new ProfileResource($profile, 's3'),
+                    ]
+                ], 203);
+            }
+
+            $role = $profile->roles->first()->name ?? 'customers';
+
+            $account = null;
+
+            if ($role === 'customers') {
+                $account = Customer::where('profile_id', $profile->id)->first();
+            } else if ($role === 'organizer') {
+                $account = Organizer::where('profile_id', $profile->id)->first();
+            } else if ($role === 'artists') {
+                $account = Artist::where('profile_id', $profile->id)->first();
+            } else {
+                $account = ServiceProvider::where('profile_id', $profile->id)->first();
+            }
 
             return response()->json([
                 'status'        => 200,
                 'message'       => 'Login Successfully.',
                 'result'        => [
-                    'profile'   =>  new ProfileResource($profile, 's3'),
+                    'profile'   => new ProfileResource($profile, 's3'),
                     'user'      => $user,
+                    'account'   => $account,
                     'token'     => $user->createToken("user_auth")->accessToken,
                     'roles'     => $userRoles,
                 ],

@@ -13,8 +13,9 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 // use Spatie\Permission\Traits\HasRoles;
 use App\Traits\TwilioTrait;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasUuids, TwilioTrait;
 
@@ -42,7 +43,7 @@ class User extends Authenticatable
     ];
 
     protected $appends = [
-        'fullname',
+        'fullname', 'phonemask',
     ];
 
     /**
@@ -87,6 +88,15 @@ class User extends Authenticatable
         return $this->first_name . ' ' . $this->last_name;
     }
 
+    /**
+     * Get Full name
+     * @return string
+     */
+    public function getPhonemaskAttribute(): string
+    {
+        return Str::of($this->phone)->mask('x', (Str::startsWith($this->phone, '+') ? 4 : 3), -4);
+    }
+
     public function setPasswordAttribute(string $value): string
     {
         return $this->attributes['password'] = hash('sha256', $value, false);
@@ -95,5 +105,10 @@ class User extends Authenticatable
     public function profiles()
     {
         return $this->hasMany(Profile::class);
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \App\Notifications\EmailVerification($this));
     }
 }

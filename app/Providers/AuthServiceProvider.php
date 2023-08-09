@@ -6,6 +6,12 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
 
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Notifications\Messages\MailMessage;
+
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\HtmlString;
+
 class AuthServiceProvider extends ServiceProvider
 {
     /**
@@ -27,5 +33,18 @@ class AuthServiceProvider extends ServiceProvider
         Passport::tokensExpireIn(now()->addDays(15));
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+
+        // $salutation = Lang::get("Thank You,<br/>Geebu Support");
+
+        // VerifyEmail::toMailUsing(function (object $notifiable, string $url) use ($salutation) {
+
+        //     return (new MailMessage)
+        //         ->subject(Lang::get('Email Verification'))
+        //         ->line(Lang::get("Thank you for registering with Geebu. To ensure the security of your account and access to all our services, we kindly request you to verify your email address."))
+        //         ->line(Lang::get("Click on the verification link below or copy and paste it into your web browser"))
+        //         ->action(Lang::get('Verify Account'), $url)
+        //         ->line(Lang::get("If you did not create an account on our platform, please ignore this email."))
+        //         ->salutation(new HtmlString($salutation));
+        // });
     }
 }
