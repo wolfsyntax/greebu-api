@@ -98,12 +98,12 @@ class TwilioController extends Controller
                 'user'      => $user,
                 'profile'   => new ProfileResource($profile, 's3'),
                 'roles'     => $userRoles,
-                'token'     => '',
+                'token'     => $flag ? $user->createToken("user_auth")->accessToken : '',
             ];
 
             if ($request->input('role') === 'customers') {
                 // $data['profile'] = new ProfileResource($profile, 's3');
-                $data['token'] = $flag ? $user->createToken("user_auth")->accessToken : '';
+                //$data['token'] = $flag ? $user->createToken("user_auth")->accessToken : '';
                 $data['account'] = Customer::where('profile_id', $profile->id)->first();
             } else if ($request->input('role') === 'artists') {
                 $data['account'] = Artist::where('profile_id', $profile->id)->first();
