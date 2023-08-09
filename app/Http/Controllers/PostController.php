@@ -34,9 +34,9 @@ class PostController extends Controller
         $validator = Validator::make($request->all(), [
             'content'           => ['bail', 'required_if:attachment_type,none', 'string'],
             'attachment_type'   => ['required', 'in:image,video,audio,none', 'bail',],
-            'attachment'        => ['sometimes', 'required_unless:attachment_type,none',],
-            'latitude'          => ['sometimes', 'required_unless:longitude,null', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/'],
-            'longitude'         => ['sometimes', 'required_unless:latitude,null', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/'],
+            'attachment'        => ['nullable', 'required_unless:attachment_type,none',],
+            'latitude'          => ['nullable', 'required_unless:longitude,null', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/'],
+            'longitude'         => ['nullable', 'required_unless:latitude,null', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/'],
         ]);
 
         if ($validator->fails()) {

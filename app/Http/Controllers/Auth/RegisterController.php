@@ -17,6 +17,7 @@ use Illuminate\Validation\Rules;
 
 use App\Models\User;
 use App\Models\Profile;
+use App\Models\Artist;
 
 use App\Rules\PhoneCheck;
 use App\Traits\TwilioTrait;
@@ -131,6 +132,12 @@ class RegisterController extends Controller
             'province'          => 'Camarines Sur',
             'is_freeloader'     => $account === 'customers',
         ])->assignRole($request->input('account_type'));
+
+        if ($request->input('account_type') === 'artists') {
+            $account = Artist::firstOrCreate([
+                'profile_id' => $profile->id,
+            ]);
+        }
 
         $userProfiles = Profile::with('roles', 'followers', 'following')->where('user_id', $user->id)->get();
 

@@ -24,7 +24,7 @@ return new class extends Migration
             $table->boolean('is_hourly')->nullable()->default(0)->comment('1 - hourly, 0 - by set');
             $table->boolean('isAccepting_request')->nullable()->default(false)->comment('Accept Custom Song');
             $table->boolean('isAccepting_event')->nullable()->default(false)->comment('Accept Events');
-            $table->boolean('isAccepting_booking')->nullable()->default(false)->comment('Accept Booking for special occasion');
+            $table->boolean('isAccepting_proposal')->nullable()->default(false)->comment('Accept Organizer proposal');
 
             $table->unsignedBigInteger('set_played')->nullable()->default(1)->comment('songs to be played');
             $table->timestamp('deactivated_at')->nullable();

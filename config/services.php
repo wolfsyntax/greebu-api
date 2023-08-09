@@ -57,5 +57,11 @@ return [
         'auth_token'    => env('TWILIO_AUTH_TOKEN'),
         'number'        => env('TWILIO_NUMBER'),
         'service_id'    => env('TWILIO_SERVICE_ID'),
-    ]
+    ],
+
+    'nexmo' => [
+        'brand_name'    => env('NEXMO_BRAND_NAME'),
+        'api_key'       => env('NEXMO_API_KEY'),
+        'api_secret'    => env('NEXMO_API_SECRET'),
+    ],
 ];

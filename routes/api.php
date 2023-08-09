@@ -33,6 +33,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SiteSettingsController;
 
 use App\Http\Controllers\TwilioController;
+use App\Http\Controllers\NexmoController;
 
 use App\Http\Controllers\API\VerificationController;
 use App\Http\Controllers\ProfileController;
@@ -244,20 +245,22 @@ Route::post('phone/verify/{user}', [UserController::class, 'phoneVerify'])->midd
 // });
 
 // Route::get('twilio/test', [UserController::class, 'twilioLimiter']);
-Route::get('test', function (Request $request) {
-    $request->validate([
-        'role' => ['required', 'in:service-provider,artists,organizer,customers',],
-        'name'  => ['required', 'string',],
-    ]);
 
-    return response()->json([
-        'status' => 200,
-        'message'   => '',
-        'result'    => [
-            $request->all(),
-        ],
-    ]);
-});
+
+// Route::get('test', function (Request $request) {
+//     $request->validate([
+//         'role' => ['required', 'in:service-provider,artists,organizer,customers',],
+//         'name'  => ['required', 'string',],
+//     ]);
+
+//     return response()->json([
+//         'status' => 200,
+//         'message'   => '',
+//         'result'    => [
+//             $request->all(),
+//         ],
+//     ]);
+// });
 
 Route::post('sms-test/{user}', [UserController::class, 'sendSMS']);
 Route::post('sms-client/{user?}', [UserController::class, 'twilioAPISms']);
@@ -266,4 +269,6 @@ Route::post('sms-otp/{user?}', [UserController::class, 'twilioAPIOtp'])->middlew
 Route::post('phone-validate', [UserController::class, 'phoneValidator']);
 // Auth::routes(['verify' => true]);
 
-// Route::post('test-sms', [TwilioController::class, 'test']);
+Route::post('test-sms', [TwilioController::class, 'test']);
+Route::post('nexmo-otp', [NexmoController::class, 'store']);
+Route::post('nexmo-verify', [NexmoController::class, 'verify']);
