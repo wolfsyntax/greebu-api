@@ -19,6 +19,7 @@ use App\Traits\UserTrait;
 use App\Traits\TwilioTrait;
 
 use Twilio\Rest\Client;
+use Twilio\Exceptions\TwilioException;
 
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Validator;
@@ -97,12 +98,12 @@ class TwilioController extends Controller
                 'user'      => $user,
                 'profile'   => new ProfileResource($profile, 's3'),
                 'roles'     => $userRoles,
-                'token'     => '',
+                'token'     => $flag ? $user->createToken("user_auth")->accessToken : '',
             ];
 
             if ($request->input('role') === 'customers') {
                 // $data['profile'] = new ProfileResource($profile, 's3');
-                $data['token'] = $flag ? $user->createToken("user_auth")->accessToken : '';
+                //$data['token'] = $flag ? $user->createToken("user_auth")->accessToken : '';
                 $data['account'] = Customer::where('profile_id', $profile->id)->first();
             } else if ($request->input('role') === 'artists') {
                 $data['account'] = Artist::where('profile_id', $profile->id)->first();
@@ -140,5 +141,30 @@ class TwilioController extends Controller
             'message' => 'Resend Verification Code',
             'result'    => []
         ], $flag ? 200 : 203);
+    }
+
+    public function test(Request $request)
+    {
+        $request->validate([
+            'phone' => [
+                'required', new PhoneCheck(),
+            ],
+        ]);
+
+        $client = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
+        $twilio = $client->verify->v2->services(config('services.twilio.service_id'))
+            ->verifications->create($request->input('phone'), "sms");
+
+        return response()->json([
+            'status'    => $twilio->status,
+            'message'   => '',
+            'result'    => [
+                'sid'                   => $twilio->sid,
+                'to'                    => $twilio->to,
+                'status'                => $twilio->status,
+                'valid'                 => $twilio->valid,
+                'url'                   => $twilio->url,
+            ],
+        ]);
     }
 }

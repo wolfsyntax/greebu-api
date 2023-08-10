@@ -12,6 +12,7 @@ class ServiceProvider extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
 
+    protected $table = 'services';
     /**
      * The attributes that are mass assignable.
      *

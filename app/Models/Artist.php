@@ -23,7 +23,8 @@ class Artist extends Model
         'profile_id', 'artist_type_id',
         'youtube_channel', 'spotify_profile', 'twitter_username', 'instagram_username',
         'professional_fee', 'is_hourly', 'set_played',
-        'deactivated_at', 'isAccepting_request',
+        'deactivated_at',
+        'accept_request', 'accept_booking', 'accept_proposal',
     ];
 
     protected $appends = [
@@ -46,7 +47,9 @@ class Artist extends Model
         'is_hourly'         => 'boolean',
         'set_played'        => 'integer',
         'deactivated_at'    => 'timestamp',
-        'isAccepting_request' => 'boolean',
+        'accept_request'    => 'boolean',
+        'accept_booking'    => 'boolean',
+        'accept_proposal'   => 'boolean',
     ];
 
     public function profile()

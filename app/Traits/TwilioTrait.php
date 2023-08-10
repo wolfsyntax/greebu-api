@@ -34,7 +34,7 @@ trait TwilioTrait
             $twilio = $client->verify->v2->services(env('TWILIO_SERVICE_ID'))
                 ->verifications->create($recipient, "sms");
 
-            return true;
+            return $twilio->status === 'pending';
         } catch (TwilioException $th) {
             //throw $th;
             return false;
