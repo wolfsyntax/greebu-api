@@ -17,6 +17,7 @@ class SongRequestResource extends JsonResource
         return [
             'id'                    => $this->id,
             'language'              => $this->language->name ?? '',
+            'creator_id'            => $this->creator_id,
             'language_id'           => $this->language->id ?? '',
             'mood'                  => $this->mood->name ?? '',
             'mood_id'               => $this->mood->id ?? '',
@@ -36,7 +37,7 @@ class SongRequestResource extends JsonResource
             'estimate_date'         => $this->estimate_date,
             'approved_at'           => $this->approved_at,
             'approval_status'       => $this->approval_status,
-            'artists'               => $this->artists,
+            'artists'               => new ArtistCollection($this->artists),
         ];
     }
 }

@@ -31,6 +31,7 @@ class UserController extends Controller
 
     public function __construct()
     {
+        $this->middleware('auth')->only(['testx']);
         $this->middleware(['role:customers'])->only([
             'create', 'store', 'edit', 'update',
         ]);
@@ -94,6 +95,7 @@ class UserController extends Controller
             ], 203);
         }
 
+        $phone = User::select('phone,phone_verified_at')->find($request()->user()->id);
         $user = $this->updateUser($request);
 
         $profile = $this->updateProfile($request, $user, role: 'customers', disk: 's3');
@@ -108,6 +110,7 @@ class UserController extends Controller
             ->performedOn($user)
             ->withProperties([
                 'profile' => new ProfileResource($profile),
+                'user'      => $user,
             ])
             ->log('Update customer profile.');
 
@@ -117,6 +120,7 @@ class UserController extends Controller
             'result'        => [
                 'user'      => $user,
                 'profile'   => new ProfileResource($profile),
+                'isPhoneModified' => $phone->phone !== $user->phone,
             ],
         ]);
     }

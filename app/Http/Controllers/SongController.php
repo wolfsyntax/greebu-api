@@ -10,6 +10,7 @@ use App\Models\Profile;
 use App\Models\SongRequest;
 use App\Models\SongType;
 use App\Models\SupportedLanguage;
+use App\Http\Resources\ArtistResource;
 use App\Http\Resources\SongRequestResource;
 use Carbon\Carbon;
 
@@ -128,6 +129,7 @@ class SongController extends Controller
             'message'   => 'Song request successfully created.',
             'result'    => [
                 'song_request' => $songs,
+                'artist'       => $songs->artists
             ],
         ], 200);
     }
@@ -142,18 +144,28 @@ class SongController extends Controller
         $user = $request->user();
         $user->load('profiles');
 
-        $userIds = $user->profiles()->pluck('id');
+        $u = Profile::with('roles')->where([
+            'user_id' => $user->id,
+        ])->whereHas('roles', function ($query) {
+            $query->where('name', 'customers');
+        })->first();
+
+        $userIds = $user->profiles()->select('id')->where('id', $songRequest->creator_id)->get();
 
         $song = $songRequest->whereHas('artists', function ($query) use ($userIds) {
             // $user->profiles()->pluck('id')
             return $query->whereIn('profile_id', $userIds);
-        });
+        })->first();
 
-        if (!array_search($songRequest->creator_id, $request->toArray($userIds)) || !$song) {
+        if ($u->id !== $songRequest->creator_id) {
             return response()->json([
                 'status' => 403,
                 'message' => 'Unauthorized Request or song request not owned',
-                'result' => [],
+                'result' => [
+                    'user' => $user,
+                    'creator' => $songRequest->creator_id,
+                    'auth'  => $user,
+                ],
             ]);
         }
 
@@ -162,6 +174,7 @@ class SongController extends Controller
             'message'   => '...',
             'result'    => [
                 'song_request' => new SongRequestResource($songRequest),
+                //'artists'  => $songRequest->artists()->get()
             ],
         ]);
     }
@@ -408,6 +421,27 @@ class SongController extends Controller
         ]);
 
 
+        $sync = [];
+
+        foreach ($request->input('artists.*') as $artist) {
+            array_push($sync, json_decode($artist)->id);
+        }
+
+        $artist = \App\Models\Artist::select('id')->whereIn('id', $sync)->get()->map(function ($query) {
+            $query->request_status = 'pending';
+            return $query;
+        });
+
+        $song->artists()->sync($sync);
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($song)
+            ->log('Create a song request.');
+
+        //$song->load('artists');
+
+
         activity()
             ->causedBy(auth()->user())
             ->performedOn($song)
@@ -474,5 +508,46 @@ class SongController extends Controller
                 'song_request' => $song,
             ],
         ], 200);
+    }
+
+    public function show2(Request $request, SongRequest $songRequest)
+    {
+        $songRequest->load(['language', 'mood', 'duration', 'purpose', 'artists']);
+        $user = $request->user();
+        $user->load('profiles');
+
+        $u = Profile::with('roles')->where([
+            'user_id' => $user->id,
+        ])->whereHas('roles', function ($query) {
+            $query->where('name', 'customers');
+        })->first();
+
+        $userIds = $user->profiles()->select('id')->where('id', $songRequest->creator_id)->get();
+
+        $song = $songRequest->whereHas('artists', function ($query) use ($userIds) {
+            // $user->profiles()->pluck('id')
+            return $query->whereIn('profile_id', $userIds);
+        })->first();
+
+        if ($u->id !== $songRequest->creator_id) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'Unauthorized Request or song request not owned',
+                'result' => [
+                    'user' => $user,
+                    'creator' => $songRequest->creator_id,
+                    'auth'  => $user,
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message'   => '...',
+            'result'    => [
+                'song'  => $song,
+                'song_request' => new SongRequestResource($songRequest),
+            ],
+        ]);
     }
 }
