@@ -65,6 +65,7 @@ class SongRequest extends Model
     public function artists()
     {
         return $this->belongsToMany(Artist::class, 'song_request_artists',  'song_request_id', 'artist_id')->withTimestamps();
+        // return $this->belongsToMany(Artist::class, 'song_request_artists',  'song_request_id', 'artist_id')->with('profile')->withTimestamps();
         // return $this->belongsToMany(Genre::class, 'artist_genres', 'artist_id', 'genre_id')->withTimestamps();
     }
 
