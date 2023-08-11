@@ -267,3 +267,8 @@ Route::post('phone-validate', [UserController::class, 'phoneValidator']);
 // Auth::routes(['verify' => true]);
 
 // Route::post('test-sms', [TwilioController::class, 'test']);
+Route::get('/test-request/{songRequest}', [SongController::class, 'show']);
+
+Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
+    Route::get('/auth-request/{songRequest}', [SongController::class, 'show2']);
+});
