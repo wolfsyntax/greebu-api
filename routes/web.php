@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\API\VerificationController as APIVerify;
+use App\Http\Controllers\ArtistController;
 use App\Http\Controllers\NetworkController;
 use Illuminate\Support\Facades\Auth;
 use Twilio\Rest\Verify\V2\Service\VerificationContext;

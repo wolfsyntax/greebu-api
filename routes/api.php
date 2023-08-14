@@ -273,3 +273,5 @@ Route::get('/test-request/{songRequest}', [SongController::class, 'show']);
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::get('/auth-request/{songRequest}', [SongController::class, 'show2']);
 });
+
+Route::get('/clear', [UserController::class, 'artisan']);
