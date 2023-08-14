@@ -125,9 +125,10 @@ class RegisterController extends Controller
         $user = User::create($formData);
         $account = $request->input('account_type', 'customers');
 
+        $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
         $profile = Profile::create([
             'user_id' => $user->id,
-            'avatar'            => 'https://via.placeholder.com/424x424.png/006644?text=' . substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1),
+            'avatar'            => 'https://via.placeholder.com/424x424.png/' . $color . '?text=' . substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1),
             'business_email'    => $user->email,
             'phone'             => $user->phone,
             'business_name'     => $user->fullname,
@@ -137,15 +138,15 @@ class RegisterController extends Controller
             'is_freeloader'     => $account === 'customers',
         ])->assignRole($request->input('account_type'));
 
-        if ($request->input('account_type') === 'artists') {
-            $account = Artist::firstOrCreate([
-                'profile_id' => $profile->id,
-            ]);
-        } else if ($request->input('account_type') === 'customers') {
-            $account = Customer::firstOrCreate(['profile_id' => $profile->id]);
-        } else if ($request->input('account_type') === 'organizer') {
-            $account = Organizer::firstOrCreate(['profile_id' => $profile->id]);
-        }
+        // if ($request->input('account_type') === 'artists') {
+        //     $account = Artist::firstOrCreate([
+        //         'profile_id' => $profile->id,
+        //     ]);
+        // } else if ($request->input('account_type') === 'customers') {
+        //     $account = Customer::firstOrCreate(['profile_id' => $profile->id]);
+        // } else if ($request->input('account_type') === 'organizer') {
+        //     $account = Organizer::firstOrCreate(['profile_id' => $profile->id]);
+        // }
 
         $userProfiles = Profile::with('roles', 'followers', 'following')->where('user_id', $user->id)->get();
 

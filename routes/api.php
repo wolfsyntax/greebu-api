@@ -122,8 +122,9 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('users/{role}/switch', [UserController::class, 'switchAccount'])->whereIn('role', ['service-provider', 'organizer', 'artists', 'customers']);
     Route::get('user/profile', [UserController::class, 'create']);
 
-    Route::post('user/detail', [ProfileController::class, 'update']);
-    Route::post('user/profile', [ProfileController::class, 'store']);
+    Route::post('account/settings', [ProfileController::class, 'update']);
+    Route::get('account', [ProfileController::class, 'index']);
+    Route::post('account/profile', [ProfileController::class, 'store']);
 
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
