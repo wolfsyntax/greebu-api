@@ -101,7 +101,22 @@ class ProfileController extends Controller
             $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
             $profile = $this->updateProfileV2($request, $profile);
 
+
+
+            if (!$request->hasFile('avatar') && $profile->business_name !== $request->input('artist_name', $profile->business_name)) {
+
+                $tr = '';
+
+                foreach (explode(' ', $profile->business_name, 2) as $value) {
+                    $tr .= $value[0];
+                }
+
+                $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+                $profile->avatar = 'https://via.placeholder.com/424x424.png/' . $color . '?text=' . strtoupper($tr);
+            }
+
             $profile->business_name = $request->input('artist_name');
+            $profile->save();
 
             $genres = $request->input('genres');
 

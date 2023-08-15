@@ -17,6 +17,7 @@ class ArtistResource extends JsonResource
     public function toArray(Request $request)
     {
         $this->profile->loadCount('followers', 'following');
+        $avatar = filter_var($this->profile->avatar, FILTER_VALIDATE_URL) ? $this->profile->avatar : ($this->profile->bucket === 's3' ? Storage::disk($this->profile->bucket)->url($this->profile->avatar) : ($this->profile->avatar ? Storage::disk($this->profile->bucket)->temporaryUrl($this->profile->avatar, now()->addMinutes(60)) : ''));
 
         return [
             'id'                    => $this->id,
