@@ -17,6 +17,7 @@ use Spatie\Activitylog\Models\Activity;
 use App\Traits\UserTrait;
 use App\Http\Resources\ArtistShowResource;
 use App\Http\Resources\ProfileResource;
+use App\Http\Resources\MemberCollection;
 use Carbon\Carbon;
 use App\Http\Resources\ArtistCollection;
 use App\Http\Resources\ArtistResource;
@@ -200,7 +201,7 @@ class ArtistController extends Controller
                 'profile'       => $artist,
                 'artist_genre'  => $genres,
                 'img'           => $img,
-                'members'       => $members,
+                'members'       => new MemberCollection($members),
                 'user'          => $user,
             ],
         ], 200);
@@ -468,15 +469,18 @@ class ArtistController extends Controller
             'avatar'        => '',
         ];
 
+        $member = $artist->members()->create($data);
+
         if ($request->hasFile('member_avatar') && $request->file('member_avatar')->isValid()) {
             // ...
-            $data['avatar'] = $request->file('member_avatar')->store('image', 'public');;
+            $path = Storage::disk('s3')->putFileAs('member_avatar', $request->file('member_avatar'), 'img_' . time() . '.' . $request->file('member_avatar')->getClientOriginalExtension());
+            $member->avatar = parse_url($path)['path'];
         } else {
             $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-            $data['avatar'] = 'https://via.placeholder.com/424x424.png/' . $color . '?text=' . substr($request->input('member_name', ''), 0, 1) . substr($request->input('last_name', ''), 0, 1);
+            $member->avatar = 'https://via.placeholder.com/424x424.png/' . $color . '?text=' . substr($request->input('member_name', ''), 0, 1) . substr($request->input('last_name', ''), 0, 1);
         }
 
-        $member = $artist->members()->create($data);
+        $member->save();
 
         activity()
             ->performedOn($member)
