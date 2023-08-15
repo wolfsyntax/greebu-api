@@ -489,8 +489,8 @@ class UserController extends Controller
         try {
             $email = $request->input('email');
 
-            // $user = User::where('email', $email)->firstOrFail();
-            $user = User::latest()->first();
+            $user = User::where('email', $email)->firstOrFail();
+            // $user = User::latest()->first();
             $profile = Profile::where('user_id', $user->id)->first();
 
             $r = $request->input('role');
