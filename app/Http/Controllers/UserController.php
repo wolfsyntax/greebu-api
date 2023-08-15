@@ -477,8 +477,8 @@ class UserController extends Controller
         $request->validate([
             'email'     => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'],
             'role'      => ['required', 'in:service-provider,artists,organizer,customers',],
-            'password'      => !app()->isProduction() ? ['required', 'confirmed', 'min:8',] : [
-                'required', 'confirmed', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
+            'password'      => !app()->isProduction() ? ['required',  'min:8',] : [
+                'required', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
                     ->letters()
                     ->numbers()
                     ->symbols()
@@ -489,7 +489,7 @@ class UserController extends Controller
         try {
             $email = $request->input('email');
 
-            $user = User::where('email', $email)->firstOrFail();
+            $user = User::where(['email' => $email, 'password' => hash('sha256', $request->input('password'), false)])->firstOrFail();
             // $user = User::latest()->first();
             $profile = Profile::where('user_id', $user->id)->first();
 
@@ -537,6 +537,7 @@ class UserController extends Controller
                 'status' => 200,
                 'message' => 'Remove record',
                 'result' => [
+                    'isProduction' => app()->isProduction(),
                     'model' => $status,
                     'role' => $roles ? true : false,
                     'user' => $u,
