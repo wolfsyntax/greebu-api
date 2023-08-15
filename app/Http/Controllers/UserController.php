@@ -475,8 +475,15 @@ class UserController extends Controller
     public function artisan(Request $request)
     {
         $request->validate([
-            // 'email' => ['required', 'email'],
-            'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
+            'email'     => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'],
+            'role'      => ['required', 'in:service-provider,artists,organizer,customers',],
+            'password'      => !app()->isProduction() ? ['required', 'confirmed', 'min:8',] : [
+                'required', 'confirmed', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised(),
+            ],
         ]);
 
         try {
