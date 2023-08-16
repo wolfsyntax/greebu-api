@@ -16,7 +16,17 @@ class ProfileResource extends JsonResource
     public function toArray(Request $request): array
     {
 
-        $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : ($this->bucket === 's3' ? Storage::disk($this->bucket)->url($this->avatar) : ($this->avatar ? Storage::disk($this->bucket)->temporaryUrl($this->avatar, now()->addMinutes(60)) : ''));
+        // $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : ($this->bucket === 's3' ? Storage::disk($this->bucket)->url($this->avatar) : ($this->avatar ? Storage::disk($this->bucket)->temporaryUrl($this->avatar, now()->addMinutes(60)) : ''));
+
+        $avatar = $this->avatar;
+
+        if ($this->bucket && !filter_var($avatar, FILTER_VALIDATE_URL)) {
+            if ($this->bucket === 's3') {
+                $avatar = Storage::disk($this->bucket)->url($avatar);
+            } else {
+                $avatar = Storage::disk($this->bucket)->temporaryUrl($this->avatar, now()->addMinutes(60));
+            }
+        }
 
         $roles = $this->roles ? $this->roles->first()->name : '';
 
