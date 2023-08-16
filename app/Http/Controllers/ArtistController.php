@@ -18,6 +18,7 @@ use App\Traits\UserTrait;
 use App\Http\Resources\ArtistShowResource;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\MemberCollection;
+use App\Http\Resources\MemberResource;
 use Carbon\Carbon;
 use App\Http\Resources\ArtistCollection;
 use App\Http\Resources\ArtistResource;
@@ -486,7 +487,7 @@ class ArtistController extends Controller
             ->performedOn($member)
             ->withProperties([
                 'member'    => $member,
-                'members'   => $artist->members()->get(),
+                'members'   => new MemberCollection($artist->members()->get()),
                 'artist'    => $artist,
             ])
             ->log('Artist/Group member added.');
@@ -495,8 +496,8 @@ class ArtistController extends Controller
             'status'        => 200,
             'message'       => 'Member added successfully.',
             'result'        => [
-                'member'    => $member,
-                'members'   => $artist->members()->get(),
+                'member'    => new MemberResource($member),
+                'members'   => new MemberCollection($artist->members()->get()),
             ],
         ], 200);
     }
@@ -588,8 +589,8 @@ class ArtistController extends Controller
             'status' => 200,
             'message' => 'Member removed successfully.',
             'result' => [
-                'member'    => $member,
-                'members'   => $artist->members()->get(),
+                'member'    => new MemberResource($member),
+                'members'   => new MemberCollection($artist->members()->get()),
             ],
         ], 200);
         // }
@@ -650,7 +651,7 @@ class ArtistController extends Controller
             'status'        => 200,
             'message'       => 'Member details updated successfully.',
             'result'        => [
-                'member'    => $member,
+                'member'    => new MemberResource($member),
                 'members'   => $artist->members()->get(),
             ],
         ], 200);

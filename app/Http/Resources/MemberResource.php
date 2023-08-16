@@ -18,8 +18,10 @@ class MemberResource extends JsonResource
         $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : Storage::disk('s3')->url($this->avatar);
 
         return [
-            'member_name' => $this->fullname,
-            'avatar' => $avatar,
+            'id'            => $this->id,
+            'band_id'       => $this->artist_id,
+            'member_name'   => $this->fullname,
+            'avatar'        => $avatar,
             'role' => ucfirst($this->role),
         ];
         // return parent::toArray($request);
