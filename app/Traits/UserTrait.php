@@ -72,6 +72,32 @@ trait UserTrait
         return $profile;
     }
 
+    public function updateProfileV2($request, $profile, $disk = 's3', $directory = 'avatar')
+    {
+
+        if ($request->hasFile('avatar')) {
+            if ($profile->avatar) {
+                if (Storage::disk($disk)->exists($profile->avatar)) {
+                    Storage::disk($disk)->delete($profile->avatar);
+                    $profile->avatar = '';
+                }
+            }
+
+            $path = Storage::disk($disk)->putFileAs($directory, $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
+            $profile->bucket = $disk;
+            $profile->avatar = parse_url($path)['path'];
+        }
+
+        $profile->street_address = $request->input('street_address');
+        $profile->city = $request->input('city');
+        $profile->province = $request->input('province');
+        $profile->bio = $request->input('bio');
+
+        $profile->save();
+
+        return $profile;
+    }
+
     public function updateAddress($request, $role = 'customers')
     {
         $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {

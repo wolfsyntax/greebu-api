@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Resources\ProfileResource;
+use App\Http\Resources\ArtistFullResource;
+
 use App\Models\Customer;
 use App\Models\Organizer;
 use App\Models\ServiceProvider;
@@ -115,6 +117,7 @@ class LoginController extends Controller
                 $account = Organizer::where('profile_id', $profile->id)->first();
             } else if ($role === 'artists') {
                 $account = Artist::where('profile_id', $profile->id)->first();
+                $account = new ArtistFullResource($account);
             } else {
                 $account = ServiceProvider::where('profile_id', $profile->id)->first();
             }

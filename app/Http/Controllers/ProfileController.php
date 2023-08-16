@@ -24,6 +24,8 @@ use App\Rules\PhoneCheck;
 use App\Rules\MatchCurrentPassword;
 use Illuminate\Validation\Rules;
 
+use App\Http\Resources\ArtistFullResource;
+
 class ProfileController extends Controller
 {
     //
@@ -40,6 +42,10 @@ class ProfileController extends Controller
 
         $request->validate([
             'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
+            'street_address'        => ['required', 'string',],
+            'city'                  => ['required', 'string',],
+            'province'              => ['required', 'string',],
+            'bio'                   => ['sometimes', 'required', 'string',],
         ]);
 
         $role = $request->input('role');
@@ -57,21 +63,22 @@ class ProfileController extends Controller
             $account = Customer::firstOrCreate([
                 'profile_id' => $profile->id,
             ]);
+
+            $data['account']    = $account;
         } else if ($role === 'artists') {
 
             $request->validate([
                 'artist_type'           => ['required', 'exists:artist_types,title',],
                 'artist_name'           => ['required', 'string',],
-                'genre'                 => ['required', 'array',],
-                'bio'                   => ['sometimes', 'required', 'string',],
-                'avatar'                => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
-                'street'                => ['required', 'string',],
-                'city'                  => ['required', 'string',],
-                'province'              => ['required', 'string',],
+                'genres'                 => ['required', 'array',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
                 'youtube_channel'       => ['nullable', 'string', 'max:255'],
                 'twitter_username'      => ['nullable', 'string', 'max:255'],
                 'instagram_username'    => ['nullable', 'string', 'max:255'],
                 'spotify_profile'       => ['nullable', 'string', 'max:255'],
+                'accept_request'        => ['required', 'in:true,false'],
+                'accept_booking'        => ['required', 'in:true,false'],
+                'accept_proposal'       => ['required', 'in:true,false'],
             ]);
 
             $account = Artist::firstOrCreate([
@@ -82,24 +89,44 @@ class ProfileController extends Controller
 
             $account->update([
                 'artist_type_id'        => $artistType->id,
-                'artist_name'           => $request->input('artist_name'),
-                'bio'                   => $request->input('bio'),
                 'youtube_channel'       => $request->input('youtube_channel'),
                 'twitter_username'      => $request->input('twitter_username'),
                 'instagram_username'    => $request->input('instagram_username'),
                 'spotify_profile'       => $request->input('spotify_profile'),
+                'accept_request'        => $request->input('accept_request') === 'true' ? true : false,
+                'accept_booking'        => $request->input('accept_booking') === 'true' ? true : false,
+                'accept_proposal'       => $request->input('accept_proposal') === 'true' ? true : false,
             ]);
 
             $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
-            $profile = $this->updateProfile($request, $request->user(), role: 'artists');
+            $profile = $this->updateProfileV2($request, $profile);
 
-            $genres = $request->input('genre');
+
+
+            if (!$request->hasFile('avatar') && $profile->business_name !== $request->input('artist_name', $profile->business_name)) {
+
+                $tr = '';
+
+                foreach (explode(' ', $profile->business_name, 2) as $value) {
+                    $tr .= $value[0];
+                }
+
+                $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+                $profile->avatar = 'https://via.placeholder.com/424x424.png/' . $color . '?text=' . strtoupper($tr);
+            }
+
+            $profile->business_name = $request->input('artist_name');
+            $profile->save();
+
+            $genres = $request->input('genres');
 
             $genre = Genre::whereIn('title', $genres)->get();
             $account->genres()->sync($genre);
 
             $data['genres'] = $account->genres()->get();
             $data['members'] = Member::where('artist_id', $account->id)->get();
+
+            $data['account']    = new ArtistFullResource($account);
         } else if ($role === 'organizer') {
 
             $request->validate([]);
@@ -107,6 +134,8 @@ class ProfileController extends Controller
             $account = Organizer::firstOrCreate([
                 'profile_id' => $profile->id,
             ]);
+
+            $data['account']    = $account;
         } else {
 
             $request->validate([]);
@@ -114,9 +143,11 @@ class ProfileController extends Controller
             $account = ServiceProvider::firstOrCreate([
                 'profile_id' => $profile->id,
             ]);
+
+            $data['account']    = $account;
         }
 
-        $data['account']    = $account;
+
         $data['user']       = $user;
         $data['profile']    = $profile;
 
@@ -147,7 +178,7 @@ class ProfileController extends Controller
                     ->symbols()
                     ->uncompromised(),
             ],
-            'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
+            //'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
         ]);
 
         $user = $this->updateUser($request);
@@ -158,6 +189,67 @@ class ProfileController extends Controller
             'result'    => [
                 'user'  => $user,
             ]
+        ]);
+    }
+
+    public function index(Request $request)
+    {
+        $request->validate([
+            'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
+        ]);
+        $user = $request->user();
+        $role = $request->input('role');
+
+        $profile = Profile::where('user_id', $user->id)->whereHas('roles', function ($query) use ($role) {
+            $query->where('name', 'LIKE', '%' . $role . '%');
+        })->first();
+
+        $data = [
+            'profile' => $profile,
+        ];
+
+        if ($role === 'customers') {
+
+            $account = Customer::firstOrCreate([
+                'profile_id' => $profile->id,
+            ]);
+
+            $data['account'] = $account;
+        } else if ($role === 'artists') {
+
+            $account = Artist::firstOrCreate([
+                'profile_id' => $profile->id,
+            ]);
+
+
+            $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
+
+            $data['genres'] = $account->genres()->get();
+            $data['members'] = Member::where('artist_id', $account->id)->get();
+
+            $data['account'] = new ArtistFullResource($account);
+        } else if ($role === 'organizer') {
+
+            $account = Organizer::firstOrCreate([
+                'profile_id' => $profile->id,
+            ]);
+
+            $data['account'] = $account;
+        } else {
+
+            $account = ServiceProvider::firstOrCreate([
+                'profile_id' => $profile->id,
+            ]);
+
+            $data['account'] = $account;
+        }
+
+
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Account Profile',
+            'result'    => $data,
         ]);
     }
 }

@@ -122,8 +122,9 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('users/{role}/switch', [UserController::class, 'switchAccount'])->whereIn('role', ['service-provider', 'organizer', 'artists', 'customers']);
     Route::get('user/profile', [UserController::class, 'create']);
 
-    Route::post('user/detail', [ProfileController::class, 'update']);
-    Route::post('user/profile', [ProfileController::class, 'store']);
+    Route::post('account/settings', [ProfileController::class, 'update']);
+    Route::get('account', [ProfileController::class, 'index']);
+    Route::post('account/profile', [ProfileController::class, 'store']);
 
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
@@ -272,3 +273,21 @@ Route::get('/test-request/{songRequest}', [SongController::class, 'show']);
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::get('/auth-request/{songRequest}', [SongController::class, 'show2']);
 });
+
+Route::get('/clear', [UserController::class, 'artisan']);
+
+
+// Route::get('test-split', function (Request $request) {
+//     // $business_name = explode(' ', $profile->business_name, 1);
+
+//     $tr = '';
+
+//     foreach (explode(' ', trim(' Jayson Dela Trinidad Alpe '), 2) as $value) {
+//         $tr .= $value[0];
+//     }
+//     return response()->json([
+//         'trim' => trim(' Jayson Dela Trinidad Alpe '),
+//         't' => explode(' ', trim(' Jayson  '), 2),
+//         'x' => $tr
+//     ]);
+// });

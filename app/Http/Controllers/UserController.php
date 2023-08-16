@@ -24,6 +24,9 @@ use Twilio\Rest\Client;
 use Twilio\Exceptions\TwilioException;
 use Exception;
 
+use DB;
+use Throwable;
+
 class UserController extends Controller
 {
     use UserTrait;
@@ -467,5 +470,88 @@ class UserController extends Controller
             'message' => 'Checking Phone number',
             'result'    => []
         ]);
+    }
+
+    public function artisan(Request $request)
+    {
+        $request->validate([
+            'email'     => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'exists:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'exists:users'],
+            'role'      => ['required', 'in:service-provider,artists,organizer,customers',],
+            'password'      => !app()->isProduction() ? ['required',  'min:8',] : [
+                'required', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised(),
+            ],
+        ]);
+
+        try {
+            $email = $request->input('email');
+
+            $user = User::where(['email' => $email, 'password' => hash('sha256', $request->input('password'), false)])->firstOrFail();
+            // $user = User::latest()->first();
+            $profile = Profile::where('user_id', $user->id)->first();
+
+            $r = $request->input('role');
+            $status = false;
+
+            if ($r === 'artists') {
+                $artist = Artist::where('profile_id', $profile->id)->first();
+                if ($artist) {
+                    $status = $artist->forceDelete();
+                }
+            }
+
+            if ($r === 'customers') {
+                $customer = Customer::where('profile_id', $profile->id)->first();
+                if ($customer) {
+                    $status = $customer->forceDelete();
+                }
+            }
+
+            if ($r === 'organizer') {
+                $organizer = Organizer::where('profile_id', $profile->id)->first();
+                if ($organizer) {
+                    $status = $organizer->forceDelete();
+                }
+            }
+
+            if ($r === 'service-provider') {
+                $service_provider = ServiceProvider::where('profile_id', $profile->id)->first();
+                if ($service_provider) {
+                    $status = $service_provider->forceDelete();
+                }
+            }
+
+            $roles = DB::table('model_has_roles')->where('model_id', $profile->id)->delete();
+
+            $u = false;
+            $p = false;
+
+            if ($profile) $p = $profile->forceDelete();
+
+            if ($user) $u = $user->forceDelete();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Remove record',
+                'result' => [
+                    'isProduction' => app()->isProduction(),
+                    'model' => $status,
+                    'role' => $roles ? true : false,
+                    'user' => $u,
+                    'profile' => $p,
+                ]
+            ]);
+        } catch (Exception $th) {
+            return response()->json([
+                'status'    => 500,
+                'message'   => 'Error',
+                'result'    => [
+                    'error' => $th
+                ]
+            ], 200);
+        }
     }
 }
