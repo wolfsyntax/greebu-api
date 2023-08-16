@@ -35,7 +35,7 @@ class ProfileController extends Controller
     public function __construct()
     {
         $this->middleware(['auth'])->only('store', 'update', 'updatePassword', 'updatePhone');
-        $this->middleware(['verified'])->only('updatePassword');
+        // $this->middleware(['verified'])->only('updatePassword');
         $this->middleware(['throttle:5,1'])->only('store', 'update', 'updatePassword');
     }
 
@@ -177,6 +177,7 @@ class ProfileController extends Controller
 
         $user->phone = $request->input('phone');
         $user->phone_verified_at = null;
+        $user->sendCode();
 
         $user->save();
 
@@ -204,16 +205,27 @@ class ProfileController extends Controller
         ]);
 
         $user = User::find($request->user()->id);
-        $user->password = $request->input('password');
-        $user->save();
 
-        return response()->json([
-            'status'    => 200,
-            'message'   => 'Update user password.',
-            'result'    => [
-                'user'  => $user,
-            ]
-        ]);
+        if ($user->email_verified_at) {
+            $user->password = $request->input('password');
+
+            $user->save();
+
+            return response()->json([
+                'status'    => 200,
+                'message'   => 'Update user password.',
+                'result'    => [
+                    'user'  => $user,
+                ]
+            ]);
+        } else {
+
+            return response()->json([
+                'status'    => 403,
+                'message'   => 'Unable to update password.',
+                'result'    => []
+            ], 203);
+        }
     }
 
     public function update(Request $request)
