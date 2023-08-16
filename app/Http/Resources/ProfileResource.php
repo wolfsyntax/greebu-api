@@ -23,7 +23,7 @@ class ProfileResource extends JsonResource
         if ($this->bucket && !filter_var($avatar, FILTER_VALIDATE_URL)) {
             if ($this->bucket === 's3') {
                 $avatar = Storage::disk($this->bucket)->url($avatar);
-            } else {
+            } else if ($this->bucket === 's3priv') {
                 $avatar = Storage::disk($this->bucket)->temporaryUrl($this->avatar, now()->addMinutes(60));
             }
         }

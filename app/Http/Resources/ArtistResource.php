@@ -24,7 +24,7 @@ class ArtistResource extends JsonResource
         if ($this->profile->bucket && !filter_var($avatar, FILTER_VALIDATE_URL)) {
             if ($this->profile->bucket === 's3') {
                 $avatar = Storage::disk($this->profile->bucket)->url($avatar);
-            } else {
+            } else if ($this->profile->bucket === 's3priv') {
                 $avatar = Storage::disk($this->profile->bucket)->temporaryUrl($this->profile->avatar, now()->addMinutes(60));
             }
         }
