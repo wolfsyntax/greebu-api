@@ -20,7 +20,7 @@ class ArtistFullResource extends JsonResource
 
         $avatar = $this->profile->avatar;
 
-        if ($this->profile->bucket && filter_var($avatar, FILTER_VALIDATE_URL)) {
+        if ($this->profile->bucket && !filter_var($avatar, FILTER_VALIDATE_URL)) {
             if ($this->profile->bucket === 's3') {
                 $avatar = Storage::disk($this->profile->bucket)->url($avatar);
             } else {
