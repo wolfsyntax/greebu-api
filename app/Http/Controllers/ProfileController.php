@@ -169,7 +169,7 @@ class ProfileController extends Controller
             'username'          => ['required', 'string', 'min:8', 'max:255',],
             'avatar'            => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
             'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
-            'phone'             => ['required', new PhoneCheck()],
+            'phone'             => ['required', 'unique:users,phone,' . $request->user()->id, new PhoneCheck()],
             'current_password'  => ['sometimes', 'required', 'string', 'min:8', 'max:255', new MatchCurrentPassword],
             'password'          => !app()->isProduction() ? ['required', 'confirmed',] : [
                 'required', 'confirmed', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
