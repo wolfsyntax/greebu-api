@@ -34,8 +34,11 @@ class ProfileController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['throttle:5,1', 'auth'])->only('store', 'update');
+        $this->middleware(['auth'])->only('store', 'update', 'updatePassword', 'updatePhone');
+        $this->middleware(['verified'])->only('updatePassword');
+        $this->middleware(['throttle:5,1'])->only('store', 'update', 'updatePassword');
     }
+
     public function store(Request $request)
     {
         $user = $request->user();
@@ -161,15 +164,35 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function updatePhone(Request $request)
     {
+        // Old - if exists
+        // New - if unique
         $request->validate([
-            'first_name'        => ['required', 'string', 'max:255',],
-            'last_name'         => ['required', 'string', 'max:255',],
-            'username'          => ['required', 'string', 'min:8', 'max:255',],
-            'avatar'            => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
-            'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
+            'current_phone'     => ['required', 'exists:users,phone', new PhoneCheck()],
             'phone'             => ['required', 'unique:users,phone,' . $request->user()->id, new PhoneCheck()],
+        ]);
+
+        $user = User::find($request->user()->id);
+
+        $user->phone = $request->input('phone');
+        $user->phone_verified_at = null;
+
+        $user->save();
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Update user phone.',
+            'result'    => [
+                'user'  => $user,
+            ]
+        ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        // If email verified
+        $request->validate([
             'current_password'  => ['sometimes', 'required', 'string', 'min:8', 'max:255', new MatchCurrentPassword],
             'password'          => !app()->isProduction() ? ['required', 'confirmed',] : [
                 'required', 'confirmed', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
@@ -178,10 +201,34 @@ class ProfileController extends Controller
                     ->symbols()
                     ->uncompromised(),
             ],
-            //'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
         ]);
 
-        $user = $this->updateUser($request);
+        $user = User::find($request->user()->id);
+        $user->password = $request->input('password');
+        $user->save();
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Update user password.',
+            'result'    => [
+                'user'  => $user,
+            ]
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        $request->validate([
+            'first_name'        => ['required', 'string', 'max:255',],
+            'last_name'         => ['required', 'string', 'max:255',],
+            'username'          => ['required', 'string', 'min:8', 'max:255',],
+            // 'avatar'            => ['nullable', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
+        ]);
+
+        $user = User::find($request->user()->id);
+
+        $user->update($request->only('first_name', 'last_name', 'username', 'email'));
 
         return response()->json([
             'status'    => 200,
