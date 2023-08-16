@@ -280,17 +280,23 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 Route::get('/clear', [UserController::class, 'artisan']);
 
 
-// Route::get('test-split', function (Request $request) {
-//     // $business_name = explode(' ', $profile->business_name, 1);
+Route::get('test-split', function (Request $request) {
 
-//     $tr = '';
+    return response()->json([
+        'valid_url' => filter_var('avatar/image_1.jpg', FILTER_VALIDATE_URL),
+    ]);
+    // $business_name = explode(' ', $profile->business_name, 1);
 
-//     foreach (explode(' ', trim(' Jayson Dela Trinidad Alpe '), 2) as $value) {
-//         $tr .= $value[0];
-//     }
-//     return response()->json([
-//         'trim' => trim(' Jayson Dela Trinidad Alpe '),
-//         't' => explode(' ', trim(' Jayson  '), 2),
-//         'x' => $tr
-//     ]);
-// });
+    // $tr = '';
+
+    // foreach (explode(' ', trim(' Jayson Dela Trinidad Alpe '), 2) as $value) {
+    //     $tr .= $value[0];
+    // }
+    // return response()->json([
+    //     'trim' => trim(' Jayson Dela Trinidad Alpe '),
+    //     't' => explode(' ', trim(' Jayson  '), 2),
+    //     'x' => $tr
+    // ]);
+
+
+});
