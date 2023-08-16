@@ -76,7 +76,7 @@ trait UserTrait
     {
 
         if ($request->hasFile('avatar')) {
-            if ($profile->avatar) {
+            if (!filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
                 if (Storage::disk($disk)->exists($profile->avatar)) {
                     Storage::disk($disk)->delete($profile->avatar);
                     $profile->avatar = '';

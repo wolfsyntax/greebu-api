@@ -16,6 +16,7 @@ use Spatie\Activitylog\Models\Activity;
 // use App\Libraries\Service;
 use App\Traits\UserTrait;
 use App\Http\Resources\ArtistShowResource;
+use App\Http\Resources\ArtistFullResource;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\MemberCollection;
 use App\Http\Resources\MemberResource;
@@ -199,7 +200,7 @@ class ArtistController extends Controller
             'result' => [
                 'artist_types'  => ArtistType::get(),
                 'genres'        => Genre::get()->pluck('title'),
-                'profile'       => $artist,
+                'profile'       => new ArtistFullResource($artist),
                 'artist_genre'  => $genres,
                 'img'           => $img,
                 'members'       => new MemberCollection($members),

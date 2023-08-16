@@ -102,9 +102,10 @@ class ProfileController extends Controller
             ]);
 
             $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
+
+            $profile->business_name = $request->input('artist_name');
+
             $profile = $this->updateProfileV2($request, $profile);
-
-
 
             if (!$request->hasFile('avatar') && $profile->business_name !== $request->input('artist_name', $profile->business_name)) {
 
@@ -118,8 +119,8 @@ class ProfileController extends Controller
                 $profile->avatar = 'https://via.placeholder.com/424x424.png/' . $color . '?text=' . strtoupper($tr);
             }
 
-            $profile->business_name = $request->input('artist_name');
-            $profile->save();
+            // $profile->business_name = $request->input('artist_name');
+            // $profile->save();
 
             $genres = $request->input('genres');
 
