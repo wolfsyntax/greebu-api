@@ -35,7 +35,7 @@ class ProfileController extends Controller
     public function __construct()
     {
         $this->middleware(['auth'])->only('store', 'update', 'updatePassword', 'updatePhone');
-        $this->middleware(['verified'])->only('updatePassword');
+        // $this->middleware(['verified'])->only('updatePassword');
         $this->middleware(['throttle:5,1'])->only('store', 'update', 'updatePassword');
     }
 
@@ -45,10 +45,10 @@ class ProfileController extends Controller
 
         $request->validate([
             'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
-            'street_address'        => ['required', 'string',],
-            'city'                  => ['required', 'string',],
-            'province'              => ['required', 'string',],
-            'bio'                   => ['sometimes', 'required', 'string',],
+            'street_address'        => ['required', 'string', 'max:255',],
+            'city'                  => ['required', 'string', 'max:255',],
+            'province'              => ['required', 'string', 'max:255',],
+            'bio'                   => ['required', 'string', 'max:255',],
         ]);
 
         $role = $request->input('role');
@@ -79,9 +79,9 @@ class ProfileController extends Controller
                 'twitter_username'      => ['nullable', 'string', 'max:255'],
                 'instagram_username'    => ['nullable', 'string', 'max:255'],
                 'spotify_profile'       => ['nullable', 'string', 'max:255'],
-                'accept_request'        => ['required', 'in:true,false'],
-                'accept_booking'        => ['required', 'in:true,false'],
-                'accept_proposal'       => ['required', 'in:true,false'],
+                'accept_request'        => ['nullable', 'in:true,false'],
+                'accept_booking'        => ['nullable', 'in:true,false'],
+                'accept_proposal'       => ['nullable', 'in:true,false'],
             ]);
 
             $account = Artist::firstOrCreate([
@@ -96,9 +96,9 @@ class ProfileController extends Controller
                 'twitter_username'      => $request->input('twitter_username'),
                 'instagram_username'    => $request->input('instagram_username'),
                 'spotify_profile'       => $request->input('spotify_profile'),
-                'accept_request'        => $request->input('accept_request') === 'true' ? true : false,
-                'accept_booking'        => $request->input('accept_booking') === 'true' ? true : false,
-                'accept_proposal'       => $request->input('accept_proposal') === 'true' ? true : false,
+                'accept_request'        => $request->input('accept_request', 'false') === 'true' ? true : false,
+                'accept_booking'        => $request->input('accept_booking', 'false') === 'true' ? true : false,
+                'accept_proposal'       => $request->input('accept_proposal', 'false') === 'true' ? true : false,
             ]);
 
             $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
@@ -177,6 +177,7 @@ class ProfileController extends Controller
 
         $user->phone = $request->input('phone');
         $user->phone_verified_at = null;
+        $user->sendCode();
 
         $user->save();
 
@@ -204,16 +205,27 @@ class ProfileController extends Controller
         ]);
 
         $user = User::find($request->user()->id);
-        $user->password = $request->input('password');
-        $user->save();
 
-        return response()->json([
-            'status'    => 200,
-            'message'   => 'Update user password.',
-            'result'    => [
-                'user'  => $user,
-            ]
-        ]);
+        if ($user->email_verified_at) {
+            $user->password = $request->input('password');
+
+            $user->save();
+
+            return response()->json([
+                'status'    => 200,
+                'message'   => 'Update user password.',
+                'result'    => [
+                    'user'  => $user,
+                ]
+            ]);
+        } else {
+
+            return response()->json([
+                'status'    => 403,
+                'message'   => 'Unable to update password.',
+                'result'    => []
+            ], 203);
+        }
     }
 
     public function update(Request $request)
