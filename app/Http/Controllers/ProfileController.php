@@ -22,9 +22,14 @@ use App\Traits\TwilioTrait;
 
 use App\Rules\PhoneCheck;
 use App\Rules\MatchCurrentPassword;
-use Illuminate\Validation\Rules;
+use App\Rules\MatchCurrentEmail;
+use App\Rules\MatchCurrentPhone;
+// use Illuminate\Validation\Rule;
+
 
 use App\Http\Resources\ArtistFullResource;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -34,7 +39,7 @@ class ProfileController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['auth'])->only('store', 'update', 'updatePassword', 'updatePhone');
+        $this->middleware(['auth'])->only('store', 'update', 'updatePassword', 'updatePhone', 'profilePic', 'bannerImage');
         // $this->middleware(['verified'])->only('updatePassword');
         $this->middleware(['throttle:5,1'])->only('store', 'update', 'updatePassword');
     }
@@ -44,7 +49,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
+            'role'                  => ['required', 'in:service-provider,artists,organizer,customers',],
             'street_address'        => ['required', 'string', 'max:255',],
             'city'                  => ['required', 'string', 'max:255',],
             'province'              => ['required', 'string', 'max:255',],
@@ -170,9 +175,37 @@ class ProfileController extends Controller
         // Old - if exists
         // New - if unique
         $request->validate([
-            'current_phone'     => ['required', 'exists:users,phone', new PhoneCheck()],
+            'current_phone'     => ['required', new MatchCurrentPhone(), new PhoneCheck()],
             'phone'             => ['required', 'unique:users,phone,' . $request->user()->id, new PhoneCheck()],
         ]);
+
+        $user = User::find($request->user()->id);
+
+        $user->phone = $request->input('phone');
+        $user->phone_verified_at = null;
+        $user->sendCode();
+
+        $user->save();
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Update user phone.',
+            'result'    => [
+                'user'  => $user,
+            ]
+        ]);
+    }
+
+    public function updateEmail(Request $request)
+    {
+        // Old - if exists
+        // New - if unique
+        // 'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
+        $request->validate([
+            'current_email'     => ['required', new MatchCurrentEmail(), 'email:rfc,dns', 'max:255',],
+            'email'             => ['required', 'unique:users,email,' . $request->user()->id, 'max:255',],
+        ]);
+
 
         $user = User::find($request->user()->id);
 
@@ -224,7 +257,9 @@ class ProfileController extends Controller
             return response()->json([
                 'status'    => 403,
                 'message'   => 'Unable to update password.',
-                'result'    => []
+                'result'    => [
+                    'email' => 'Email not verified',
+                ]
             ], 203);
         }
     }
@@ -236,7 +271,7 @@ class ProfileController extends Controller
             'last_name'         => ['required', 'string', 'max:255',],
             'username'          => ['required', 'string', 'min:8', 'max:255',],
             // 'avatar'            => ['nullable', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
-            'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
+            // 'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
         ]);
 
         $user = User::find($request->user()->id);
@@ -250,6 +285,76 @@ class ProfileController extends Controller
                 'user'  => $user,
             ]
         ]);
+    }
+
+    public function profilePic(Request $request, Profile $profile)
+    {
+
+        if ($profile->where('user_id', $request->user()->id)->first()) {
+
+            $request->validate([
+                'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            ]);
+
+            return response()->json([
+                'status'    => 200,
+                'message'   => '...',
+                'result'    => []
+            ]);
+
+            if ($request->hasFile('avatar')) {
+                if (!filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
+                    if (Storage::disk('s3')->exists($profile->avatar)) {
+                        Storage::disk('s3')->delete($profile->avatar);
+                        $profile->avatar = '';
+                    }
+                }
+
+                $path = Storage::disk('s3')->putFileAs('avatar', $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
+                $profile->bucket = 's3';
+                $profile->avatar = parse_url($path)['path'];
+            }
+
+            $profile->save();
+
+            return response()->json([
+                'status'    => 200,
+                'message'   => '',
+                'result'    => [
+                    'profile' => $profile,
+                ],
+            ]);
+        } else {
+
+            return response()->json([
+                'status'    => 403,
+                'message'   => 'You do not own this profile.',
+                'result'    => []
+            ], 203);
+        }
+    }
+
+
+    public function bannerImage(Request $request, Profile $profile)
+    {
+        $request->validate([
+            'cover_photo'   => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+        ]);
+
+        if ($request->hasFile('cover_photo')) {
+            if (!filter_var($profile->cover_photo, FILTER_VALIDATE_URL)) {
+                if (Storage::disk('s3')->exists($profile->cover_photo)) {
+                    Storage::disk('s3')->delete($profile->cover_photo);
+                    $profile->cover_photo = '';
+                }
+            }
+
+            $path = Storage::disk('s3')->putFileAs('cover_photo', $request->file('cover_photo'), 'img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension());
+            $profile->bucket = 's3';
+            $profile->cover_photo = parse_url($path)['path'];
+        }
+
+        $profile->save();
     }
 
     public function index(Request $request)
