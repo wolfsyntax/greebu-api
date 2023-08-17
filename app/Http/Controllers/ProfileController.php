@@ -310,7 +310,7 @@ class ProfileController extends Controller
 
                     if (Storage::disk('s3')->exists($profile->avatar)) {
                         Storage::disk('s3')->delete($profile->avatar);
-                        $profile->avatar = '';
+                        $profile->avatar = 'https://via.placeholder.com/424x424.png/006644?text=Ipsum';
 
                         $profile->save();
                     }
