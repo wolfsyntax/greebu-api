@@ -18,13 +18,22 @@ class ArtistFullResource extends JsonResource
     {
         $this->profile->loadCount('followers', 'following');
 
-        $avatar = $this->profile->avatar;
+        $avatar = $this->profile->avatar ?? '';
+        $cover = $this->profile->cover_photo ?? '';
 
-        if ($this->profile->bucket && !filter_var($avatar, FILTER_VALIDATE_URL)) {
+        if ($this->profile->bucket && $avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
             if ($this->profile->bucket === 's3') {
-                $avatar = Storage::disk($this->profile->bucket)->url($avatar);
+                $avatar = Storage::disk('s3')->url($avatar);
             } else if ($this->profile->bucket === 's3priv') {
-                $avatar = Storage::disk($this->profile->bucket)->temporaryUrl($this->profile->avatar, now()->addMinutes(60));
+                $avatar = Storage::disk('s3priv')->temporaryUrl($avatar, now()->addMinutes(60));
+            }
+        }
+
+        if ($this->profile->bucket && $cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
+            if ($this->profile->bucket === 's3') {
+                $cover = Storage::disk('s3')->url($cover);
+            } else if ($this->profile->bucket === 's3priv') {
+                $cover = Storage::disk('s3priv')->temporaryUrl($cover, now()->addMinutes(60));
             }
         }
 
@@ -33,6 +42,7 @@ class ArtistFullResource extends JsonResource
             'artist_name'           => $this->profile->business_name ?? '',
             'artist_type'           => (new ArtistTypeResource($this->artistType))->title ?? '',
             'avatar'                => $avatar,
+            'cover_photo'           => $cover,
             'ratings'               => $this->avgRating,
             'reviews'               => count($this->reviews),
             'bio'                   => $this->profile->bio ?? '',

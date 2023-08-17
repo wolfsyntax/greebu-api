@@ -19,12 +19,21 @@ class ProfileResource extends JsonResource
         // $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : ($this->bucket === 's3' ? Storage::disk($this->bucket)->url($this->avatar) : ($this->avatar ? Storage::disk($this->bucket)->temporaryUrl($this->avatar, now()->addMinutes(60)) : ''));
 
         $avatar = $this->avatar;
+        $cover = $this->cover_photo;
 
         if ($this->bucket && $avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
             if ($this->bucket === 's3') {
                 $avatar = Storage::disk('s3')->url($avatar);
             } else if ($this->bucket === 's3priv') {
                 $avatar = Storage::disk('s3priv')->temporaryUrl($avatar, now()->addMinutes(60));
+            }
+        }
+
+        if ($this->bucket && $cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
+            if ($this->bucket === 's3') {
+                $cover = Storage::disk('s3')->url($cover);
+            } else if ($this->bucket === 's3priv') {
+                $cover = Storage::disk('s3priv')->temporaryUrl($cover, now()->addMinutes(60));
             }
         }
 
@@ -36,6 +45,7 @@ class ProfileResource extends JsonResource
             'business_email'    => $this->business_email,
             'business_name'     => $this->business_name,
             'avatar'            => $avatar ?? '',
+            'cover_photo'       => $cover ?? '',
             'phone'             => $this->phone,
             'street_address'    => $this->street_address,
             'city'              => $this->city,

@@ -129,8 +129,8 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('account/change-password', [ProfileController::class, 'updatePassword']);
     Route::post('account/update-phone', [ProfileController::class, 'updatePhone']);
     Route::post('account/update-email', [ProfileController::class, 'updateEmail']);
-    Route::post('account/update-avatar', [ProfileController::class, 'profilePic']);
-    Route::post('account/update-baner', [ProfileController::class, 'bannerImage']);
+    Route::post('account/update/{profile}/avatar', [ProfileController::class, 'profilePic']);
+    Route::post('account/update/{profile}/banner', [ProfileController::class, 'bannerImage']);
 
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
@@ -287,9 +287,14 @@ Route::get('test-split', function (Request $request) {
 
     $bucket = 's3';
     $avatar = 'avatar/image_1.jpg';
-
+    $pro = Storage::disk('s3priv')->temporaryUrl($avatar, now()->addMinutes(60));
+    $pub = Storage::disk('s3priv')->url($avatar, now()->addMinutes(60));
     return response()->json([
         'all' => $bucket && !is_null($avatar) && !filter_var($avatar, FILTER_VALIDATE_URL),
+        'allf' => $bucket && !filter_var('https://via.placeholder.com/424x424.png/', FILTER_VALIDATE_URL),
+        'avatar' => $pro,
+        'pub' => $pub,
+        'all2' => $bucket && $avatar && !filter_var($avatar, FILTER_VALIDATE_URL),
         'isNull' => is_null('avatar/image_1.jpg'),
         'valid_url' => filter_var('avatar/image_1.jpg', FILTER_VALIDATE_URL),
         'x' => $bucket && !filter_var('avatar/image_1.jpg', FILTER_VALIDATE_URL)
