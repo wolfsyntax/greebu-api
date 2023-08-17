@@ -25,11 +25,12 @@ use App\Rules\MatchCurrentPassword;
 use App\Rules\MatchCurrentEmail;
 use App\Rules\MatchCurrentPhone;
 // use Illuminate\Validation\Rule;
-
+use App\Notifications\EmailVerification;
 
 use App\Http\Resources\ArtistFullResource;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Auth\Events\Registered;
 
 class ProfileController extends Controller
 {
@@ -106,8 +107,6 @@ class ProfileController extends Controller
                 'accept_proposal'       => $request->input('accept_proposal', 'false') === 'true' ? true : false,
             ]);
 
-            $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
-
             $profile->business_name = $request->input('artist_name');
 
             $profile = $this->updateProfileV2($request, $profile);
@@ -125,13 +124,15 @@ class ProfileController extends Controller
             }
 
             // $profile->business_name = $request->input('artist_name');
-            // $profile->save();
+            $profile->save();
+
+            $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
 
             $genres = $request->input('genres');
 
             $genre = Genre::whereIn('title', $genres)->get();
             $account->genres()->sync($genre);
-
+            // $account->fresh();
             $data['genres'] = $account->genres()->get();
             $data['members'] = Member::where('artist_id', $account->id)->get();
 
@@ -181,11 +182,14 @@ class ProfileController extends Controller
 
         $user = User::find($request->user()->id);
 
-        $user->phone = $request->input('phone');
-        $user->phone_verified_at = null;
-        $user->sendCode();
+        if ($request->phone !== $user->phone) {
 
-        $user->save();
+            $user->phone = $request->input('phone');
+            $user->phone_verified_at = null;
+            $user->sendCode();
+
+            $user->save();
+        }
 
         return response()->json([
             'status'    => 200,
@@ -206,18 +210,19 @@ class ProfileController extends Controller
             'email'             => ['required', 'unique:users,email,' . $request->user()->id, 'max:255',],
         ]);
 
-
         $user = User::find($request->user()->id);
 
-        $user->phone = $request->input('phone');
-        $user->phone_verified_at = null;
-        $user->sendCode();
+        if ($request->input('email') !== $user->email) {
 
-        $user->save();
+            $user->email = $request->input('email');
+            $user->email_verified_at = null;
+            $user->save();
+            event(new Registered($user));
+        }
 
         return response()->json([
             'status'    => 200,
-            'message'   => 'Update user phone.',
+            'message'   => 'Update user email.',
             'result'    => [
                 'user'  => $user,
             ]
@@ -296,30 +301,30 @@ class ProfileController extends Controller
                 'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
             ]);
 
-            return response()->json([
-                'status'    => 200,
-                'message'   => '...',
-                'result'    => []
-            ]);
+
 
             if ($request->hasFile('avatar')) {
-                if (!filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
+
+
+                if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
+
                     if (Storage::disk('s3')->exists($profile->avatar)) {
                         Storage::disk('s3')->delete($profile->avatar);
                         $profile->avatar = '';
+
+                        $profile->save();
                     }
                 }
 
                 $path = Storage::disk('s3')->putFileAs('avatar', $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
                 $profile->bucket = 's3';
                 $profile->avatar = parse_url($path)['path'];
+                $profile->save();
             }
-
-            $profile->save();
 
             return response()->json([
                 'status'    => 200,
-                'message'   => '',
+                'message'   => 'Update Profile Avatar.',
                 'result'    => [
                     'profile' => $profile,
                 ],
@@ -337,24 +342,46 @@ class ProfileController extends Controller
 
     public function bannerImage(Request $request, Profile $profile)
     {
-        $request->validate([
-            'cover_photo'   => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
-        ]);
+        if ($profile->where('user_id', $request->user()->id)->first()) {
 
-        if ($request->hasFile('cover_photo')) {
-            if (!filter_var($profile->cover_photo, FILTER_VALIDATE_URL)) {
-                if (Storage::disk('s3')->exists($profile->cover_photo)) {
-                    Storage::disk('s3')->delete($profile->cover_photo);
-                    $profile->cover_photo = '';
+            $request->validate([
+                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            ]);
+
+            if ($request->hasFile('cover_photo')) {
+
+
+                if ($profile->cover_photo && !filter_var($profile->cover_photo, FILTER_VALIDATE_URL)) {
+
+                    if (Storage::disk('s3')->exists($profile->cover_photo)) {
+                        Storage::disk('s3')->delete($profile->cover_photo);
+                        $profile->cover_photo = '';
+
+                        $profile->save();
+                    }
                 }
+
+                $path = Storage::disk('s3')->putFileAs('cover_photo', $request->file('cover_photo'), 'img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension());
+                // $profile->bucket = 's3';
+                $profile->cover_photo = parse_url($path)['path'];
+                $profile->save();
             }
 
-            $path = Storage::disk('s3')->putFileAs('cover_photo', $request->file('cover_photo'), 'img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension());
-            $profile->bucket = 's3';
-            $profile->cover_photo = parse_url($path)['path'];
-        }
+            return response()->json([
+                'status'    => 200,
+                'message'   => 'Update Profile Cover Photo.',
+                'result'    => [
+                    'profile' => $profile,
+                ],
+            ]);
+        } else {
 
-        $profile->save();
+            return response()->json([
+                'status'    => 403,
+                'message'   => 'You do not own this profile.',
+                'result'    => []
+            ], 203);
+        }
     }
 
     public function index(Request $request)

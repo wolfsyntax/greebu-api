@@ -191,7 +191,7 @@ class RegisterController extends Controller
 
         event(new Registered($user));
 
-        $user->notify(new EmailVerification($user));
+        // $user->notify(new EmailVerification($user));
 
         $data['token'] = '';
         // $data['token'] = $user->createToken("user_auth")->accessToken;

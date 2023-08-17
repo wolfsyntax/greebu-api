@@ -126,7 +126,7 @@ class LoginController extends Controller
                 'status'        => 200,
                 'message'       => 'Login Successfully.',
                 'result'        => [
-                    'profile'   => new ProfileResource($profile, 's3'),
+                    'profile'   => new ProfileResource($profile, $profile->bucket ?? ''),
                     'user'      => $user,
                     'account'   => $account,
                     'token'     => $user->createToken("user_auth")->accessToken,
