@@ -126,8 +126,11 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::get('account', [ProfileController::class, 'index']);
     Route::post('account/profile', [ProfileController::class, 'store']);
 
-    Route::post('account/update-phone', [ProfileController::class, 'updatePhone']);
     Route::post('account/change-password', [ProfileController::class, 'updatePassword']);
+    Route::post('account/update-phone', [ProfileController::class, 'updatePhone']);
+    Route::post('account/update-email', [ProfileController::class, 'updateEmail']);
+    Route::post('account/update-avatar', [ProfileController::class, 'profilePic']);
+    Route::post('account/update-baner', [ProfileController::class, 'bannerImage']);
 
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
