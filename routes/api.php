@@ -285,6 +285,10 @@ Route::get('/clear', [UserController::class, 'artisan']);
 
 Route::get('test-split', function (Request $request) {
 
+    Artisan::call('storage:link', []);
+    return response()->json([
+        'link' => '...'
+    ]);
     $bucket = 's3';
     $avatar = 'avatar/image_1.jpg';
     $pro = Storage::disk('s3priv')->temporaryUrl($avatar, now()->addMinutes(60));
