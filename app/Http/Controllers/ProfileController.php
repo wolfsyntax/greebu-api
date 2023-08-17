@@ -132,7 +132,7 @@ class ProfileController extends Controller
 
             $genre = Genre::whereIn('title', $genres)->get();
             $account->genres()->sync($genre);
-            $account->fresh();
+            // $account->fresh();
             $data['genres'] = $account->genres()->get();
             $data['members'] = Member::where('artist_id', $account->id)->get();
 
