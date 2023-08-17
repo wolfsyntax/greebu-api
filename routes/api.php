@@ -286,8 +286,11 @@ Route::get('/clear', [UserController::class, 'artisan']);
 Route::get('test-split', function (Request $request) {
 
     $bucket = 's3';
+    $avatar = 'avatar/image_1.jpg';
 
     return response()->json([
+        'all' => $bucket && !is_null($avatar) && !filter_var($avatar, FILTER_VALIDATE_URL),
+        'isNull' => is_null('avatar/image_1.jpg'),
         'valid_url' => filter_var('avatar/image_1.jpg', FILTER_VALIDATE_URL),
         'x' => $bucket && !filter_var('avatar/image_1.jpg', FILTER_VALIDATE_URL)
     ]);
