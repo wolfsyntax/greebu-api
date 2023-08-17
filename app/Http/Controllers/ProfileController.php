@@ -302,7 +302,7 @@ class ProfileController extends Controller
             ]);
 
 
-
+            $path = '';
             if ($request->hasFile('avatar')) {
 
 
@@ -323,10 +323,11 @@ class ProfileController extends Controller
             }
 
             return response()->json([
-                'status'    => 200,
-                'message'   => 'Update Profile Avatar.',
-                'result'    => [
-                    'profile' => $profile,
+                'status'        => 200,
+                'message'       => 'Update Profile Avatar.',
+                'result'        => [
+                    'profile'   => $profile,
+                    'path'      => $path,
                 ],
             ]);
         } else {
