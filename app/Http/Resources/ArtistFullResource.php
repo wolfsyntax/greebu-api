@@ -6,6 +6,7 @@ use App\Models\ArtistType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
+use App\Libraries\AwsService;
 
 class ArtistFullResource extends JsonResource
 {
@@ -21,19 +22,35 @@ class ArtistFullResource extends JsonResource
         $avatar = $this->profile->avatar ?? '';
         $cover = $this->profile->cover_photo ?? '';
 
-        if ($this->profile->bucket && $avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
-            if ($this->profile->bucket === 's3') {
-                $avatar = Storage::disk('s3')->url($avatar);
-            } else if ($this->profile->bucket === 's3priv') {
-                $avatar = Storage::disk('s3priv')->temporaryUrl($avatar, now()->addMinutes(60));
-            }
-        }
+        // if ($this->profile->bucket && $avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
+        //     if ($this->profile->bucket === 's3') {
+        //         $avatar = Storage::disk('s3')->url($avatar);
+        //     } else if ($this->profile->bucket === 's3priv') {
+        //         $avatar = Storage::disk('s3priv')->temporaryUrl($avatar, now()->addMinutes(60));
+        //     }
+        // }
 
-        if ($this->profile->bucket && $cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
-            if ($this->profile->bucket === 's3') {
-                $cover = Storage::disk('s3')->url($cover);
-            } else if ($this->profile->bucket === 's3priv') {
-                $cover = Storage::disk('s3priv')->temporaryUrl($cover, now()->addMinutes(60));
+        // if ($this->profile->bucket && $cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
+        //     if ($this->profile->bucket === 's3') {
+        //         $cover = Storage::disk('s3')->url($cover);
+        //     } else if ($this->profile->bucket === 's3priv') {
+        //         $cover = Storage::disk('s3priv')->temporaryUrl($cover, now()->addMinutes(60));
+        //     }
+        // }
+
+        $service = new AwsService();
+        // $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : ($this->bucket === 's3' ? Storage::disk($this->bucket)->url($this->avatar) : ($this->avatar ? Storage::disk($this->bucket)->temporaryUrl($this->avatar, now()->addMinutes(60)) : ''));
+
+        $avatar = $this->profile->avatar;
+        $cover = $this->profile->cover_photo;
+
+        if ($this->profile->bucket && in_array($this->profile->bucket, ['s3', 's3priv',])) {
+            if ($avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
+                $avatar = $service->get_aws_object($avatar, $this->profile->bucket === 's3priv');
+            }
+
+            if ($cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
+                $cover = $service->get_aws_object($cover, $this->profile->bucket === 's3priv');
             }
         }
 

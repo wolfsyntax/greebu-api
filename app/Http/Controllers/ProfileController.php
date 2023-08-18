@@ -31,6 +31,8 @@ use App\Http\Resources\ArtistFullResource;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Auth\Events\Registered;
+use App\Libraries\AwsService;
+
 
 class ProfileController extends Controller
 {
