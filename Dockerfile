@@ -21,7 +21,9 @@ RUN php artisan optimize && \
     chmod 777 -R /var/www/html/storage/ && \
     chown -R www-data:www-data /var/www/ && \
     a2enmod rewrite &&\
-    chmod 444 ./storage/oauth-*
-    
+    chmod 444 ./storage/oauth-* && \
+    chmod 755 -R /var/www/html/public && \
+    php artisan storage:link
+
 
 CMD php artisan migrate --force && apache2-foreground
