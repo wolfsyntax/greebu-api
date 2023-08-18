@@ -115,7 +115,7 @@ trait UserTrait
                 $profile->cover_photo = '';
             }
 
-            $profile->cover_photo = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+            $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
         }
 
         $profile->bucket = $disk;
