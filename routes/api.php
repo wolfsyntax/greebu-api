@@ -319,7 +319,29 @@ Route::get('test-split', function (Request $request) {
 
 });
 
-use App\Libraries\AwsService;
+// use App\Libraries\AwsService;
+
+Route::post('aws-storage-upload', function (Request $request) {
+    if ($request->hasFile('avatar')) {
+        $s3filename = 'avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension();
+
+        $path = Storage::disk('s3')->put('avatar', $request->file('avatar'), $s3filename);
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => '...',
+            'result'    => [
+                'path' => parse_url($path)['path']
+            ]
+        ]);
+    } else {
+        return response()->json([
+            'status'    => 203,
+            'message'   => '...',
+            'result'    => []
+        ]);
+    }
+});
 
 Route::post('aws-upload', function (Request $request) {
     $service = new AwsService();
@@ -343,7 +365,15 @@ Route::post('aws-upload', function (Request $request) {
 
         ]);
     } else {
-        $res = $service->get_aws_object($request->input('avatar2'));
+        $res = $service->get_aws_object('avatar/img_1692344098.png');
+
+        // $s3 = AWS::createClient('s3');
+
+        // $s3->getObject([
+        //     'Bucket' => config("filesystems.disks.$driver.bucket"),
+        //     'Key' => env('AWS_SECRET_ACCESS_KEY')
+        // ]);
+
 
         return response()->json([
             'aws' => $res,

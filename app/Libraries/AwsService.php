@@ -46,20 +46,14 @@ class AwsService
 
         try {
 
-            // $s3 = AWS::createClient('s3');
-            $result = $this->client->getObject([
-                'Bucket'        => config("filesystems.disks.$driver.bucket"),
-                'Key'           => $s3_filename,
+            $this->client->getObject([
+                'Bucket' => config("filesystems.disks.$driver.bucket"),
+                'Key' => $s3_filename
             ]);
-            // $result = $this->client->getObject([
-            //     'Bucket'        => config("filesystems.disks.$driver.bucket"),
-            //     'Key'           => $s3_filename,
-            // ]);
 
-            return $result['ObjectURL'];
-            return $result;
+            return true;
         } catch (AWS\S3\Exception\S3Exception $e) {
-            return '';
+            return $e;
         }
     }
 
