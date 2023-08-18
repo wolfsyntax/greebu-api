@@ -76,4 +76,13 @@ class AwsService
             return '';
         }
     }
+
+    public function check_aws_object($s3_filename, $driver = 's3')
+    {
+        try {
+            return $this->client->doesObjectExist(config("filesystems.disks.$driver.bucket"), $s3_filename);
+        } catch (AWS\S3\Exception\S3Exception $e) {
+            return false;
+        }
+    }
 }

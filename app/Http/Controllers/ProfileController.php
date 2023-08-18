@@ -297,31 +297,37 @@ class ProfileController extends Controller
     public function profilePic(Request $request, Profile $profile)
     {
 
+        $service = new AwsService();
+
         if ($profile->where('user_id', $request->user()->id)->first()) {
 
             $request->validate([
                 'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
             ]);
 
-
             $path = '';
             if ($request->hasFile('avatar')) {
 
 
-                if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
+                if ($profile->bucket && $profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
 
-                    if (Storage::disk('s3')->exists($profile->avatar)) {
-                        Storage::disk('s3')->delete($profile->avatar);
-                        $profile->avatar = 'https://via.placeholder.com/424x424.png/006644?text=Ipsum';
+                    // if (Storage::disk('s3')->exists($profile->avatar)) {
+                    //     Storage::disk('s3')->delete($profile->avatar);
+                    //     $profile->avatar = 'https://via.placeholder.com/424x424.png/006644?text=Ipsum';
 
-                        $profile->save();
+                    //     $profile->save();
+                    // }
+                    if ($service->check_aws_object($profile->avatar, $profile->bucket)) {
+                        $service->delete_aws_object($profile->avatar, $profile->bucket);
+                        $profile->avatar = '';
                     }
                 }
 
-                $path = Storage::disk('s3')->put('avatar', $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
+                $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
+                //$path = Storage::disk('s3')->put('avatar', $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
                 $profile->bucket = 's3';
 
-                $profile->avatar = parse_url($path)['path'];
+                // $profile->avatar = parse_url($path)['path'];
                 $profile->save();
             }
 
@@ -348,6 +354,7 @@ class ProfileController extends Controller
     public function bannerImage(Request $request, Profile $profile)
     {
         if ($profile->where('user_id', $request->user()->id)->first()) {
+            $service = new AwsService();
 
             $request->validate([
                 'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
@@ -356,19 +363,25 @@ class ProfileController extends Controller
             if ($request->hasFile('cover_photo')) {
 
 
-                if ($profile->cover_photo && !filter_var($profile->cover_photo, FILTER_VALIDATE_URL)) {
+                if ($profile->bucket && $profile->cover_photo && !filter_var($profile->cover_photo, FILTER_VALIDATE_URL)) {
 
-                    if (Storage::disk('s3')->exists($profile->cover_photo)) {
-                        Storage::disk('s3')->delete($profile->cover_photo);
+                    if ($service->check_aws_object($profile->cover_photo, $profile->bucket)) {
+                        $service->delete_aws_object($profile->cover_photo, $profile->bucket);
                         $profile->cover_photo = '';
-
-                        $profile->save();
                     }
+                    // if (Storage::disk('s3')->exists($profile->cover_photo)) {
+                    //     Storage::disk('s3')->delete($profile->cover_photo);
+                    //     $profile->cover_photo = '';
+
+                    //     $profile->save();
+                    // }
                 }
 
-                $path = Storage::disk('s3')->putFileAs('cover_photo', $request->file('cover_photo'), 'img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension());
+                $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+
+                // $path = Storage::disk('s3')->putFileAs('cover_photo', $request->file('cover_photo'), 'img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension());
                 // $profile->bucket = 's3';
-                $profile->cover_photo = parse_url($path)['path'];
+                // $profile->cover_photo = parse_url($path)['path'];
                 $profile->save();
             }
 

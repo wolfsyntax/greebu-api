@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
+use App\Libraries\AwsService;
 
 class MemberResource extends JsonResource
 {
@@ -15,7 +16,10 @@ class MemberResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : Storage::disk('s3')->url($this->avatar);
+        $service = new AwsService();
+
+        $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : $service->get_aws_object($this->avatar);
+        // $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : Storage::disk('s3')->url($this->avatar);
 
         return [
             'id'            => $this->id,

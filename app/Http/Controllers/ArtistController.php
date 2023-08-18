@@ -25,6 +25,7 @@ use App\Http\Resources\ArtistCollection;
 use App\Http\Resources\ArtistResource;
 use Illuminate\Support\Str;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Libraries\AwsService;
 
 class ArtistController extends Controller
 {
@@ -165,13 +166,21 @@ class ArtistController extends Controller
         $artist = Artist::with(['profile', 'artistType', 'genres', 'members'])->firstOrCreate([
             'profile_id' => $user->profiles->first()->id
         ]);
+        $service = new AwsService();
 
         $genres = $members = [];
         $img = '';
 
         if ($artist) {
             $genres = $artist->genres()->pluck('title');
-            $img = Storage::url($user->profiles->first()->avatar);
+            // $img = Storage::url($user->profiles->first()->avatar);
+
+            $img = $user->profiles->first()->avatar;
+
+            if (!filter_var($user->profiles->first()->avatar, FILTER_VALIDATE_URL)) {
+                $img = $service->get_aws_object($user->profiles->first()->avatar);
+            }
+
             $members = $artist->members()->get();
             /*
             // Check if exists on s3
@@ -307,9 +316,16 @@ class ArtistController extends Controller
         $genres = $members = [];
         $img = '';
 
+        $service = new AwsService();
+
         if ($artist) {
             $genres = $artist->genres()->pluck('title');
-            $img = Storage::url($user->profiles->first()->avatar);
+            // $img = Storage::url($user->profiles->first()->avatar);
+            $img = $user->profiles->first()->avatar;
+
+            if (!filter_var($user->profiles->first()->avatar, FILTER_VALIDATE_URL)) {
+                $img = $service->get_aws_object($user->profiles->first()->avatar);
+            }
             $members = $artist->members()->get();
             /*
             // Check if exists on s3
@@ -368,13 +384,15 @@ class ArtistController extends Controller
             'bio'           => $request->input('bio', '123'),
         ];
 
+        $service = new AwsService();
+
         if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
 
-            if (Storage::exists($profile->avatar)) {
-                Storage::delete($profile->avatar);
+            if ($profile->avatar && $service->check_aws_object($profile->avatar)) {
+                $service->delete_aws_object($profile->avatar);
             }
 
-            $path = Storage::disk('s3priv')->putFileAs('avatar', $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
+            $path = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
             $nprof['avatar'] = parse_url($path)['path'];
         }
 
@@ -472,10 +490,12 @@ class ArtistController extends Controller
         ];
 
         $member = $artist->members()->create($data);
+        $service = new AwsService();
 
         if ($request->hasFile('member_avatar') && $request->file('member_avatar')->isValid()) {
             // ...
-            $path = Storage::disk('s3')->putFileAs('member_avatar', $request->file('member_avatar'), 'img_' . time() . '.' . $request->file('member_avatar')->getClientOriginalExtension());
+            $path = $service->put_object_to_aws('member_avatar/img_' . time() . '.' . $request->file('member_avatar')->getClientOriginalExtension(), $request->file('member_avatar'));
+            // $path = Storage::disk('s3')->putFileAs('member_avatar', $request->file('member_avatar'), 'img_' . time() . '.' . $request->file('member_avatar')->getClientOriginalExtension());
             $member->avatar = parse_url($path)['path'];
         } else {
             $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
