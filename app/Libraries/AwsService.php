@@ -43,25 +43,28 @@ class AwsService
 
     public function get_aws_object($s3_filename, $driver = 's3')
     {
-
         try {
 
-            $this->client->getObject([
-                'Bucket' => config("filesystems.disks.$driver.bucket"),
-                'Key' => $s3_filename
-            ]);
+            $result = $this->client->getObjectUrl(config("filesystems.disks.$driver.bucket"), $s3_filename);
 
-            return true;
+            return $result;
         } catch (AWS\S3\Exception\S3Exception $e) {
             return $e;
         }
     }
 
-    public function files($driver = 's3')
+    public function delete_aws_object($s3_filename, $driver = 's3')
     {
-        return [];
-        return $this->client->listMultipartUploads([
-            'Bucket' => config("filesystems.disks.$driver.bucket")
-        ])->toArray();
+        try {
+
+            $result = $this->client->deleteObject([
+                'Bucket' => config("filesystems.disks.$driver.bucket"),
+                'Key' => $s3_filename
+            ]);
+
+            return $result;
+        } catch (AWS\S3\Exception\S3Exception $e) {
+            return $e;
+        }
     }
 }
