@@ -318,3 +318,42 @@ Route::get('test-split', function (Request $request) {
 
 
 });
+
+use App\Libraries\AwsService;
+
+Route::post('aws-upload', function (Request $request) {
+    $service = new AwsService();
+    $driver = 's3';
+
+    if ($request->hasFile('avatar')) {
+        //
+        // $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension()
+
+        $s3filename = 'avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension();
+        // Working
+        $res = $service->put_object_to_aws($s3filename, $request->file('avatar'));
+
+        // $res = Storage::disk($driver)->url('avatar/3img_1692336423.jpg');
+        // $res = $service->get_aws_object('avatar/1img_1692335008.jpg');
+
+        return response()->json([
+            'aws' => $res,
+            'filename' => $s3filename
+            // 'files' => $service->files()
+
+        ]);
+    } else {
+        $res = $service->get_aws_object($request->input('avatar2'));
+
+        return response()->json([
+            'aws' => $res,
+            // 'files' => $service->files()
+
+        ]);
+    }
+
+    return response()->json([
+        'status' => 200,
+        'message'   => 'No file to uploaded.',
+    ]);
+});

@@ -6,10 +6,14 @@ namespace App\Libraries;
 use AWS;
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
-use Illuminate\Support\Facades\Storage;
+// use Illuminate\Support\Facades\Storage;
 
 class Service
 {
+
+    public function __construct()
+    {
+    }
     public function explode_s3_image_path($img)
     {
         $img = explode('/', $img);
