@@ -31,7 +31,7 @@ class AwsService
             $result = $this->client->putObject([
                 'Bucket'        => config($signed ? "filesystems.disks.s3priv.bucket" : "filesystems.disks.s3.bucket"),
                 'Key'           => $s3_filename,
-                'SourceFile'    => $filename
+                // 'SourceFile'    => $filename
             ]);
 
             // return $result['ObjectURL'];

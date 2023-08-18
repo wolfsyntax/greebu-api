@@ -389,12 +389,26 @@ Route::post('aws-upload/{type}', function (Request $request, $type = 'delete') {
 Route::post('aws-profile/{profile}', function (Request $request, \App\Models\Profile $profile) {
     $service = new AwsService();
 
+    // if ($request->hasFile('avatar')) {
+    //     if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
+    //         $service->delete_aws_object($profile->avatar);
+    //         $profile->avatar = '';
+    //     }
+
+    //     $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
+    // }
+
+    $v = '';
+
     if ($request->hasFile('avatar')) {
-        if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
+        if (
+            $profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)
+        ) {
             $service->delete_aws_object($profile->avatar);
             $profile->avatar = '';
         }
 
+        $v = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
         $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
     }
 
@@ -416,6 +430,7 @@ Route::post('aws-profile/{profile}', function (Request $request, \App\Models\Pro
         'status'        => 200,
         'message'       => '',
         'result'        => [
+            'x'         => $v,
             'profile'   => $profile,
         ]
     ]);
