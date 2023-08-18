@@ -116,7 +116,7 @@ class LoginController extends Controller
             } else if ($role === 'organizer') {
                 $account = Organizer::where('profile_id', $profile->id)->first();
             } else if ($role === 'artists') {
-                $account = Artist::where('profile_id', $profile->id)->first();
+                $account = Artist::firstOrCreate(['profile_id'  => $profile->id]);
                 $account = new ArtistFullResource($account);
             } else {
                 $account = ServiceProvider::where('profile_id', $profile->id)->first();
@@ -126,7 +126,7 @@ class LoginController extends Controller
                 'status'        => 200,
                 'message'       => 'Login Successfully.',
                 'result'        => [
-                    'profile'   => new ProfileResource($profile, $profile->bucket ?? ''),
+                    'profile'   => $profile, //new ProfileResource($profile),
                     'user'      => $user,
                     'account'   => $account,
                     'token'     => $user->createToken("user_auth")->accessToken,
