@@ -54,8 +54,6 @@ env:
   MAIL_PASSWORD: ${{secrets.STAGING_MAIL_PASSWORD}}
   MAIL_ENCRYPTION: ${{secrets.STAGING_MAIL_ENCRYPTION}}
 
-  S3_AWS_ACCESS_KEY_ID: ${{secrets.STAGING_AWS_ACCESS_KEY_ID}}
-  S3_AWS_SECRET_ACCESS_KEY: ${{secrets.STAGING_AWS_SECRET_ACCESS_KEY}}
   AWS_DEFAULT_REGION: ${{secrets.STAGING_AWS_DEFAULT_REGION}}
 
   AWS_PRIVATE_BUCKET: ${{secrets.STAGING_AWS_PRIVATE_BUCKET }}
@@ -105,6 +103,8 @@ jobs:
       run: |
         mv .env.example.pipeline .env
         bash ./pipeline/alter-env.sh
+        echo "AWS_ACCESS_KEY_ID=${{secrets.STAGING_AWS_ACCESS_KEY_ID}}" >> .env
+        echo "AWS_SECRET_ACCESS_KEY=${{secrets.STAGING_AWS_SECRET_ACCESS_KEY}}" >> .env
         echo "APP_KEY=base64:UYrzOGsBkLPw3tK0t1qoBjiM2FDznQ0JshDCzEF86IQ=" >> .env
         mv ./pipeline/oauth-* ./storage/
 
