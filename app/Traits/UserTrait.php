@@ -55,17 +55,25 @@ trait UserTrait
             }
         }
 
+        $service = new AwsService();
+
         if ($request->hasFile('avatar')) {
-            if ($profile->avatar) {
-                if (Storage::disk($disk)->exists($profile->avatar)) {
-                    Storage::disk($disk)->delete($profile->avatar);
+            if ($profile->avatar && $profile->bucket) {
+
+                // if (Storage::disk($disk)->exists($profile->avatar)) {
+                //     Storage::disk($disk)->delete($profile->avatar);
+                //     $profile->avatar = '';
+                // }
+                if ($service->check_aws_object($profile->avatar, $disk)) {
+                    $service->delete_aws_object($profile->avatar, $disk);
                     $profile->avatar = '';
                 }
             }
 
-            $path = Storage::disk($disk)->putFileAs($directory, $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
+            // $path = Storage::disk($disk)->putFileAs($directory, $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
             $profile->bucket = $disk;
-            $profile->avatar = parse_url($path)['path'];
+            $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'), $disk === 's3priv');
+            // $profile->avatar = parse_url($path)['path'];
         }
 
         $profile->save();
@@ -157,19 +165,23 @@ trait UserTrait
 
     public function fileUpload(Request $request, $field = 'avatar', $disk = 's3', $directory = 'avatar', $expiration = 60)
     {
-        $path = Storage::disk($disk)->putFileAs($directory, $request->file($field), 'img_' . time() . '.' . $request->file($field)->getClientOriginalExtension());
-        $relative_path = parse_url($path)['path'];
+        $service = new AwsService();
+
+        $path = $service->put_object_to_aws($directory . '/img_' . time() . '.' . $request->file($field)->getClientOriginalExtension(), $request->file($field), $disk === 's3priv');
+        // $path = Storage::disk($disk)->putFileAs($directory, $request->file($field), 'img_' . time() . '.' . $request->file($field)->getClientOriginalExtension());
+        // $relative_path = parse_url($path)['path'];
+        $relative_path = $path;
 
         return [
             'filename'      => $relative_path,
             'path'          => $path,
-            'signed_path'   => Storage::disk($disk)->temporaryUrl($relative_path, now()->addMinutes($expiration)),
+            // 'signed_path'   => Storage::disk($disk)->temporaryUrl($relative_path, now()->addMinutes($expiration)),
         ];
     }
 
     public function getSignedFile($path, $disk = 's3', $expiration = 60)
     {
-        return Storage::disk($disk)->temporaryUrl($path, now()->addMinutes($expiration));
+        // return Storage::disk($disk)->temporaryUrl($path, now()->addMinutes($expiration));
     }
 
     public function checkRoles($role)

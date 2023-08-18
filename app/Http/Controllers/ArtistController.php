@@ -384,13 +384,15 @@ class ArtistController extends Controller
             'bio'           => $request->input('bio', '123'),
         ];
 
+        $service = new AwsService();
+
         if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
 
-            if (Storage::exists($profile->avatar)) {
-                Storage::delete($profile->avatar);
+            if ($profile->avatar && $service->check_aws_object($profile->avatar)) {
+                $service->delete_aws_object($profile->avatar);
             }
 
-            $path = Storage::disk('s3priv')->putFileAs('avatar', $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
+            $path = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
             $nprof['avatar'] = parse_url($path)['path'];
         }
 
@@ -488,10 +490,12 @@ class ArtistController extends Controller
         ];
 
         $member = $artist->members()->create($data);
+        $service = new AwsService();
 
         if ($request->hasFile('member_avatar') && $request->file('member_avatar')->isValid()) {
             // ...
-            $path = Storage::disk('s3')->putFileAs('member_avatar', $request->file('member_avatar'), 'img_' . time() . '.' . $request->file('member_avatar')->getClientOriginalExtension());
+            $path = $service->put_object_to_aws('member_avatar/img_' . time() . '.' . $request->file('member_avatar')->getClientOriginalExtension(), $request->file('member_avatar'));
+            // $path = Storage::disk('s3')->putFileAs('member_avatar', $request->file('member_avatar'), 'img_' . time() . '.' . $request->file('member_avatar')->getClientOriginalExtension());
             $member->avatar = parse_url($path)['path'];
         } else {
             $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
