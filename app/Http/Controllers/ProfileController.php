@@ -318,6 +318,7 @@ class ProfileController extends Controller
 
                 $path = Storage::disk('s3')->put('avatar', $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
                 $profile->bucket = 's3';
+
                 $profile->avatar = parse_url($path)['path'];
                 $profile->save();
             }
@@ -328,6 +329,7 @@ class ProfileController extends Controller
                 'result'        => [
                     'profile'   => $profile,
                     'path'      => $path,
+                    'x'         => 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension()
                 ],
             ]);
         } else {
