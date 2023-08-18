@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
+use App\Libraries\AwsService;
+
 class ProfileResource extends JsonResource
 {
     /**

@@ -319,7 +319,7 @@ Route::get('test-split', function (Request $request) {
 
 });
 
-// use App\Libraries\AwsService;
+use App\Libraries\AwsService;
 
 Route::post('aws-storage-upload', function (Request $request) {
     if ($request->hasFile('avatar')) {
@@ -343,7 +343,7 @@ Route::post('aws-storage-upload', function (Request $request) {
     }
 });
 
-Route::post('aws-upload', function (Request $request) {
+Route::post('aws-upload/{type}', function (Request $request, $type = 'delete') {
     $service = new AwsService();
     $driver = 's3';
 
@@ -365,17 +365,14 @@ Route::post('aws-upload', function (Request $request) {
 
         ]);
     } else {
-        $res = $service->get_aws_object('avatar/img_1692344098.png');
-
-        // $s3 = AWS::createClient('s3');
-
-        // $s3->getObject([
-        //     'Bucket' => config("filesystems.disks.$driver.bucket"),
-        //     'Key' => env('AWS_SECRET_ACCESS_KEY')
-        // ]);
-
+        if ($type === 'get') {
+            // $res = $service->get_aws_object($request->input('avatar2'));
+        } else {
+            // $res = $service->delete_aws_object('avatar/img_1692344098.png');
+        }
 
         return response()->json([
+            'message' => 'Delete',
             'aws' => $res,
             // 'files' => $service->files()
 
