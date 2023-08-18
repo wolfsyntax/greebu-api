@@ -366,9 +366,10 @@ Route::post('aws-upload/{type}', function (Request $request, $type = 'delete') {
         ]);
     } else {
         if ($type === 'get') {
+            $res = $service->get_aws_object($request->input('avatar2'));
             // $res = $service->get_aws_object($request->input('avatar2'));
         } else {
-            // $res = $service->delete_aws_object('avatar/img_1692344098.png');
+            $res = $service->delete_aws_object('avatar/img_1692344098.png');
         }
 
         return response()->json([
@@ -382,5 +383,40 @@ Route::post('aws-upload/{type}', function (Request $request, $type = 'delete') {
     return response()->json([
         'status' => 200,
         'message'   => 'No file to uploaded.',
+    ]);
+});
+
+Route::post('aws-profile/{profile}', function (Request $request, \App\Models\Profile $profile) {
+    $service = new AwsService();
+
+    if ($request->hasFile('avatar')) {
+        if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
+            $service->delete_aws_object($profile->avatar);
+            $profile->avatar = '';
+        }
+
+        $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
+    }
+
+    if ($request->hasFile('cover_photo')) {
+        if (
+            $profile->cover_photo && !filter_var($profile->cover_photo, FILTER_VALIDATE_URL)
+        ) {
+            $service->delete_aws_object($profile->cover_photo);
+            $profile->cover_photo = '';
+        }
+
+        $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+    }
+
+    $profile->bucket = 's3';
+    $profile->save();
+
+    return response()->json([
+        'status'        => 200,
+        'message'       => '',
+        'result'        => [
+            'profile'   => $profile,
+        ]
     ]);
 });

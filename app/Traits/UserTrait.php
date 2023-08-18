@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Profile;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Lang;
+use App\Libraries\AwsService;
 
 trait UserTrait
 {
@@ -75,19 +76,41 @@ trait UserTrait
     public function updateProfileV2($request, $profile, $disk = 's3', $directory = 'avatar')
     {
 
+        // if ($request->hasFile('avatar')) {
+        //     if (!filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
+        //         if (Storage::disk($disk)->exists($profile->avatar)) {
+        //             Storage::disk($disk)->delete($profile->avatar);
+        //             $profile->avatar = '';
+        //         }
+        //     }
+
+        //     $path = Storage::disk($disk)->putFileAs($directory, $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
+        //     $profile->bucket = $disk;
+        //     $profile->avatar = parse_url($path)['path'];
+        // }
+        $service = new AwsService();
+
         if ($request->hasFile('avatar')) {
-            if (!filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
-                if (Storage::disk($disk)->exists($profile->avatar)) {
-                    Storage::disk($disk)->delete($profile->avatar);
-                    $profile->avatar = '';
-                }
+            if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
+                $service->delete_aws_object($profile->avatar);
+                $profile->avatar = '';
             }
 
-            $path = Storage::disk($disk)->putFileAs($directory, $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
-            $profile->bucket = $disk;
-            $profile->avatar = parse_url($path)['path'];
+            $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
         }
 
+        if ($request->hasFile('cover_photo')) {
+            if (
+                $profile->cover_photo && !filter_var($profile->cover_photo, FILTER_VALIDATE_URL)
+            ) {
+                $service->delete_aws_object($profile->cover_photo);
+                $profile->cover_photo = '';
+            }
+
+            $profile->cover_photo = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+        }
+
+        $profile->bucket = $disk;
         $profile->street_address = $request->input('street_address');
         $profile->city = $request->input('city');
         $profile->province = $request->input('province');

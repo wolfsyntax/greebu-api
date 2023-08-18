@@ -23,13 +23,13 @@ class AwsService
         ]);
     }
 
-    public function put_object_to_aws($s3_filename, $filename, $driver = 's3')
+    public function put_object_to_aws($s3_filename, $filename, $signed = false)
     {
         //$s3 = AWS::createClient('s3');
 
         try {
             $result = $this->client->putObject([
-                'Bucket'        => config("filesystems.disks.$driver.bucket"),
+                'Bucket'        => config($signed ? "filesystems.disks.s3priv.bucket" : "filesystems.disks.s3.bucket"),
                 'Key'           => $s3_filename,
                 'SourceFile'    => $filename
             ]);
@@ -41,15 +41,24 @@ class AwsService
         }
     }
 
-    public function get_aws_object($s3_filename, $driver = 's3')
+    public function get_aws_object($s3_filename, $signed = false)
     {
         try {
+            if ($signed) {
+                $cmd = $this->client->getCommand('GetObject', [
+                    'Bucket' => config($signed ? "filesystems.disks.s3priv.bucket" : "filesystems.disks.s3.bucket"),
+                    'Key' => $s3_filename
+                ]);
 
-            $result = $this->client->getObjectUrl(config("filesystems.disks.$driver.bucket"), $s3_filename);
+                $request = $this->client->createPresignedRequest($cmd, '+60 minutes');
+                $result = (string) $request->getUri();
+            } else {
+                $result = $this->client->getObjectUrl(config("filesystems.disks.s3.bucket"), $s3_filename);
+            }
 
             return $result;
         } catch (AWS\S3\Exception\S3Exception $e) {
-            return $e;
+            return '';
         }
     }
 
@@ -64,7 +73,7 @@ class AwsService
 
             return $result;
         } catch (AWS\S3\Exception\S3Exception $e) {
-            return $e;
+            return '';
         }
     }
 }
