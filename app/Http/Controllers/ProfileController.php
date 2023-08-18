@@ -161,7 +161,7 @@ class ProfileController extends Controller
 
 
         $data['user']       = $user;
-        $data['profile']    = $profile;
+        $data['profile']    = new ProfileResource($profile);
 
         // $profile->save();
         // $account->save();
