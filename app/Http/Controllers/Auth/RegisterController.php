@@ -159,7 +159,7 @@ class RegisterController extends Controller
             'user'          => $user,
             'profile'       => new ProfileResource($profile, 's3'),
             'roles'         => $userRoles,
-            'token'         => '',
+            'token'         => $user->createToken("user_auth")->accessToken
         ];
 
         // if ($account === 'artists') {
