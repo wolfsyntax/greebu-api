@@ -159,7 +159,7 @@ class RegisterController extends Controller
             'user'          => $user,
             'profile'       => new ProfileResource($profile, 's3'),
             'roles'         => $userRoles,
-            'token'         => $user->createToken("user_auth")->accessToken
+            'token'         => '', // $user->createToken("user_auth")->accessToken
         ];
 
         // if ($account === 'artists') {
@@ -194,8 +194,8 @@ class RegisterController extends Controller
 
         // $user->notify(new EmailVerification($user));
 
-        $data['token'] = '';
-        // $data['token'] = $user->createToken("user_auth")->accessToken;
+        // $data['token'] = '';
+        $data['token'] = $user->createToken("user_auth")->accessToken;
 
         return response()->json([
             'status'            => 200,
