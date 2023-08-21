@@ -56,14 +56,14 @@ class ArtistFullResource extends JsonResource
 
         $artist_type = '';
 
-        if ($this->artistType) {
-            $artist_type = (new ArtistTypeResource($this->artistType))->title ?? '';
+        if ($this->artist_type_id) {
+            $artist_type = (new ArtistTypeResource($this->artist_type_id))->title ?? '';
         }
 
         return [
             'id'                    => $this->id,
             'artist_name'           => $this->profile->business_name ?? '',
-            'artist_type'           => $artist_type,
+            'artist_type_id'           => $artist_type,
             'avatar'                => $avatar,
             'cover_photo'           => $cover,
             'ratings'               => $this->avgRating,
