@@ -190,7 +190,7 @@ class RegisterController extends Controller
             // $user->sendCode();
         }
 
-        event(new Registered($user));
+        // event(new Registered($user));
 
         // $user->notify(new EmailVerification($user));
 
