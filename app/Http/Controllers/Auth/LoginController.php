@@ -116,8 +116,9 @@ class LoginController extends Controller
             } else if ($role === 'organizer') {
                 $account = Organizer::where('profile_id', $profile->id)->first();
             } else if ($role === 'artists') {
-                $account = Artist::firstOrCreate(['profile_id'  => $profile->id]);
-                $account = new ArtistFullResource($account);
+                $account = Artist::where(['profile_id'  => $profile->id])->first();
+
+                if ($account) $account = new ArtistFullResource($account);
             } else {
                 $account = ServiceProvider::where('profile_id', $profile->id)->first();
             }
