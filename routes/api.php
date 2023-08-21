@@ -27,6 +27,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\PostController;
 use App\Models\Subscription;
 use App\Http\Controllers\Admin\CountryController as AdminCountryController;
+use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\NetworkController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\UserController;
@@ -179,6 +180,9 @@ Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
     Route::post('phone/verify', [UserController::class, 'phoneVerify2']);
 });
 
+Route::controller(EventController::class)->middleware(['throttle:5,1'])->group(function () {
+    Route::get('/events', 'index');
+});
 
 Route::get('fetch/{path}', function ($path) {
     //Storage::disk('s3priv')->deleteDirectory($path);
