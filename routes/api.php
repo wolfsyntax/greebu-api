@@ -439,3 +439,12 @@ Route::post('aws-profile/{profile}', function (Request $request, \App\Models\Pro
         ]
     ]);
 });
+
+Route::get('detach-genre/{artist}', function (Request $request, \App\Models\Artist $artist) {
+
+    return response()->json([
+        'result' => [
+            'detach' => $artist->genres()->detach(),
+        ]
+    ]);
+});

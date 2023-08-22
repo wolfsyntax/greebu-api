@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Event;
+use App\Models\EventType;
+use App\Models\EventPricing;
+use App\Models\EventParticipant;
 
 class EventController extends Controller
 {
@@ -18,13 +21,16 @@ class EventController extends Controller
         $search = $request->input('search');
         $orderBy = $request->input('sortBy', 'ASC');
         $city = $request->input('city', '');
-        $cost = $request->input('cost', '');
+        $cost = $request->input('cost', 'free');
 
         return response()->json([
             'status'    => 200,
             'message'   => 'Geebu Event\'s',
             'result'    => [
-                'events'    => Event::where('title', 'LIKE', '%' . $search . '%')->where('venue', 'LIKE', '%' . $city . '%')->orderBy('event_date', $orderBy)->get(),
+                'events'    => Event::where('title', 'LIKE', '%' . $search . '%')->where('venue', 'LIKE', '%' . $city . '%')->where(
+                    'is_free',
+                    strtolower($cost) === 'FREE' ? true : false
+                )->orderBy('event_date', $orderBy)->get(),
             ],
         ]);
     }
@@ -35,6 +41,14 @@ class EventController extends Controller
     public function create()
     {
         //
+        return response()->json([
+            'status' => 200,
+            'message' => 'Create Event',
+            'result'    => [
+                'event_types'   => EventType::all(),
+                'event_pricing' => EventPricing::all(),
+            ],
+        ]);
     }
 
     /**

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('artist_genres', function (Blueprint $table) {
             $table->foreignUuid('artist_id')->index()->constrained();
             $table->foreignUuid('genre_id')->index()->constrained();
-
+            $table->string('title', 255)->nullable();
             $table->timestamps();
         });
     }

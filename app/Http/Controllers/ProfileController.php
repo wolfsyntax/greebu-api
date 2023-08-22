@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Auth\Events\Registered;
 use App\Libraries\AwsService;
 
+use DB;
 
 class ProfileController extends Controller
 {
@@ -96,6 +97,8 @@ class ProfileController extends Controller
                 'profile_id' => $profile->id,
             ]);
 
+            $genres = Genre::all();
+
             $artistType = ArtistType::where('title', $request->input('artist_type'))->first();
 
             $account->update([
@@ -132,10 +135,44 @@ class ProfileController extends Controller
 
             $genres = $request->input('genres');
 
-            $genre = Genre::whereIn('title', $genres)->get();
-            $account->genres()->sync($genre);
-            // $account->fresh();
-            $data['genres'] = $account->genres()->get();
+
+            // $genre = Genre::whereIn('title', $genres)->get();
+            $genres = Genre::whereIn('title', $genres)->where('title', '!=', 'Others')->get();
+
+            // Remove existing artist_genres
+            $account->genres()->detach();
+
+            foreach ($genres as $genre) {
+                $account->genres()->attach($genre, ['title' => $genre->title]);
+                # code...
+            }
+
+            // Other Genre
+            $genre = Genre::where('title', 'Others')->first();
+
+            $customGenre = collect($request->input('genres'))->diff($genres->pluck('title'));
+
+            foreach ($customGenre as $cus) {
+                if ($cus != 'Others') {
+                    $account->genres()->attach($genre, ['title' => $cus]);
+                }
+            }
+
+
+            $genres = $account->genres()->get();
+
+            $otherGenre = DB::table('artist_genres')->select('title')
+                ->where('artist_id', $account->id)
+                ->whereNotIn('title', $genres->pluck('title'))
+                ->get();
+
+            $data['custom_genre'] = implode(" ", $otherGenre->pluck('title')->toArray());
+            $data['genres'] = $genres;
+
+            // $account->genres()->sync($genre);
+            // $data['x'] = $customGenre;
+            // $data['genres'] = $account->genres()->get();
+
             $data['members'] = Member::where('artist_id', $account->id)->get();
 
             $data['account']    = new ArtistFullResource($account);
@@ -407,6 +444,7 @@ class ProfileController extends Controller
         $request->validate([
             'role'  => ['required', 'in:service-provider,artists,organizer,customers',],
         ]);
+
         $user = $request->user();
         $role = $request->input('role');
 
@@ -434,7 +472,14 @@ class ProfileController extends Controller
 
             $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
 
-            $data['genres'] = $account->genres()->get();
+            $genres = $account->genres()->get();
+            $otherGenre = DB::table('artist_genres')->select('title')
+                ->where('artist_id', $account->id)
+                ->whereNotIn('title', $genres->pluck('title'))
+                ->get();
+
+            $data['custom_genre'] = implode(' ', $otherGenre->pluck('title')->toArray());
+            $data['genres'] = $genres;
             $data['members'] = Member::where('artist_id', $account->id)->get();
 
             $data['account'] = new ArtistFullResource($account);
