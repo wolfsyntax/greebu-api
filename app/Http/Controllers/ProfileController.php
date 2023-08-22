@@ -96,6 +96,12 @@ class ProfileController extends Controller
                 'profile_id' => $profile->id,
             ]);
 
+            $genres = Genre::all();
+
+            return response()->json([
+                'test' => $request->all(),
+                'genre' => collect($request->input('genres'))->diff($genres->pluck('title')),
+            ]);
             $artistType = ArtistType::where('title', $request->input('artist_type'))->first();
 
             $account->update([
