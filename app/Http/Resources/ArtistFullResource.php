@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 use App\Libraries\AwsService;
+use DB;
 
 class ArtistFullResource extends JsonResource
 {
@@ -64,6 +65,8 @@ class ArtistFullResource extends JsonResource
             // $artist_type = (new ArtistTypeResource($this->artist_type_id))->title ?? '';
         }
 
+
+        // $genres = DB::table('artist_genres')->select('title')->where('artist_id', $this->id)->get();
         return [
             'id'                    => $this->id,
             'artist_name'           => $this->profile->business_name ?? '',
