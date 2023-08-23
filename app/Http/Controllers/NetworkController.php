@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\Profile;
 use App\Rules\PhoneCheck;
 use Illuminate\Validation\Rule;
+
+use App\Http\Resources\ArtistFullResource;
 use Auth;
 
 class NetworkController extends Controller
@@ -128,6 +130,7 @@ class NetworkController extends Controller
             $user = User::where('email', $request->input('email'))->first();
 
             if (!$user) {
+
                 if ($auth_type === 'register') {
 
                     $user = new User;
@@ -135,6 +138,9 @@ class NetworkController extends Controller
                     $user->last_name   = $request->last_name;
                     $user->email        = $request->input('email');
                     $user->username     = $request->input('username', uniqid());
+
+                    // Temporarily phone verified status
+                    $user->phone_verified_at = now();
 
                     if ($provider === 'facebook') $user->facebook_id = $request->input('provider_id');
                     if ($provider === 'google') $user->google_id = $request->input('provider_id');
@@ -156,7 +162,7 @@ class NetworkController extends Controller
 
             $user->save();
 
-            $profile = Profile::where('user_id', $user->id)->first();
+            $profile = Profile::with('roles')->where('user_id', $user->id)->first();
 
             if (!$profile) {
 
@@ -190,15 +196,47 @@ class NetworkController extends Controller
                 return $query->getRoleNames()->first();
             });
 
+            $data = [
+                'user_id'   => $user->id,
+                'user'      => $user,
+                'profile'   => new ProfileResource($profile, ''),
+                'roles'     => $userRoles,
+                'token'     => $user->createToken("user_auth")->accessToken,
+
+            ];
+
+            $account = null;
+            if ($auth_type === 'register') {
+                $role = $request->input('account_type');
+            } else {
+                $role = $profile->roles->first()->name;
+            }
+
+            if ($role === 'customers') {
+                $account = \App\Models\Customer::where('profile_id', $profile->id)->first();
+            } else if ($role === 'organizer') {
+                $account = \App\Models\Organizer::where('profile_id', $profile->id)->first();
+            } else if ($role === 'artists') {
+                $account = \App\Models\Artist::with(['profile', 'artistType', 'genres', 'members'])->firstOrCreate([
+                    'profile_id' => $profile->id
+                ]);
+
+                if ($account) $account = new ArtistFullResource($account);
+            } else {
+                $account = \App\Models\ServiceProvider::where('profile_id', $profile->id)->first();
+            }
+
+            $data['account'] = $account;
+
             return response()->json([
                 'status'        => 200,
-                'message'       => 'Login Successfully.',
-                'result'        => [
+                'message'       => 'Signup Successfully.',
+                'result'        => $data, /*[
                     'profile'   => new ProfileResource($profile, 's3'),
                     'user'      => $user,
                     'token'     => $user->phone_verified_at ? $user->createToken("user_auth")->accessToken : '',
                     'roles'     => $userRoles,
-                ],
+                ],*/
             ]);
         } catch (InvalidStateException $e) {
             return response()->json([
@@ -287,15 +325,42 @@ class NetworkController extends Controller
                 return $query->getRoleNames()->first();
             });
 
+            $data = [
+                'user_id'   => $user->id,
+                'user'      => $user,
+                'profile'   => new ProfileResource($profile, ''),
+                'roles'     => $userRoles,
+                'token'     => $user->createToken("user_auth")->accessToken
+            ];
+
+            $account = null;
+            $role = $request->input('account_type');
+
+            if ($role === 'customers') {
+                $account = \App\Models\Customer::where('profile_id', $profile->id)->first();
+            } else if ($role === 'organizer') {
+                $account = \App\Models\Organizer::where('profile_id', $profile->id)->first();
+            } else if ($role === 'artists') {
+                $account = \App\Models\Artist::with(['profile', 'artistType', 'genres', 'members'])->firstOrCreate([
+                    'profile_id' => $profile->id
+                ]);
+
+                if ($account) $account = new ArtistFullResource($account);
+            } else {
+                $account = \App\Models\ServiceProvider::where('profile_id', $profile->id)->first();
+            }
+
+            $data['account'] = $account;
+
             return response()->json([
                 'status'        => 200,
                 'message'       => 'Login Successfully.',
-                'result'        => [
+                'result'        => $data,/*[
                     'profile'   => new ProfileResource($profile, 's3'),
                     'user'      => $user,
                     'token'     => $user->phone_verified_at ? $user->createToken("user_auth")->accessToken : '',
                     'roles'     => $userRoles,
-                ],
+                ],*/
             ]);
         } catch (InvalidStateException $e) {
             return response()->json([

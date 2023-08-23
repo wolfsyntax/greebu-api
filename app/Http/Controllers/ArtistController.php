@@ -208,7 +208,7 @@ class ArtistController extends Controller
             'message' => 'Artist Profile form data.',
             'result' => [
                 'artist_types'  => ArtistType::get(),
-                'genres'        => Genre::get()->pluck('title'),
+                'genres'        => Genre::get(),
                 'profile'       => new ArtistFullResource($artist),
                 'artist_genre'  => $genres,
                 'img'           => $img,
