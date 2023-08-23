@@ -143,7 +143,7 @@ class ProfileController extends Controller
             $account->genres()->detach();
 
             foreach ($genres as $genre) {
-                $account->genres()->attach($genre, ['title' => $genre->title]);
+                $account->genres()->attach($genre, ['genre_title' => $genre->title]);
                 # code...
             }
 
@@ -154,16 +154,16 @@ class ProfileController extends Controller
 
             foreach ($customGenre as $cus) {
                 if ($cus != 'Others') {
-                    $account->genres()->attach($genre, ['title' => $cus]);
+                    $account->genres()->attach($genre, ['genre_title' => $cus]);
                 }
             }
 
 
             $genres = $account->genres()->get();
 
-            $otherGenre = DB::table('artist_genres')->select('title')
+            $otherGenre = DB::table('artist_genres')->select('genre_title')
                 ->where('artist_id', $account->id)
-                ->whereNotIn('title', $genres->pluck('title'))
+                ->whereNotIn('genre_title', $genres->pluck('genre_title'))
                 ->get();
 
             $data['custom_genre'] = implode(" ", $otherGenre->pluck('title')->toArray());
@@ -473,9 +473,9 @@ class ProfileController extends Controller
             $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
 
             $genres = $account->genres()->get();
-            $otherGenre = DB::table('artist_genres')->select('title')
+            $otherGenre = DB::table('artist_genres')->select('genre_title')
                 ->where('artist_id', $account->id)
-                ->whereNotIn('title', $genres->pluck('title'))
+                ->whereNotIn('genre_title', $genres->pluck('title'))
                 ->get();
 
             $data['custom_genre'] = implode(' ', $otherGenre->pluck('title')->toArray());
