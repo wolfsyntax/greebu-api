@@ -74,8 +74,24 @@ class DatabaseSeeder extends Seeder
                 'artist_type_id'    => $this->faker->randomElement(ArtistType::get()->pluck('id')->toArray()),
             ]);
 
-            $genre = Genre::get();
-            $artist->genres()->sync($this->faker->randomElements($genre->pluck('id')->toArray(), 3));
+            // $genre = Genre::get();
+            $genre = Genre::get()->pluck('title')->toArray();
+            // Before
+            // $artist->genres()->sync($this->faker->randomElements($genre->pluck('id')->toArray(), 3));
+
+            // foreach ($genre as $gen) {
+            //     $artist->genres()->create([
+            //         'genre_title' => $gen->title,
+            //     ]);
+            // }
+
+            foreach ($this->faker->randomElements($genre, 3)  as $gen) {
+                $artist->genres()->create([
+                    'genre_title' => $gen,
+                ]);
+            }
+
+            // $artist->genres()->attach($this->faker->randomElements($genre->pluck('title')->toArray(), 3));
         });
 
         User::factory()->count(20)->create()->each(function ($user) {
@@ -97,8 +113,24 @@ class DatabaseSeeder extends Seeder
                 'artist_type_id'    => $this->faker->randomElement(ArtistType::get()->pluck('id')->toArray()),
             ]);
 
-            $genre = Genre::get();
-            $artist->genres()->sync($this->faker->randomElements($genre->pluck('id')->toArray(), 3));
+            // $genre = Genre::get();
+            $genre = Genre::get()->pluck('title')->toArray();
+            // Before
+            // $artist->genres()->sync($this->faker->randomElements($genre->pluck('id')->toArray(), 3));
+
+            // foreach ($genre as $gen) {
+            //     $artist->genres()->create([
+            //         'genre_title' => $gen->title,
+            //     ]);
+            // }
+
+            foreach ($this->faker->randomElements($genre, 3)  as $gen) {
+                $artist->genres()->create([
+                    'genre_title' => $gen,
+                ]);
+            }
+
+            //$artist->genres()->attach($this->faker->randomElements($genre->pluck('title')->toArray(), 3));
         });
 
         User::factory()->count(100)->create()->each(function ($user) {
@@ -121,8 +153,24 @@ class DatabaseSeeder extends Seeder
                 'accept_request'        => true,
             ]);
 
-            $genre = Genre::get();
-            $artist->genres()->sync($this->faker->randomElements($genre->pluck('id')->toArray(), 3));
+            // $genre = Genre::get();
+            $genre = Genre::get()->pluck('title')->toArray();
+            // Before
+            // $artist->genres()->sync($this->faker->randomElements($genre->pluck('id')->toArray(), 3));
+
+            // foreach ($genre as $gen) {
+            //     $artist->genres()->create([
+            //         'genre_title' => $gen->title,
+            //     ]);
+            // }
+
+            foreach ($this->faker->randomElements($genre, 3)  as $gen) {
+                $artist->genres()->create([
+                    'genre_title' => $gen,
+                ]);
+            }
+
+            // $artist->genres()->attach($this->faker->randomElements($genre->pluck('title')->toArray(), 3));
         });
     }
 }

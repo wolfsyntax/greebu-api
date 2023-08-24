@@ -27,6 +27,7 @@ return new class extends Migration
             $table->boolean('accept_booking')->nullable()->default(false)->comment('Accept Events / Bookings');
             $table->boolean('accept_proposal')->nullable()->default(false)->comment('Accept Organizer proposal');
 
+            // $table->json('genres');
             $table->unsignedBigInteger('set_played')->nullable()->default(1)->comment('songs to be played');
             $table->timestamp('deactivated_at')->nullable();
             // $table->boolean('is_freeloader')->default(false)->comment('true - not required subscription (company artist), false - required subscription');
