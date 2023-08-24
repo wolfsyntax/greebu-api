@@ -10,6 +10,7 @@ use App\Models\Artist;
 use App\Models\Customer;
 use App\Models\ArtistType;
 use App\Models\Genre;
+use Faker\Factory as Faker;
 
 class TestSeeder extends Seeder
 {
@@ -66,6 +67,36 @@ class TestSeeder extends Seeder
             'artist_type_id' => $artistType->id,
         ]);
 
-        $artist->genres()->sync($genre);
+        // Before
+        // $artist->genres()->sync($genre);
+
+        $artist->genres()->delete();
+
+        // foreach ($genre as $gen) {
+        //     $artist->genres()->create([
+        //         'genre_title' => $gen->title,
+        //     ]);
+        // }
+
+
+        // $genre = Genre::get();
+        $genre = Genre::get()->pluck('title')->toArray();
+        // Before
+        // $artist->genres()->sync($this->faker->randomElements($genre->pluck('id')->toArray(), 3));
+
+        // foreach ($genre as $gen) {
+        //     $artist->genres()->create([
+        //         'genre_title' => $gen->title,
+        //     ]);
+        // }
+        $this->faker = Faker::create();
+        foreach ($this->faker->randomElements($genre, 3) as $gen) {
+            $artist->genres()->create([
+                'genre_title' => $gen,
+            ]);
+        }
+
+
+        // $artist->genres()->attach($genre);
     }
 }

@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('artist_genres', function (Blueprint $table) {
+            $table->uuid('id')->primary();
             $table->foreignUuid('artist_id')->index()->constrained();
-            $table->foreignUuid('genre_id')->index()->constrained();
+            //$table->foreignUuid('genre_id')->index()->constrained();
             $table->string('genre_title', 255)->nullable();
             $table->timestamps();
         });

@@ -85,10 +85,13 @@ class ArtistController extends Controller
             return $query->where('business_name', 'LIKE', '%' . $search . '%');
         })->where('accept_request', true);
 
+        if ($isGenreUuid) $genre = Genre::where('id', $genre)->first();
+
         if ($genre) {
-            $artists = $artists->whereHas('genres', function ($query) use ($genre, $isGenreUuid) {
-                if ($isGenreUuid) return $query->where('id', $genre);
-                else return $query->where('title', 'LIKE', '%' . $genre . '%');
+
+            $artists = $artists->whereHas('genres', function ($query) use ($genre) {
+                // return $query->where('genre_title', 'LIKE', '%' . $genre->title . '%');
+                return $query->where('genre_title', $genre->title);
             });
         }
 
@@ -172,7 +175,7 @@ class ArtistController extends Controller
         $img = '';
 
         if ($artist) {
-            $genres = $artist->genres()->pluck('title');
+            $genres = $artist->genres()->pluck('genre_title');
             // $img = Storage::url($user->profiles->first()->avatar);
 
             $img = $user->profiles->first()->avatar;
@@ -208,8 +211,9 @@ class ArtistController extends Controller
             'message' => 'Artist Profile form data.',
             'result' => [
                 'artist_types'  => ArtistType::get(),
-                'genres'        => Genre::get(),
-                'profile'       => new ArtistFullResource($artist),
+                'genres'        => Genre::where('title', '!=', 'Others')->get(),
+                'account'       => new ArtistFullResource($artist),
+                'profile'       => $user->profiles(),
                 'artist_genre'  => $genres,
                 'img'           => $img,
                 'members'       => new MemberCollection($members),
@@ -264,7 +268,10 @@ class ArtistController extends Controller
         }
 
         $genre = Genre::whereIn('title', $genres)->get();
-        $artist_profile->genres()->sync($genre);
+        // Before
+        // $artist_profile->genres()->sync($genre);
+
+        // $artist_profile->genres()->attach($genre);
 
         activity()
             ->performedOn($artist_profile)
@@ -407,7 +414,10 @@ class ArtistController extends Controller
         ]);
 
         $genre = Genre::whereIn('title', $genres)->get();
-        $artist_profile->genres()->sync($genre);
+        // Before
+        // $artist_profile->genres()->sync($genre);
+
+        // $artist_profile->genres()->attach($genre);
 
         return response()->json([
             'status'    => 200,
@@ -440,7 +450,7 @@ class ArtistController extends Controller
             'message'   => 'Artist form options successfully fetched.',
             'result'    => [
                 'artist_types'      => ArtistType::select('id', 'title')->get(),
-                'genres'            => Genre::select('id', 'title')->get(),
+                'genres'            => Genre::select('id', 'title')->where('title', '!=', 'Others')->get(),
             ],
         ], 200);
     }

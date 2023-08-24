@@ -37,19 +37,20 @@ class Artist extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'profile_id'        => 'string',
-        'artist_type_id'    => 'string',
-        'youtube_channel'   => 'string',
-        'spotify_profile'   => 'string',
-        'twitter_username'  => 'string',
-        'instagram_username' => 'string',
-        'professional_fee'  => 'decimal:2',
-        'is_hourly'         => 'boolean',
-        'set_played'        => 'integer',
-        'deactivated_at'    => 'timestamp',
-        'accept_request'    => 'boolean',
-        'accept_booking'    => 'boolean',
-        'accept_proposal'   => 'boolean',
+        'profile_id'            => 'string',
+        'artist_type_id'        => 'string',
+        'youtube_channel'       => 'string',
+        'spotify_profile'       => 'string',
+        'twitter_username'      => 'string',
+        'instagram_username'    => 'string',
+        'professional_fee'      => 'decimal:2',
+        'is_hourly'             => 'boolean',
+        'set_played'            => 'integer',
+        'deactivated_at'        => 'timestamp',
+        'accept_request'        => 'boolean',
+        'accept_booking'        => 'boolean',
+        'accept_proposal'       => 'boolean',
+        // 'genres'                => 'array'
     ];
 
     public function profile()
@@ -115,9 +116,19 @@ class Artist extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function genres(): BelongsToMany
+    // public function genres(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Genre::class, 'artist_genres', 'artist_id', 'genre_id')->withTimestamps();
+    // }
+
+    /**
+     * The roles that belong to the Artist
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function genres(): HasMany
     {
-        return $this->belongsToMany(Genre::class, 'artist_genres', 'artist_id', 'genre_id')->withTimestamps();
+        return $this->hasMany(ArtistGenres::class);
     }
 
     public function communities(): BelongsToMany
