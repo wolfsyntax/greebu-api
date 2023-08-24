@@ -315,7 +315,9 @@ class NetworkController extends Controller
                 $profile->business_name = $profile->business_name ? $profile->business_name : $user->fullname;
                 $profile->business_name = $profile->business_name;
 
-                $profile->avatar = $request->input('avatar');
+                if (!$profile->avatar) {
+                    $profile->avatar = $request->input('avatar');
+                }
 
                 $profile->save();
             }

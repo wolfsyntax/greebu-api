@@ -234,8 +234,10 @@ class ProfileController extends Controller
 
             $user->phone = $request->input('phone');
             $user->phone_verified_at = null;
-            $user->sendCode();
 
+            // Disable sending OTP -- August 24, 2023
+            // $user->sendCode();
+            $user->phone_verified_at = now();
             $user->save();
         }
 

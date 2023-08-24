@@ -241,11 +241,13 @@ class UserController extends Controller
 
     public function twilio(Request $request, User $user)
     {
-        $flag = false;
+        // $flag = false;
+        $flag = true;
 
-        if ($user->phone) {
-            $flag = $user->sendCode();
-        }
+        // Disable sending otp: August 24, 2023
+        // if ($user->phone) {
+        //     $flag = $user->sendCode();
+        // }
 
         return response()->json([
             'status' => $flag ? 200 : 203,
@@ -265,10 +267,12 @@ class UserController extends Controller
         $user = User::where('id', auth()->user()->id)->first();
         $user->phone = $request->input('phone');
 
-        if ($user->sendCode()) {
-            $user->phone_verified_at = null;
-        }
+        // Disable sending otp: August 24, 2023
+        // if ($user->sendCode()) {
+        //     $user->phone_verified_at = null;
+        // }
 
+        $user->phone_verified_at = now();
         $user->save();
 
         return response()->json([
@@ -499,6 +503,7 @@ class UserController extends Controller
             if ($r === 'artists') {
                 $artist = Artist::where('profile_id', $profile->id)->first();
                 if ($artist) {
+                    $member = Member::where('artist_id', $artist->id)->get()
                     $status = $artist->forceDelete();
                 }
             }
