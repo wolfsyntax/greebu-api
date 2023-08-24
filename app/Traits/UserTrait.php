@@ -24,11 +24,16 @@ trait UserTrait
         if ($user->phone !== $request->input('phone')) {
 
             $user->phone = $request->phone;
-            $user->phone_verified_at = null;
-            $user->sendCode();
+            // Disable sending otp: August 24, 2023
+            // $user->phone_verified_at = null;
+            // $user->sendCode();
+            $user->phone_verified_at = now();
         }
 
-        $user->password = $request->password;
+        if ($request->input('password')) {
+            $user->password = $request->input('password');
+        }
+
         $user->save();
 
         return $user;

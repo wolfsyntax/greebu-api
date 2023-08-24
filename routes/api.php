@@ -70,7 +70,7 @@ Route::get('/user/{user}/resend-otp', [TwilioController::class, 'twilio']);
 Route::post('/email/resend/{user}', [VerificationController::class, 'resend']); //->name('verification.resend');
 
 // Routes that required authentication
-Route::middleware(['auth:api', /*'phoneVerified'*/])->group(function () {
+Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::get('/', function () {
         if (auth()->user()) {
@@ -280,7 +280,7 @@ Route::post('phone-validate', [UserController::class, 'phoneValidator']);
 // Route::post('test-sms', [TwilioController::class, 'test']);
 Route::get('/test-request/{songRequest}', [SongController::class, 'show']);
 
-Route::middleware(['auth:api', /*'phoneVerified'*/])->group(function () {
+Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::get('/auth-request/{songRequest}', [SongController::class, 'show2']);
 });
 

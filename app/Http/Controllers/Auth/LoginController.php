@@ -95,8 +95,10 @@ class LoginController extends Controller
                 return $query->getRoleNames()->first();
             });
 
+            // Disable sending otp -- Aug 24, 2023
             if (!$user->phone_verified_at) {
-                $user->sendCode();
+                //$user->sendCode();
+
                 return response()->json([
                     'status'        => 403,
                     'message'       => 'Your phone number is not verified.',
