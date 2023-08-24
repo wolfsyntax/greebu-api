@@ -184,12 +184,14 @@ class RegisterController extends Controller
         // } else if ($account === 'organizer') {
         // } else {
         // }
+        $user->last_login = now();
 
         if ($user->phone) {
             $user->phone_verified_at = now();
-            $user->save();
             // $user->sendCode();
         }
+
+        $user->save();
 
         // event(new Registered($user));
 

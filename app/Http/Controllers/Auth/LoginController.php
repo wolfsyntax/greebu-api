@@ -123,6 +123,9 @@ class LoginController extends Controller
                 $account = ServiceProvider::where('profile_id', $profile->id)->first();
             }
 
+            $user->last_login = now();
+            $user->save();
+
             return response()->json([
                 'status'        => 200,
                 'message'       => 'Login Successfully.',

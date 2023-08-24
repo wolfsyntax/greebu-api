@@ -160,6 +160,7 @@ class NetworkController extends Controller
 
             if (!$user->email_verified_at && $request->is_verified) $user->email_verified_at = now();
 
+            $user->last_login = now();
             $user->save();
 
             $profile = Profile::with('roles')->where('user_id', $user->id)->first();
@@ -295,6 +296,7 @@ class NetworkController extends Controller
 
             if (!$user->email_verified_at && $request->is_verified) $user->email_verified_at = now();
 
+            $user->last_login = now();
             $user->save();
 
             $profile = Profile::where('user_id', $user->id)->first();
