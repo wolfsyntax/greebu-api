@@ -128,14 +128,13 @@ class RegisterController extends Controller
         // $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
         $profile = Profile::create([
             'user_id'           => $user->id,
-            'avatar'            =>
-            'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT), //'https://via.placeholder.com/424x424.png/' . $color . '?text=' . substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1),
+            'avatar'            => 'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT), //'https://via.placeholder.com/424x424.png/' . $color . '?text=' . substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1),
             'business_email'    => $user->email,
             'phone'             => $user->phone,
             'business_name'     => $user->fullname,
-            'city'              => 'Naga City',
-            'zip_code'          => '4400',
-            'province'          => 'Camarines Sur',
+            'city'              => '',
+            'zip_code'          => '',
+            'province'          => '',
             'is_freeloader'     => $account === 'customers',
         ])->assignRole($request->input('account_type'));
 
@@ -160,6 +159,7 @@ class RegisterController extends Controller
             'user'          => $user,
             'profile'       => new ProfileResource($profile, 's3'),
             'roles'         => $userRoles,
+            'account'       => null,
             'token'         => '', // $user->createToken("user_auth")->accessToken
         ];
 

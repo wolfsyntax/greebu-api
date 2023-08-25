@@ -56,9 +56,9 @@ class Profile extends Model
         'business_name'     => '',
         'business_email'    => '',
         'street_address'    => '',
-        'city'              => 'Naga City',
-        'zip_code'          => '4400',
-        'province'          => 'Camarines Sur',
+        'city'              => '',
+        'zip_code'          => '',
+        'province'          => '',
         // 'country'           => 'Philippines',
     ];
 

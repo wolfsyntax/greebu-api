@@ -103,13 +103,18 @@ trait UserTrait
         // }
         $service = new AwsService();
 
+        $profile->bucket = '';
+
         if ($request->hasFile('avatar')) {
             if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
                 $service->delete_aws_object($profile->avatar);
-                $profile->avatar = '';
+                $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
+                $profile->bucket = $disk;
             }
 
-            $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
+            $profile->avatar = $profile->avatar ?? 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+
+            // $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
         }
 
         if ($request->hasFile('cover_photo')) {
@@ -117,13 +122,15 @@ trait UserTrait
                 $profile->cover_photo && !filter_var($profile->cover_photo, FILTER_VALIDATE_URL)
             ) {
                 $service->delete_aws_object($profile->cover_photo);
-                $profile->cover_photo = '';
+                $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+                $profile->bucket = $disk;
             }
 
-            $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+            $profile->cover_photo = $profile->cover_photo ?? 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+
+            // $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
         }
 
-        $profile->bucket = $disk;
         $profile->street_address = $request->input('street_address');
         $profile->city = $request->input('city');
         $profile->province = $request->input('province');
