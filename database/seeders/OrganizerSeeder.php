@@ -18,22 +18,22 @@ class OrganizerSeeder extends Seeder
     public function run(): void
     {
         //
-        $this->faker = Faker::create();
+        $faker = Faker::create();
 
-        User::factory()->count(20)->create()->each(function ($user) {
+        User::factory()->count(20)->create()->each(function ($user) use ($faker) {
 
             $profile = Profile::create([
                 'user_id'           => $user->id,
-                'street_address'    => $this->faker->streetAddress(),
-                'avatar'            => $this->faker->imageUrl(width: 424, height: 424),
+                'street_address'    => $faker->streetAddress(),
+                'avatar'            => 'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT), //$faker->imageUrl(width: 424, height: 424),
                 'business_email'    => $user->email,
                 'business_name'     => $user->full_name,
-                'city'              => $this->faker->city,
-                'zip_code'          => $this->faker->postCode,
+                'city'              => $faker->city,
+                'zip_code'          => $faker->postCode,
                 'phone'             => $user->phone,
-                'province'          => $this->faker->state,
-                'country'           => $this->faker->country,
-            ]);
+                'province'          => $faker->state,
+                'country'           => $faker->country,
+            ])->assignRole('organizer');
 
             $organizer = Organizer::create([
                 'profile_id'        => $profile->id,
@@ -44,12 +44,6 @@ class OrganizerSeeder extends Seeder
                 'bio'               => '',
                 'facebook_url'      => ''
             ]);
-
         });
-
-
     }
 }
-
-
-

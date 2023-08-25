@@ -46,8 +46,8 @@ class DatabaseSeeder extends Seeder
             CountrySeeder::class,
             DurationSeeder::class,
             TestSeeder::class,
-            OrganizerSeeder::Class,
-            EventSeeder::Class,
+            OrganizerSeeder::class,
+            EventSeeder::class,
         ]);
 
         $this->faker = Faker::create();
@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
             $profile = Profile::create([
                 'user_id'           => $user->id,
                 'street_address'    => $this->faker->barangay(),
-                'avatar'            => $this->faker->imageUrl(width: 424, height: 424),
+                'avatar'            => 'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
                 'business_email'    => $user->email,
                 'business_name'     => $user->full_name,
                 'city'              => $this->faker->city, // fake()->city(),
@@ -98,7 +98,8 @@ class DatabaseSeeder extends Seeder
             $profile = Profile::create([
                 'user_id'           => $user->id,
                 'street_address'    => $this->faker->streetAddress(),
-                'avatar'            => $this->faker->imageUrl(width: 424, height: 424),
+                // 'avatar'            => $this->faker->imageUrl(width: 424, height: 424),
+                'avatar'            => 'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
                 'business_email'    => $user->email,
                 'business_name'     => $user->full_name,
                 'city'              => $this->faker->city, // fake()->city(),
@@ -137,7 +138,8 @@ class DatabaseSeeder extends Seeder
             $profile = Profile::create([
                 'user_id'           => $user->id,
                 'street_address'    => $this->faker->streetAddress(),
-                'avatar'            => $this->faker->imageUrl(width: 424, height: 424),
+                // 'avatar'            => $this->faker->imageUrl(width: 424, height: 424),
+                'avatar'            => 'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
                 'business_email'    => $user->email,
                 'business_name'     => $user->full_name,
                 'city'              => $this->faker->city,
