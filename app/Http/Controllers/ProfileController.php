@@ -125,8 +125,8 @@ class ProfileController extends Controller
                     $tr .= $value[0];
                 }
 
-                $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-                $profile->avatar = 'https://via.placeholder.com/424x424.png/' . $color . '?text=' . strtoupper($tr);
+                // $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+                $profile->avatar = 'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
             }
 
             // $profile->business_name = $request->input('artist_name');

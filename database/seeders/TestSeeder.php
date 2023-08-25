@@ -37,7 +37,7 @@ class TestSeeder extends Seeder
             'country'           => 'Philippines',
             'business_email'    => $user->email,
             'business_name'     => $user->fullname,
-            'avatar'            => 'https://via.placeholder.com/424x424.png/006644?text=Lorem',
+            'avatar'            => 'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT), //'https://via.placeholder.com/424x424.png/006644?text=Lorem',
         ])->assignRole('customers')->customer()->update([
             'name' => $user->fullname,
         ]);
@@ -55,7 +55,8 @@ class TestSeeder extends Seeder
             'country'           => 'Philippines',
             'business_email'    => $user->email,
             'business_name'     => $user->fullname,
-            'avatar'            => 'https://via.placeholder.com/424x424.png/006644?text=Ipsum'
+            'avatar'            =>
+            'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT), //'https://via.placeholder.com/424x424.png/006644?text=Ipsum'
         ])->assignRole('artists');
 
         $artistType = ArtistType::first();
@@ -78,7 +79,7 @@ class TestSeeder extends Seeder
         //     ]);
         // }
 
-
+        $faker = Faker::create();
         // $genre = Genre::get();
         $genre = Genre::get()->pluck('title')->toArray();
         // Before
@@ -89,8 +90,8 @@ class TestSeeder extends Seeder
         //         'genre_title' => $gen->title,
         //     ]);
         // }
-        $this->faker = Faker::create();
-        foreach ($this->faker->randomElements($genre, 3) as $gen) {
+        $faker = Faker::create();
+        foreach ($faker->randomElements($genre, 3) as $gen) {
             $artist->genres()->create([
                 'genre_title' => $gen,
             ]);
