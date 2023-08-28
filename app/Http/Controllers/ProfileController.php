@@ -117,17 +117,17 @@ class ProfileController extends Controller
 
             $profile = $this->updateProfileV2($request, $profile);
 
-            if (!$request->hasFile('avatar') && $profile->business_name !== $request->input('artist_name', $profile->business_name)) {
+            // if (!$request->hasFile('avatar') && $profile->business_name !== $request->input('artist_name', $profile->business_name)) {
 
-                $tr = '';
+            //     $tr = '';
 
-                foreach (explode(' ', $profile->business_name, 2) as $value) {
-                    $tr .= $value[0];
-                }
+            //     foreach (explode(' ', $profile->business_name, 2) as $value) {
+            //         $tr .= $value[0];
+            //     }
 
-                // $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-                $profile->avatar = 'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-            }
+            //     // $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            //     $profile->avatar = 'https://ui-avatars.com/api/?name=' . $user->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            // }
 
             // $profile->business_name = $request->input('artist_name');
             $profile->save();
