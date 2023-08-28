@@ -499,7 +499,7 @@ class SongController extends Controller
         activity()
             ->causedBy(auth()->user())
             ->performedOn($song)
-            ->log('Create a song request [Step 3 - Song]');
+            ->log('Create a song request [Step 4 - Review]');
 
         return response()->json([
             'status'    => 200,
