@@ -163,7 +163,7 @@ class ProfileController extends Controller
 
             foreach ($request->input('genres') as $value) {
                 $account->genres()->create([
-                    'genre_title' => $value
+                    'genre_title' => ucwords($value),
                 ]);
             }
 
@@ -464,7 +464,7 @@ class ProfileController extends Controller
         })->first();
 
         $data = [
-            'profile' => $profile,
+            'profile' => new ProfileResource($profile),
         ];
 
         if ($role === 'customers') {
