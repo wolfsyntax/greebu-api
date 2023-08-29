@@ -22,7 +22,7 @@ class Artist extends Model
     protected $fillable = [
         'profile_id', 'artist_type_id',
         'youtube_channel', 'spotify_profile', 'twitter_username', 'instagram_username',
-        'professional_fee', 'is_hourly', 'set_played',
+        'professional_fee', 'is_hourly', 'set_played', 'song', 'song_title',
         'deactivated_at',
         'accept_request', 'accept_booking', 'accept_proposal',
     ];
@@ -50,6 +50,8 @@ class Artist extends Model
         'accept_request'        => 'boolean',
         'accept_booking'        => 'boolean',
         'accept_proposal'       => 'boolean',
+        'song'                 => 'string',
+        'song_title'            => 'string',
         // 'genres'                => 'array'
     ];
 

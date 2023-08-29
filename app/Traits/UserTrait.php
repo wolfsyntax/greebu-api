@@ -126,7 +126,7 @@ trait UserTrait
             }
 
             $profile->bucket = 's3';
-            $profile->cover_photo = $profile->cover_photo ?? 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $profile->cover_photo = $profile->cover_photo ?? 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
 
             // $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
         }
