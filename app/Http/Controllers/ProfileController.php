@@ -18,6 +18,7 @@ use App\Models\Member;
 use App\Models\ArtistType;
 
 use App\Traits\UserTrait;
+use App\Traits\SongTrait;
 use App\Traits\TwilioTrait;
 
 use App\Rules\PhoneCheck;
@@ -41,6 +42,7 @@ class ProfileController extends Controller
     //
     use UserTrait;
     use TwilioTrait;
+    use SongTrait;
 
     public function __construct()
     {
@@ -99,6 +101,9 @@ class ProfileController extends Controller
                 'accept_request'        => ['nullable', 'in:true,false'],
                 'accept_booking'        => ['nullable', 'in:true,false'],
                 'accept_proposal'       => ['nullable', 'in:true,false'],
+                // sample songs
+                'song'                  => ['nullable', 'file', 'mimes:mp3'],
+                'song_title'            => ['required_if:song,!=,null', 'string', 'max:255',],
             ], [
                 'required'              => ':Attribute is required.',
                 'artist_type.exists'    => ':Attribute is a invalid option.',
@@ -108,6 +113,8 @@ class ProfileController extends Controller
             $account = Artist::firstOrCreate([
                 'profile_id' => $profile->id,
             ]);
+
+            $this->audioUpload($request);
 
             $genres = Genre::all();
 

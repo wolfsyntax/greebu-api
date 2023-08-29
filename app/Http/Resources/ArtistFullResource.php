@@ -45,6 +45,7 @@ class ArtistFullResource extends JsonResource
 
         $avatar = $this->profile->avatar;
         $cover = $this->profile->cover_photo;
+        $audio = $this->song;
 
         if ($this->profile->bucket && in_array($this->profile->bucket, ['s3', 's3priv',])) {
             if ($avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
@@ -54,6 +55,10 @@ class ArtistFullResource extends JsonResource
             if ($cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
                 $cover = $service->get_aws_object($cover, $this->profile->bucket === 's3priv');
             }
+        }
+
+        if ($audio && !filter_var($audio, FILTER_VALIDATE_URL)) {
+            $audio = $service->get_aws_object($audio);
         }
 
         $artist_type = '';
@@ -84,7 +89,8 @@ class ArtistFullResource extends JsonResource
             // 'genres'                 => $this->genres->pluck('genre_title'),
             'genres'                 => $genres,
             // 'genres2'                 => $this->genres,
-            'song'                  => 'https://res.cloudinary.com/daorvtlls/video/upload/v1687411869/merrow-rock-skyline-pigeon-elton-john_h0chm4.mp3',
+            'song'                  => $audio, // ?? 'https://res.cloudinary.com/daorvtlls/video/upload/v1687411869/merrow-rock-skyline-pigeon-elton-john_h0chm4.mp3',
+            'song_title'            => $this->song_title,
             'follower'              => $this->profile->followers_count ?? 0,
             'following'             => $this->profile->following_count ?? 0,
             'spotify_profile'       => $this->spotify_profile,
