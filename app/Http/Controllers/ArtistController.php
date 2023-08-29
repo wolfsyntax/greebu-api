@@ -68,6 +68,9 @@ class ArtistController extends Controller
         $filter = $request->input('filterBy', 'created_at');
         $search = $request->input('search', '');
 
+
+        $usage = $request->input('list_type', 'default');
+
         $isGenreUuid = Str::isUuid($genre);
         $isArtistTypeUuid = Str::isUuid($artist_type);
 
@@ -83,9 +86,13 @@ class ArtistController extends Controller
 
         $artists = $artists->whereHas('profile', function ($query) use ($search) {
             return $query->where('business_name', 'LIKE', '%' . $search . '%');
-        })->where('accept_request', true);
+        });
 
         if ($isGenreUuid) $genre = Genre::where('id', $genre)->first();
+
+        if ($usage === 'customers') {
+            $artists = $artists->where('accept_request', true);
+        }
 
         if ($genre) {
 

@@ -28,6 +28,7 @@ use App\Rules\MatchCurrentPhone;
 use App\Notifications\EmailVerification;
 
 use App\Http\Resources\ArtistFullResource;
+use App\Http\Resources\MemberCollection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Auth\Events\Registered;
@@ -126,7 +127,7 @@ class ProfileController extends Controller
 
             $profile->business_name = $request->input('artist_name');
 
-            $profile = $this->updateProfileV2($request, $profile);
+            $profile = $this->updateProfileV2($request, $profile, $request->hasFile('avatar') ? 's3' : '');
 
             // if (!$request->hasFile('avatar') && $profile->business_name !== $request->input('artist_name', $profile->business_name)) {
 
@@ -514,7 +515,7 @@ class ProfileController extends Controller
 
             // $data['custom_genre'] = implode(' ', $otherGenre->pluck('title')->toArray());
             $data['genres'] = $genres->pluck('genre_title'); //ArtistGenres::where('artist_id', $account->id)->get(); //$genres;
-            $data['members'] = Member::where('artist_id', $account->id)->get();
+            $data['members'] = new MemberCollection(Member::where('artist_id', $account->id)->get());
 
             $data['account'] = new ArtistFullResource($account);
         } else if ($role === 'organizer') {
