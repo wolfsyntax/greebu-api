@@ -28,6 +28,7 @@ use App\Rules\MatchCurrentPhone;
 use App\Notifications\EmailVerification;
 
 use App\Http\Resources\ArtistFullResource;
+use App\Http\Resources\MemberCollection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Auth\Events\Registered;
@@ -54,10 +55,6 @@ class ProfileController extends Controller
 
         $request->validate([
             'role'                  => ['required', 'in:service-provider,artists,organizer,customers',],
-            'street_address'        => ['required', 'string', 'max:255',],
-            'city'                  => ['required', 'string', 'max:255',],
-            'province'              => ['required', 'string', 'max:255',],
-            'bio'                   => ['required', 'string', 'max:255',],
         ]);
 
         $role = $request->input('role');
@@ -70,7 +67,13 @@ class ProfileController extends Controller
 
         if ($role === 'customers') {
 
-            $request->validate([]);
+            $request->validate([
+                'street_address'        => ['required', 'string', 'max:255',],
+                'city'                  => ['required', 'string', 'max:255',],
+                'province'              => ['required', 'string', 'max:255',],
+                'bio'                   => ['required', 'string', 'max:255',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            ]);
 
             $account = Customer::firstOrCreate([
                 'profile_id' => $profile->id,
@@ -80,10 +83,15 @@ class ProfileController extends Controller
         } else if ($role === 'artists') {
 
             $request->validate([
+                'street_address'        => ['required', 'string', 'max:255',],
+                'city'                  => ['required', 'string', 'max:255',],
+                'province'              => ['required', 'string', 'max:255',],
+                'bio'                   => ['required', 'string', 'max:255',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+
                 'artist_type'           => ['required', 'exists:artist_types,title',],
                 'artist_name'           => ['required', 'string',],
-                'genres'                 => ['required', 'array',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'genres'                => ['required', 'array',],
                 'youtube_channel'       => ['nullable', 'string', 'max:255'],
                 'twitter_username'      => ['nullable', 'string', 'max:255'],
                 'instagram_username'    => ['nullable', 'string', 'max:255'],
@@ -91,6 +99,10 @@ class ProfileController extends Controller
                 'accept_request'        => ['nullable', 'in:true,false'],
                 'accept_booking'        => ['nullable', 'in:true,false'],
                 'accept_proposal'       => ['nullable', 'in:true,false'],
+            ], [
+                'required'              => ':Attribute is required.',
+                'artist_type.exists'    => ':Attribute is a invalid option.',
+                'in'                    => ':Attribute is invalid.'
             ]);
 
             $account = Artist::firstOrCreate([
@@ -115,7 +127,7 @@ class ProfileController extends Controller
 
             $profile->business_name = $request->input('artist_name');
 
-            $profile = $this->updateProfileV2($request, $profile);
+            $profile = $this->updateProfileV2($request, $profile, $request->hasFile('avatar') ? 's3' : '');
 
             // if (!$request->hasFile('avatar') && $profile->business_name !== $request->input('artist_name', $profile->business_name)) {
 
@@ -187,7 +199,13 @@ class ProfileController extends Controller
             $data['account']    = new ArtistFullResource($account);
         } else if ($role === 'organizer') {
 
-            $request->validate([]);
+            $request->validate([
+                'street_address'        => ['required', 'string', 'max:255',],
+                'city'                  => ['required', 'string', 'max:255',],
+                'province'              => ['required', 'string', 'max:255',],
+                'bio'                   => ['required', 'string', 'max:255',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            ]);
 
             $account = Organizer::firstOrCreate([
                 'profile_id' => $profile->id,
@@ -196,7 +214,13 @@ class ProfileController extends Controller
             $data['account']    = $account;
         } else {
 
-            $request->validate([]);
+            $request->validate([
+                'street_address'        => ['required', 'string', 'max:255',],
+                'city'                  => ['required', 'string', 'max:255',],
+                'province'              => ['required', 'string', 'max:255',],
+                'bio'                   => ['required', 'string', 'max:255',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            ]);
 
             $account = ServiceProvider::firstOrCreate([
                 'profile_id' => $profile->id,
@@ -491,7 +515,7 @@ class ProfileController extends Controller
 
             // $data['custom_genre'] = implode(' ', $otherGenre->pluck('title')->toArray());
             $data['genres'] = $genres->pluck('genre_title'); //ArtistGenres::where('artist_id', $account->id)->get(); //$genres;
-            $data['members'] = Member::where('artist_id', $account->id)->get();
+            $data['members'] = new MemberCollection(Member::where('artist_id', $account->id)->get());
 
             $data['account'] = new ArtistFullResource($account);
         } else if ($role === 'organizer') {

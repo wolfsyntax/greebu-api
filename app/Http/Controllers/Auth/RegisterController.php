@@ -136,6 +136,7 @@ class RegisterController extends Controller
             'zip_code'          => '',
             'province'          => '',
             'is_freeloader'     => $account === 'customers',
+            'bucket'            => '',
         ])->assignRole($request->input('account_type'));
 
         // if ($request->input('account_type') === 'artists') {
