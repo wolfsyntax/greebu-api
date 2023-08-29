@@ -448,3 +448,17 @@ Route::get('detach-genre/{artist}', function (Request $request, \App\Models\Arti
         ]
     ]);
 });
+
+Route::post('image-type', function (Request $request) {
+
+    $request->validate([
+        'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+    ]);
+
+    return response([
+        'avatar' => $request->file('avatar'),
+        'avatar_input' => $request->input('avatar'),
+        'avatar_ftype'   => gettype($request->file('avatar')),
+        'avatar_type'   => gettype($request->input('avatar')),
+    ]);
+});

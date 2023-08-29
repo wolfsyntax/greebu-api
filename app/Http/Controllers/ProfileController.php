@@ -54,10 +54,6 @@ class ProfileController extends Controller
 
         $request->validate([
             'role'                  => ['required', 'in:service-provider,artists,organizer,customers',],
-            'street_address'        => ['required', 'string', 'max:255',],
-            'city'                  => ['required', 'string', 'max:255',],
-            'province'              => ['required', 'string', 'max:255',],
-            'bio'                   => ['required', 'string', 'max:255',],
         ]);
 
         $role = $request->input('role');
@@ -70,7 +66,13 @@ class ProfileController extends Controller
 
         if ($role === 'customers') {
 
-            $request->validate([]);
+            $request->validate([
+                'street_address'        => ['required', 'string', 'max:255',],
+                'city'                  => ['required', 'string', 'max:255',],
+                'province'              => ['required', 'string', 'max:255',],
+                'bio'                   => ['required', 'string', 'max:255',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            ]);
 
             $account = Customer::firstOrCreate([
                 'profile_id' => $profile->id,
@@ -80,10 +82,15 @@ class ProfileController extends Controller
         } else if ($role === 'artists') {
 
             $request->validate([
+                'street_address'        => ['required', 'string', 'max:255',],
+                'city'                  => ['required', 'string', 'max:255',],
+                'province'              => ['required', 'string', 'max:255',],
+                'bio'                   => ['required', 'string', 'max:255',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+
                 'artist_type'           => ['required', 'exists:artist_types,title',],
                 'artist_name'           => ['required', 'string',],
-                'genres'                 => ['required', 'array',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'genres'                => ['required', 'array',],
                 'youtube_channel'       => ['nullable', 'string', 'max:255'],
                 'twitter_username'      => ['nullable', 'string', 'max:255'],
                 'instagram_username'    => ['nullable', 'string', 'max:255'],
@@ -91,6 +98,10 @@ class ProfileController extends Controller
                 'accept_request'        => ['nullable', 'in:true,false'],
                 'accept_booking'        => ['nullable', 'in:true,false'],
                 'accept_proposal'       => ['nullable', 'in:true,false'],
+            ], [
+                'required'              => ':Attribute is required.',
+                'artist_type.exists'    => ':Attribute is a invalid option.',
+                'in'                    => ':Attribute is invalid.'
             ]);
 
             $account = Artist::firstOrCreate([
@@ -187,7 +198,13 @@ class ProfileController extends Controller
             $data['account']    = new ArtistFullResource($account);
         } else if ($role === 'organizer') {
 
-            $request->validate([]);
+            $request->validate([
+                'street_address'        => ['required', 'string', 'max:255',],
+                'city'                  => ['required', 'string', 'max:255',],
+                'province'              => ['required', 'string', 'max:255',],
+                'bio'                   => ['required', 'string', 'max:255',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            ]);
 
             $account = Organizer::firstOrCreate([
                 'profile_id' => $profile->id,
@@ -196,7 +213,13 @@ class ProfileController extends Controller
             $data['account']    = $account;
         } else {
 
-            $request->validate([]);
+            $request->validate([
+                'street_address'        => ['required', 'string', 'max:255',],
+                'city'                  => ['required', 'string', 'max:255',],
+                'province'              => ['required', 'string', 'max:255',],
+                'bio'                   => ['required', 'string', 'max:255',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            ]);
 
             $account = ServiceProvider::firstOrCreate([
                 'profile_id' => $profile->id,
