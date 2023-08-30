@@ -74,7 +74,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=50,min_height=50,max_width=500,max_height=500',],
             ]);
 
             $account = Customer::firstOrCreate([
@@ -211,7 +211,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=50,min_height=50,max_width=500,max_height=500',],
             ]);
 
             $account = Organizer::firstOrCreate([
@@ -226,7 +226,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=50,min_height=50,max_width=500,max_height=500',],
             ]);
 
             $account = ServiceProvider::firstOrCreate([
@@ -381,7 +381,7 @@ class ProfileController extends Controller
         if ($profile->where('user_id', $request->user()->id)->first()) {
 
             $request->validate([
-                'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',  'dimensions:min_width=50,min_height=50,max_width=300,max_height=300',],
             ]);
 
             $path = '';
@@ -436,7 +436,7 @@ class ProfileController extends Controller
             $service = new AwsService();
 
             $request->validate([
-                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',  'dimensions:min_width=50,min_height=50,max_width=500,max_height=500',],
             ]);
 
             if ($request->hasFile('cover_photo')) {
