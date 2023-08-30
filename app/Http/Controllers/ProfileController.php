@@ -436,7 +436,7 @@ class ProfileController extends Controller
             $service = new AwsService();
 
             $request->validate([
-                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',  'dimensions:min_width=50,min_height=50,max_width=500,max_height=500',],
+                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
             ]);
 
             if ($request->hasFile('cover_photo')) {
