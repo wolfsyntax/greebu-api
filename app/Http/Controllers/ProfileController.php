@@ -84,6 +84,9 @@ class ProfileController extends Controller
             $data['account']    = $account;
         } else if ($role === 'artists') {
 
+            ini_set('post_max_size', '64M');
+            ini_set('upload_max_filesize', '64M');
+
             $request->validate([
                 'street_address'        => ['required', 'string', 'max:255',],
                 'city'                  => ['required', 'string', 'max:255',],
