@@ -77,6 +77,9 @@ class ProfileController extends Controller
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
                 'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048)->ratio(1 / 1),],
+            ], [
+                'required'              => ':Attribute is required.',
+                'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
             ]);
 
             $account = Customer::firstOrCreate([
@@ -91,7 +94,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048)->ratio(1 / 1),], //'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
+                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),], //'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
 
                 'artist_type'           => ['required', 'exists:artist_types,title',],
                 'artist_name'           => ['required', 'string',],
@@ -215,7 +218,10 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048)->ratio(1 / 1),],
+                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),],
+            ], [
+                'required'              => ':Attribute is required.',
+                'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
             ]);
 
             $account = Organizer::firstOrCreate([
@@ -230,7 +236,10 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048)->ratio(1 / 1),],
+                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),],
+            ], [
+                'required'              => ':Attribute is required.',
+                'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
             ]);
 
             $account = ServiceProvider::firstOrCreate([
@@ -385,7 +394,7 @@ class ProfileController extends Controller
         if ($profile->where('user_id', $request->user()->id)->first()) {
 
             $request->validate([
-                'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048)->ratio(1 / 1),],
+                'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),],
             ]);
 
             $path = '';
@@ -440,7 +449,7 @@ class ProfileController extends Controller
             $service = new AwsService();
 
             $request->validate([
-                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(399)->minHeight(150)->maxWidth(1958)->maxHeight(745)->ratio(2.63 / 1),], //'dimensions:min_width=400,min_height=150,max_width=851,max_height=315',],
+                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(399)->minHeight(150)->maxWidth(1958)->maxHeight(745),], //'dimensions:min_width=400,min_height=150,max_width=851,max_height=315',],
             ]);
 
             if ($request->hasFile('cover_photo')) {
