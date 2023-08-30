@@ -74,7 +74,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
+                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
             ]);
 
             $account = Customer::firstOrCreate([
@@ -89,7 +89,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
+                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
 
                 'artist_type'           => ['required', 'exists:artist_types,title',],
                 'artist_name'           => ['required', 'string',],
@@ -102,12 +102,13 @@ class ProfileController extends Controller
                 'accept_booking'        => ['nullable', 'in:true,false'],
                 'accept_proposal'       => ['nullable', 'in:true,false'],
                 // sample songs
-                'song'                  => ['nullable', 'file', 'mimes:mp3', 'max:204800',],
+                'song'                  => ['nullable', 'file', 'mimes:mp3', 'max:65536',], // Max 64MB ~ 65536
                 'song_title'            => ['required_if:song,!=,null', 'string', 'max:255',],
             ], [
                 'required'              => ':Attribute is required.',
                 'artist_type.exists'    => ':Attribute is a invalid option.',
-                'in'                    => ':Attribute is invalid.'
+                'in'                    => ':Attribute is invalid.',
+                'song.max'              => ":Attribute maximum file size to upload is 64MB (65536 KB). Try to compress it to make it under 64MB.",
             ]);
 
             $account = Artist::firstOrCreate([
@@ -211,7 +212,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
+                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
             ]);
 
             $account = Organizer::firstOrCreate([
@@ -226,7 +227,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
+                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
             ]);
 
             $account = ServiceProvider::firstOrCreate([
