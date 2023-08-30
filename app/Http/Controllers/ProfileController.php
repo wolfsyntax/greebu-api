@@ -84,9 +84,6 @@ class ProfileController extends Controller
             $data['account']    = $account;
         } else if ($role === 'artists') {
 
-            ini_set('post_max_size', '64M');
-            ini_set('upload_max_filesize', '64M');
-
             $request->validate([
                 'street_address'        => ['required', 'string', 'max:255',],
                 'city'                  => ['required', 'string', 'max:255',],
@@ -105,7 +102,7 @@ class ProfileController extends Controller
                 'accept_booking'        => ['nullable', 'in:true,false'],
                 'accept_proposal'       => ['nullable', 'in:true,false'],
                 // sample songs
-                'song'                  => ['nullable', 'file', 'mimes:mp3'],
+                'song'                  => ['nullable', 'file', 'mimes:mp3', 'max:204800',],
                 'song_title'            => ['required_if:song,!=,null', 'string', 'max:255',],
             ], [
                 'required'              => ':Attribute is required.',
