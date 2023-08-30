@@ -74,7 +74,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
             ]);
 
             $account = Customer::firstOrCreate([
@@ -84,15 +84,12 @@ class ProfileController extends Controller
             $data['account']    = $account;
         } else if ($role === 'artists') {
 
-            ini_set('post_max_size', '64M');
-            ini_set('upload_max_filesize', '64M');
-
             $request->validate([
                 'street_address'        => ['required', 'string', 'max:255',],
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
 
                 'artist_type'           => ['required', 'exists:artist_types,title',],
                 'artist_name'           => ['required', 'string',],
@@ -105,7 +102,7 @@ class ProfileController extends Controller
                 'accept_booking'        => ['nullable', 'in:true,false'],
                 'accept_proposal'       => ['nullable', 'in:true,false'],
                 // sample songs
-                'song'                  => ['nullable', 'file', 'mimes:mp3'],
+                'song'                  => ['nullable', 'file', 'mimes:mp3', 'max:204800',],
                 'song_title'            => ['required_if:song,!=,null', 'string', 'max:255',],
             ], [
                 'required'              => ':Attribute is required.',
@@ -214,7 +211,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
             ]);
 
             $account = Organizer::firstOrCreate([
@@ -229,7 +226,7 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
             ]);
 
             $account = ServiceProvider::firstOrCreate([
@@ -384,7 +381,7 @@ class ProfileController extends Controller
         if ($profile->where('user_id', $request->user()->id)->first()) {
 
             $request->validate([
-                'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
             ]);
 
             $path = '';
@@ -439,7 +436,7 @@ class ProfileController extends Controller
             $service = new AwsService();
 
             $request->validate([
-                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=400,min_height=150,max_width=851,max_height=315',],
             ]);
 
             if ($request->hasFile('cover_photo')) {
