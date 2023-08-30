@@ -15,34 +15,25 @@ use App\Libraries\AwsService;
 
 trait SongTrait
 {
-    public function audioUpload(Request $request)
+    public function audioUpload(Request $request, Artist $artist)
     {
 
-        $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) {
-            $query->where('name', 'artists');
-        })->first();
+        if ($artist) {
 
-        if ($profile) {
-            $artist = Artist::where('profile_id', $profile->id)->first();
+            $artist->song_title = $request->input('song_title');
 
-            if ($artist) {
+            $service = new AwsService();
 
-                $artist->song_title = $request->input('song_title');
-
-                $service = new AwsService();
-
-                if ($request->hasFile('song')) {
-                    if ($artist->song && !filter_var($artist->song, FILTER_VALIDATE_URL)) {
-                        $service->delete_aws_object($artist->song);
-                    }
-
-                    $artist->song = $service->put_object_to_aws('artist_songs/audio_' . uniqid() . '.' . $request->file('song')->getClientOriginalExtension(), $request->file('song'));
+            if ($request->hasFile('song')) {
+                if ($artist->song && !filter_var($artist->song, FILTER_VALIDATE_URL)) {
+                    $service->delete_aws_object($artist->song);
+                    $artist->song = '';
                 }
 
-                $artist->save();
+                $artist->song = $service->put_object_to_aws('artist_songs/audio_' . uniqid() . '.' . $request->file('song')->getClientOriginalExtension(), $request->file('song'));
             }
 
-            return false;
+            $artist->save();
         }
 
         return false;
