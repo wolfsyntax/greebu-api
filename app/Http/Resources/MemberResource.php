@@ -20,9 +20,14 @@ class MemberResource extends JsonResource
         // $member->avatar && !filter_var($member->avatar, FILTER_VALIDATE_URL)
         $avatar = '';
         if (!$this->avatar) {
-            $avatar = 'https://ui-avatars.com/api/?name=' . $this->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->first_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
         } else {
-            $avatar = $this->avatar && !filter_var($this->avatar, FILTER_VALIDATE_URL) ? $service->get_aws_object($this->avatar) : $this->avatar;
+            if ($this->avatar && !filter_var($this->avatar, FILTER_VALIDATE_URL)) {
+                $avatar = $service->get_aws_object($this->avatar);
+            } else if ($this->avatar && filter_var($this->avatar, FILTER_VALIDATE_URL)) {
+                $avatar = $this->avatar;
+            }
+            // $avatar = $this->avatar && !filter_var($this->avatar, FILTER_VALIDATE_URL) ? $service->get_aws_object($this->avatar) : $this->avatar;
         }
 
         return [

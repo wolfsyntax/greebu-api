@@ -37,6 +37,7 @@ use App\Http\Controllers\TwilioController;
 
 use App\Http\Controllers\API\VerificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Resources\ArtistCollection;
 // For testing Only
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
@@ -451,8 +452,16 @@ Route::get('detach-genre/{artist}', function (Request $request, \App\Models\Arti
     ]);
 });
 
+Route::get('debug-members/{artist}', [ArtistController::class, 'memberList']);
+
 Route::post('image-type', function (Request $request) {
 
+
+    $avatar = $request->input('avatar', '');
+
+    return response()->json([
+        'avatar' => $avatar &&  !filter_var($avatar, FILTER_VALIDATE_URL)
+    ]);
     $request->validate([
         'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
     ]);
