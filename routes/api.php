@@ -37,7 +37,6 @@ use App\Http\Controllers\TwilioController;
 
 use App\Http\Controllers\API\VerificationController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Resources\ArtistCollection;
 // For testing Only
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
