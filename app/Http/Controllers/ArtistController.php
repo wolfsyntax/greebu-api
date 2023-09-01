@@ -41,7 +41,11 @@ class ArtistController extends Controller
             'create', 'store', 'edit', 'update',
             'members', 'editMember', 'removeMember',
             'updateSocialAccount', 'removeMediaAccount',
+            'memberInfo',
         ]);
+
+        // $this->middleware(['auth'])->only('editMember');
+
     }
 
     /**
@@ -462,6 +466,28 @@ class ArtistController extends Controller
         ], 200);
     }
 
+    public function memberInfo(Request $request, Artist $artist, Member $member)
+    {
+
+        $m = $member->where('artist_id', $artist->id)->first();
+
+        if ($m) {
+            return response()->json([
+                'status'        => 200,
+                'message'       => '',
+                'result'        => [
+                    'member'    => new MemberResource($member),
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'status'    => 403,
+            'message'   => "Member does not belong to band",
+            'result'    => [],
+        ], 203);
+    }
+
     public function members(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -648,7 +674,7 @@ class ArtistController extends Controller
             'member_name'       => ['required', 'string',],
             'last_name'         => ['sometimes', 'required', 'string',],
             'role'              => ['required', 'string',],
-            'member_avatar'     => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            'member_avatar'     => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
         ]);
 
         if ($validator->fails()) {
@@ -656,9 +682,7 @@ class ArtistController extends Controller
                 'status' => 422,
                 'message' => "Invalid data",
                 'result' => [
-                    'errors' => [
-                        'member_name' => 'Member name already exists.',
-                    ],
+                    'errors' => $validator->errors(),
                 ],
             ], 203);
         }
@@ -667,6 +691,17 @@ class ArtistController extends Controller
 
         $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
 
+        if ($member->where('artist_id', $artist->id)->first()) {
+            return response()->json([
+                'status' => 403,
+                'message' => "Member not belongs to band.",
+                'result' => [
+                    'artist'    => new ArtistFullResource($artist),
+                    'member'    => new MemberResource($member),
+                    // 'members'   => new MemberCollection($artist->members()->get()),
+                ],
+            ], 203);
+        }
         //$member = Member::where('artist_id', $artist->id)->where('id', $id)->first();
 
         //if ($member) {
@@ -675,12 +710,28 @@ class ArtistController extends Controller
             'first_name'    => $request->input('member_name', ''),
             'last_name'     => $request->input('last_name', ''),
             'role'          => $request->input('role', 'others'),
-            'avatar'        => '',
+            'avatar'        => $member->avatar ?? 'https://ui-avatars.com/api/?name=' . $member->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
         ];
 
-        if ($request->hasFile('member_avatar') && $request->file('member_avatar')->isValid()) {
-            // ...
-            $data['avatar'] = $request->file('member_avatar')->store('image', 'public');;
+        $service = new AwsService();
+
+        // $profile->bucket = $profile->bucket ?? $disk;
+
+        if ($request->hasFile('member_avatar')) {
+
+            if ($member->avatar && !filter_var($member->avatar, FILTER_VALIDATE_URL)) {
+
+                if ($service->check_aws_object($member->avatar)) {
+                    $service->delete_aws_object($member->avatar);
+                    $data['avatar'] = '';
+                }
+            }
+
+            $data['avatar'] = $service->put_object_to_aws('member_avatar/img_' . time() . '.' . $request->file('member_avatar')->getClientOriginalExtension(), $request->file('member_avatar'));
+            // return response()->json(['x' => $member, 'data' => $data]);
+            //$data['avatar'] = $member->avatar ?? 'https://ui-avatars.com/api/?name=' . $member->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+
+            // $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
         }
 
         $member->update($data);
@@ -689,8 +740,9 @@ class ArtistController extends Controller
             'status'        => 200,
             'message'       => 'Member details updated successfully.',
             'result'        => [
+                'artist'    => new ArtistFullResource($artist),
                 'member'    => new MemberResource($member),
-                'members'   => $artist->members()->get(),
+                'members'   => new MemberCollection($artist->members()->get()),
             ],
         ], 200);
         //}

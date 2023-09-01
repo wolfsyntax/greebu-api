@@ -17,9 +17,13 @@ class MemberResource extends JsonResource
     public function toArray(Request $request): array
     {
         $service = new AwsService();
-
-        $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : $service->get_aws_object($this->avatar);
-        // $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : Storage::disk('s3')->url($this->avatar);
+        // $member->avatar && !filter_var($member->avatar, FILTER_VALIDATE_URL)
+        $avatar = '';
+        if (!$this->avatar) {
+            $avatar = 'https://ui-avatars.com/api/?name=' . $this->fullname . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        } else {
+            $avatar = $this->avatar && !filter_var($this->avatar, FILTER_VALIDATE_URL) ? $service->get_aws_object($this->avatar) : $this->avatar;
+        }
 
         return [
             'id'            => $this->id,
