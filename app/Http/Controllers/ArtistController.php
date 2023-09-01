@@ -541,8 +541,9 @@ class ArtistController extends Controller
             // $path = Storage::disk('s3')->putFileAs('member_avatar', $request->file('member_avatar'), 'img_' . time() . '.' . $request->file('member_avatar')->getClientOriginalExtension());
             $member->avatar = parse_url($path)['path'];
         } else {
-            $color = str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-            $member->avatar = 'https://via.placeholder.com/424x424.png/' . $color . '?text=' . substr($request->input('member_name', ''), 0, 1) . substr($request->input('last_name', ''), 0, 1);
+            // $member->avatar = '';
+            $member->avatar = 'https://ui-avatars.com/api/?name=' . substr($member->first_name, 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            // $member->avatar = 'https://via.placeholder.com/424x424.png/' . $color . '?text=' . $member->fullname;
         }
 
         $member->save();
@@ -833,5 +834,18 @@ class ArtistController extends Controller
     public function rateArtists(Request $request, Artist $artist)
     {
         $artist->reviews()->attach([]);
+    }
+
+    public function memberList(Request $request, Artist $artist)
+    {
+
+        return response()->json([
+            'status'        => 200,
+            'message'       => 'Member details updated successfully.',
+            'result'        => [
+                'artist'    => new ArtistFullResource($artist),
+                'members'   => new MemberCollection($artist->members()->get()),
+            ],
+        ], 200);
     }
 }
