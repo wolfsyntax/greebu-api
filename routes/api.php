@@ -114,7 +114,9 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::resource('artists', ArtistController::class)->except(['index']);
     Route::post('/artists/member', [ArtistController::class, 'members']);
-    Route::put('/artists/member/{member}', [ArtistController::class, 'editMember']);
+    Route::get('/artists/{artist}/member/{member}', [ArtistController::class, 'memberInfo']);
+
+    Route::post('/artists-member/{member}', [ArtistController::class, 'editMember']);
     Route::delete('/artists/member/{member}', [ArtistController::class, 'removeMember']);
     Route::post('/artists/social-account', [ArtistController::class, 'updateSocialAccount']);
     Route::delete('/artists/social-account/{category}/destroy', [ArtistController::class, 'removeMediaAccount'])->whereIn('category', ['youtube', 'instagram', 'twitter', 'spotify']);
