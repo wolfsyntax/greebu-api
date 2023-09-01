@@ -691,14 +691,14 @@ class ArtistController extends Controller
 
         $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
 
-        if ($member->where('artist_id', $artist->id)->first()) {
+        if (!$member->where('artist_id', $artist->id)->first()) {
             return response()->json([
                 'status' => 403,
                 'message' => "Member not belongs to band.",
                 'result' => [
                     'artist'    => new ArtistFullResource($artist),
-                    'member'    => new MemberResource($member),
-                    // 'members'   => new MemberCollection($artist->members()->get()),
+                    //'member'    => new MemberResource($member),
+                    'members'   => new MemberCollection($artist->members()->get()),
                 ],
             ], 203);
         }
