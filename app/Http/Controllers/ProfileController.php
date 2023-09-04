@@ -481,7 +481,7 @@ class ProfileController extends Controller
                 'status'    => 200,
                 'message'   => 'Update Profile Cover Photo.',
                 'result'    => [
-                    'profile' => $profile,
+                    'profile' => new ProfileResource($profile),
                 ],
             ]);
         } else {

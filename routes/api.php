@@ -41,7 +41,34 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+
+use App\Http\Resources\ProfileResource;
+
+Route::middleware('auth:api')->get('/user', function (Request $request) {
+
+    $user = $request->user();
+    if ($request->has('role')) {
+
+        $role = $request->input('role', 'customers');
+
+        $profile = \App\Models\Profile::where('user_id', $user->id)->whereHas('roles', function ($query) use ($role) {
+            $query->where('name', 'LIKE', '%' . $role . '%');
+        })->first();
+    } else {
+        $profile = \App\Models\Profile::where('user_id', $user->id)->first();
+    }
+
+    $userProfiles = \App\Models\Profile::with('roles', 'followers', 'following')->where('user_id', $user->id)->get();
+
+    $userRoles = collect($userProfiles)->map(function ($query) {
+        return $query->getRoleNames()->first();
+    });
+
+    return response()->json([
+        'user'      => $user,
+        'profile'   => new ProfileResource($profile),
+        'roles'     => $userRoles,
+    ]);
     return $request->user();
 });
 

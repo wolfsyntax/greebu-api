@@ -29,7 +29,9 @@ class ProfileResource extends JsonResource
             }
 
             if ($cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
-                $cover = $service->get_aws_object($cover, $this->bucket === 's3priv');
+                $cover = $service->get_aws_object($cover, false);
+            } else {
+                $cover = '';
             }
         }
 
