@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('emoticons', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('label');
             $table->string('path');
             $table->timestamps();
             $table->softDeletes();

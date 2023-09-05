@@ -208,7 +208,7 @@ class ProfileController extends Controller
             // $data['x'] = $customGenre;
             // $data['genres'] = $account->genres()->get();
 
-            $data['members'] = Member::where('artist_id', $account->id)->get();
+            $data['members'] = new MemberCollection(Member::where('artist_id', $account->id)->get());
 
             $data['account']    = new ArtistFullResource($account);
         } else if ($role === 'organizer') {
