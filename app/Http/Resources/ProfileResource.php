@@ -23,17 +23,25 @@ class ProfileResource extends JsonResource
         $avatar = $this->avatar;
         $cover = $this->cover_photo;
 
-        if ($this->bucket && in_array($this->bucket, ['s3', 's3priv',])) {
-            if ($avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
-                $avatar = $service->get_aws_object($avatar, $this->bucket === 's3priv');
-            }
+        $avatar_host = parse_url($avatar)['host'] ?? '';
+        $cover_host = parse_url($cover)['host'] ?? '';
 
-            if ($cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
-                $cover = $service->get_aws_object($cover, false);
+        if ($avatar) {
+
+            if ($avatar_host) {
             } else {
-                $cover = '';
+                $avatar = $service->get_aws_object($avatar, false);
             }
         }
+
+        if ($cover) {
+
+            if ($cover_host) {
+            } else {
+                $cover = $service->get_aws_object($cover, false);
+            }
+        }
+
 
         $roles = $this->roles ? $this->roles->first()->name : '';
 
@@ -43,8 +51,6 @@ class ProfileResource extends JsonResource
             'business_email'    => $this->business_email,
             'business_name'     => $this->business_name,
             'avatar'            => $avatar ?? '',
-            'ax'                => $this->avatar,
-            'cp'                => $this->cover_photo,
             'cover_photo'       => $cover ?? '',
             'phone'             => $this->phone,
             'street_address'    => $this->street_address,
@@ -56,7 +62,9 @@ class ProfileResource extends JsonResource
             'credit_balance'    => $this->credit_balance,
             'is_freeloader'     => $this->is_freeloader,
             'role'              => $roles,
-            'bucket'            => $this->bucket,
+            'bucket'             => $this->bucket,
+            'avatar_host'        => $avatar_host,
+            'cover_host'         => $cover_host,
         ];
         return parent::toArray($request);
     }
