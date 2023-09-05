@@ -208,7 +208,7 @@ class ProfileController extends Controller
             // $data['x'] = $customGenre;
             // $data['genres'] = $account->genres()->get();
 
-            $data['members'] = Member::where('artist_id', $account->id)->get();
+            $data['members'] = new MemberCollection(Member::where('artist_id', $account->id)->get());
 
             $data['account']    = new ArtistFullResource($account);
         } else if ($role === 'organizer') {
@@ -400,15 +400,9 @@ class ProfileController extends Controller
             $path = '';
             if ($request->hasFile('avatar')) {
 
+                $avatar_host = parse_url($profile->avatar)['host'] ?? '';
+                if ($avatar_host === '') {
 
-                if ($profile->bucket && $profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
-
-                    // if (Storage::disk('s3')->exists($profile->avatar)) {
-                    //     Storage::disk('s3')->delete($profile->avatar);
-                    //     $profile->avatar = 'https://via.placeholder.com/424x424.png/006644?text=Ipsum';
-
-                    //     $profile->save();
-                    // }
                     if ($service->check_aws_object($profile->avatar, $profile->bucket)) {
                         $service->delete_aws_object($profile->avatar, $profile->bucket);
                         $profile->avatar = '';
@@ -454,19 +448,12 @@ class ProfileController extends Controller
 
             if ($request->hasFile('cover_photo')) {
 
-
-                if ($profile->bucket && $profile->cover_photo && !filter_var($profile->cover_photo, FILTER_VALIDATE_URL)) {
+                $cover_host = parse_url($profile->cover_photo)['host'] ?? '';
+                if ($cover_host === '') {
 
                     if ($service->check_aws_object($profile->cover_photo, $profile->bucket)) {
                         $service->delete_aws_object($profile->cover_photo, $profile->bucket);
-                        $profile->cover_photo = '';
                     }
-                    // if (Storage::disk('s3')->exists($profile->cover_photo)) {
-                    //     Storage::disk('s3')->delete($profile->cover_photo);
-                    //     $profile->cover_photo = '';
-
-                    //     $profile->save();
-                    // }
                 }
 
                 $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
