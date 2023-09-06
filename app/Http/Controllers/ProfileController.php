@@ -449,7 +449,7 @@ class ProfileController extends Controller
             if ($request->hasFile('cover_photo')) {
 
                 $cover_host = parse_url($profile->cover_photo)['host'] ?? '';
-                if ($cover_host === '') {
+                if ($cover_host === '' && $profile->cover_photo) {
 
                     if ($service->check_aws_object($profile->cover_photo, $profile->bucket)) {
                         $service->delete_aws_object($profile->cover_photo, $profile->bucket);
