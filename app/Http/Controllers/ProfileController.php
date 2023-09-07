@@ -268,8 +268,8 @@ class ProfileController extends Controller
         // Old - if exists
         // New - if unique
         $request->validate([
-            'current_phone'     => ['required', new MatchCurrentPhone(), new PhoneCheck()],
-            'phone'             => ['required', 'unique:users,phone,' . $request->user()->id, new PhoneCheck()],
+            // 'current_phone'     => ['required', new MatchCurrentPhone(), new PhoneCheck()],
+            'phone'             => ['required', 'unique:users,phone,' . $request->user()->id, /*new PhoneCheck()*/],
         ]);
 
         $user = User::find($request->user()->id);
@@ -300,8 +300,9 @@ class ProfileController extends Controller
         // New - if unique
         // 'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
         $request->validate([
-            'current_email'     => ['required', new MatchCurrentEmail(), 'email:rfc,dns', 'max:255',],
-            'email'             => ['required', 'unique:users,email,' . $request->user()->id, 'max:255',],
+            'email'             => !app()->isProduction() ? ['required', 'email', 'unique:users,email,' . $request->user()->id, 'max:255',] : ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id, 'max:255',],
+        ], [
+            'email.unique' => 'Email has already been taken.',
         ]);
 
         $user = User::find($request->user()->id);
@@ -311,7 +312,7 @@ class ProfileController extends Controller
             $user->email = $request->input('email');
             $user->email_verified_at = null;
             $user->save();
-            event(new Registered($user));
+            // event(new Registered($user));
         }
 
         return response()->json([
@@ -553,13 +554,13 @@ class ProfileController extends Controller
     public function verifyCurrentEmail(Request $request)
     {
         $request->validate([
-            'current_email'     => !app()->isProduction() ? ['required', 'email',] : ['required', 'email:rfc,dns',],
+            'current_email'     => !app()->isProduction() ? ['required', 'email', new MatchCurrentEmail(),] : ['required', 'email:rfc,dns', new MatchCurrentEmail(),],
         ]);
 
         $user = User::where('email', $request->input('current_email'))->first();
 
         return response()->json([
-            'status'    => $user ? 200 : 404,
+            'status'    => 200,
             'message'   => 'Verify Current email.',
             'result'    => [
                 'user' => $user,
@@ -571,7 +572,7 @@ class ProfileController extends Controller
     public function verifyCurrentPhone(Request $request)
     {
         $request->validate([
-            'current_phone'         => ['required', 'unique:users', /*new PhoneCheck()*/],
+            'current_phone'         => ['required', /*new PhoneCheck()*/],
         ]);
 
         $user = User::where('phone', $request->input('current_phone'))->first();
