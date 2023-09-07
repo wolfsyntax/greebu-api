@@ -571,15 +571,16 @@ class ProfileController extends Controller
 
     public function verifyCurrentPhone(Request $request)
     {
+        // MatchCurrentPhone
         $request->validate([
-            'current_phone'         => ['required', /*new PhoneCheck()*/],
+            'current_phone'         => ['required', new MatchCurrentPhone(), /*new PhoneCheck()*/],
         ]);
 
         $user = User::where('phone', $request->input('current_phone'))->first();
 
         return response()->json([
-            'status'    => $user ? 200 : 404,
-            'message'   => 'Verify Current Phone.',
+            'status'    => 200,
+            'message'   => 'Verify Current phone.',
             'result'    => [
                 'user' => $user,
             ],
