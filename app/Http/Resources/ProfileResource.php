@@ -23,25 +23,42 @@ class ProfileResource extends JsonResource
         $avatar = $this->avatar;
         $cover = $this->cover_photo;
 
-        $avatar_host = parse_url($avatar)['host'] ?? '';
-        $cover_host = parse_url($cover)['host'] ?? '';
+        // $avatar_host = parse_url($avatar)['host'] ?? '';
+        // $cover_host = parse_url($cover)['host'] ?? '';
 
-        if ($avatar) {
+        // if ($avatar) {
 
-            if ($avatar_host) {
-            } else {
-                $avatar = $service->get_aws_object($avatar, false);
+        //     if ($avatar_host) {
+        //     } else {
+        //         $avatar = $service->get_aws_object($avatar, false);
+        //     }
+        // }
+
+        // if ($cover) {
+
+        //     if ($cover_host) {
+        //     } else {
+        //         $cover = $service->get_aws_object($cover, false);
+        //     }
+        // }
+
+        if (!$this->avatar) {
+            $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        } else {
+            $avatar_host = parse_url($avatar);
+            if (!array_key_exists('host', $avatar_host)) {
+                $avatar = $service->get_aws_object($this->avatar);
             }
         }
 
-        if ($cover) {
-
-            if ($cover_host) {
-            } else {
-                $cover = $service->get_aws_object($cover, false);
+        if (!$this->cover_photo) {
+            // $cover = 'https://ui-avatars.com/api/?name=' . substr($this->business_name,  0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        } else {
+            $cover_host = parse_url($cover);
+            if (!array_key_exists('host', $cover_host)) {
+                $cover = $service->get_aws_object($this->cover_photo);
             }
         }
-
 
         $roles = $this->roles ? $this->roles->first()->name : '';
 
@@ -63,8 +80,6 @@ class ProfileResource extends JsonResource
             'is_freeloader'     => $this->is_freeloader,
             'role'              => $roles,
             'bucket'             => $this->bucket,
-            'avatar_host'        => $avatar_host,
-            'cover_host'         => $cover_host,
         ];
         return parent::toArray($request);
     }

@@ -48,7 +48,7 @@ class ProfileController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['auth'])->only('store', 'update', 'updatePassword', 'updatePhone', 'profilePic', 'bannerImage');
+        $this->middleware(['auth:api'])->only('store', 'update', 'updatePassword', 'updatePhone', 'profilePic', 'bannerImage', 'verifyCurrentEmail', 'verifyCurrentPhone');
         // $this->middleware(['verified'])->only('updatePassword');
         $this->middleware(['throttle:5,1'])->only('store', 'update', 'updatePassword');
     }
@@ -547,6 +547,41 @@ class ProfileController extends Controller
             'status'    => 200,
             'message'   => 'Account Profile',
             'result'    => $data,
+        ]);
+    }
+
+    public function verifyCurrentEmail(Request $request)
+    {
+        $request->validate([
+            'current_email'     => !app()->isProduction() ? ['required', 'email',] : ['required', 'email:rfc,dns',],
+        ]);
+
+        $user = User::where('email', $request->input('current_email'))->first();
+
+        return response()->json([
+            'status'    => $user ? 200 : 404,
+            'message'   => 'Verify Current email.',
+            'result'    => [
+                'user' => $user,
+            ],
+        ]);
+        //  'email'         => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'],
+    }
+
+    public function verifyCurrentPhone(Request $request)
+    {
+        $request->validate([
+            'current_phone'         => ['required', 'unique:users', /*new PhoneCheck()*/],
+        ]);
+
+        $user = User::where('phone', $request->input('current_phone'))->first();
+
+        return response()->json([
+            'status'    => $user ? 200 : 404,
+            'message'   => 'Verify Current Phone.',
+            'result'    => [
+                'user' => $user,
+            ],
         ]);
     }
 }
