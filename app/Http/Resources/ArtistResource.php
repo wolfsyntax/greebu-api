@@ -59,7 +59,7 @@ class ArtistResource extends JsonResource
         } else {
             $avatar_host = parse_url($avatar);
             if (!array_key_exists('host', $avatar_host)) {
-                $avatar = $service->get_aws_object($this->avatar);
+                $avatar = $service->get_aws_object($this->profile->avatar);
             }
         }
 
@@ -70,6 +70,10 @@ class ArtistResource extends JsonResource
             if (!array_key_exists('host', $cover_host)) {
                 $cover = $service->get_aws_object($this->profile->cover_photo);
             }
+        }
+
+        if ($audio && !filter_var($audio, FILTER_VALIDATE_URL)) {
+            $audio = $service->get_aws_object($audio);
         }
 
         return [
