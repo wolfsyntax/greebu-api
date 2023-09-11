@@ -586,4 +586,21 @@ class ProfileController extends Controller
             ],
         ]);
     }
+
+    public function verifyCurrentPassword(Request $request)
+    {
+        $request->validate([
+            'current_password'     => !app()->isProduction() ? ['required', 'string', 'min:8', 'max:255', new MatchCurrentPassword(),] : ['required', 'string', 'min:8', 'max:255', new MatchCurrentPassword(),],
+        ]);
+
+        $user = User::find($request->user()->id);
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Verify Current Password.',
+            'result'    => [
+                'user' => $user,
+            ],
+        ]);
+    }
 }

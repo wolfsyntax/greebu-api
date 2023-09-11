@@ -16,7 +16,7 @@ class MatchCurrentPhone implements ValidationRule
     {
         //
         if ($value !== auth()->user()->phone) {
-            $fail('The Current Phone is incorrect.');
+            $fail(':Attribute is incorrect.');
         }
     }
 }
