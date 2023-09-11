@@ -336,32 +336,34 @@ class ProfileController extends Controller
                     ->symbols()
                     ->uncompromised(),
             ],
+        ], [
+            'password.confirmed' => 'Password Confirmation not match.'
         ]);
 
         $user = User::find($request->user()->id);
 
-        if ($user->email_verified_at) {
-            $user->password = $request->input('password');
+        // if ($user->email_verified_at) {
+        $user->password = $request->input('password');
 
-            $user->save();
+        $user->save();
 
-            return response()->json([
-                'status'    => 200,
-                'message'   => 'Update user password.',
-                'result'    => [
-                    'user'  => $user,
-                ]
-            ]);
-        } else {
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Update user password.',
+            'result'    => [
+                'user'  => $user,
+            ]
+        ]);
+        // } else {
 
-            return response()->json([
-                'status'    => 403,
-                'message'   => 'Unable to update password.',
-                'result'    => [
-                    'email' => 'Email not verified',
-                ]
-            ], 203);
-        }
+        //     return response()->json([
+        //         'status'    => 403,
+        //         'message'   => 'Unable to update password.',
+        //         'result'    => [
+        //             'email' => 'Email not verified',
+        //         ]
+        //     ], 203);
+        // }
     }
 
     public function update(Request $request)
