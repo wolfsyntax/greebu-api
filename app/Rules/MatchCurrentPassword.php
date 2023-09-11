@@ -16,7 +16,7 @@ class MatchCurrentPassword implements ValidationRule
     {
         //
         if (hash('sha256', $value, false) !== auth()->user()->password) {
-            $fail('The Current password is incorrect.');
+            $fail(':Attribute is incorrect.');
         }
     }
 }

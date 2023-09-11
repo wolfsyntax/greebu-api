@@ -161,6 +161,8 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::post('account/check-email', [ProfileController::class, 'verifyCurrentEmail']);
     Route::post('account/check-phone', [ProfileController::class, 'verifyCurrentPhone']);
+    Route::post('account/check-password', [ProfileController::class, 'verifyCurrentPassword']);
+
     Route::post('account/update-phone', [ProfileController::class, 'updatePhone']);
     Route::post('account/update-email', [ProfileController::class, 'updateEmail']);
 
