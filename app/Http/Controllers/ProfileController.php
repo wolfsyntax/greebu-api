@@ -259,7 +259,7 @@ class ProfileController extends Controller
         // $profile->save();
         // $account->save();
 
-        broadcast(new UpdateProfile($data));
+        // broadcast(new UpdateProfile($data));
 
         return response()->json([
             'status'    => 200,
