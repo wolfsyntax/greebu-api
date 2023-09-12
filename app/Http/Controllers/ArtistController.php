@@ -27,6 +27,8 @@ use Illuminate\Support\Str;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Libraries\AwsService;
 
+use App\Events\UpdateMember;
+
 class ArtistController extends Controller
 {
     protected $service;
@@ -548,22 +550,23 @@ class ArtistController extends Controller
 
         $member->save();
 
+        $data = [
+            'artist'    => new ArtistFullResource($artist),
+            'member'    => new MemberResource($member),
+            'members'   => new MemberCollection($artist->members()->get()),
+        ];
+
         activity()
             ->performedOn($member)
-            ->withProperties([
-                'member'    => $member,
-                'members'   => new MemberCollection($artist->members()->get()),
-                'artist'    => $artist,
-            ])
+            ->withProperties($data)
             ->log('Artist/Group member added.');
+
+        broadcast(new UpdateMember($data));
 
         return response()->json([
             'status'        => 200,
             'message'       => 'Member added successfully.',
-            'result'        => [
-                'member'    => new MemberResource($member),
-                'members'   => new MemberCollection($artist->members()->get()),
-            ],
+            'result'        => $data,
         ], 200);
     }
 
@@ -645,10 +648,37 @@ class ArtistController extends Controller
     public function removeMember(Request $request, Member $member)
     {
         $user = auth()->user()->load('profiles');
+        $profile = $user->profiles->first();
 
-        $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
+        $artist = Artist::where('profile_id', $profile->id)->first();
+
+        $service = new AwsService();
+
+        $avatar_host = parse_url($member->avatar)['host'] ?? '';
+        $msg = '';
+        if ($avatar_host === '' && $member->avatar) {
+
+            if ($service->check_aws_object($member->avatar)) {
+                $service->delete_aws_object($member->avatar);
+                $msg = 'remove avatar';
+            }
+        }
 
         $member->delete();
+
+        $data = [
+            'artist'    => new ArtistFullResource($artist),
+            'member'    => new MemberResource($member),
+            'members'   => new MemberCollection($artist->members()->get()),
+            'msg'       => $msg,
+        ];
+
+        activity()
+            ->performedOn($member)
+            ->withProperties($data)
+            ->log('Artist/Group member removed.');
+
+        broadcast(new UpdateMember($data));
 
         return response()->json([
             'status' => 200,
@@ -736,6 +766,14 @@ class ArtistController extends Controller
         }
 
         $member->update($data);
+
+        $data = [
+            'artist'    => new ArtistFullResource($artist),
+            'member'    => new MemberResource($member),
+            'members'   => new MemberCollection($artist->members()->get()),
+        ];
+
+        broadcast(new UpdateMember($data));
 
         return response()->json([
             'status'        => 200,

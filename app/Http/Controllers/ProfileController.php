@@ -260,7 +260,6 @@ class ProfileController extends Controller
         // $account->save();
 
         broadcast(new UpdateProfile($data));
-        // broadcast(new TestNotification('Just a test'));
 
         return response()->json([
             'status'    => 200,
