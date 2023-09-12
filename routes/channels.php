@@ -24,3 +24,11 @@ Broadcast::channel('profile.{id}', function ($user, $id) {
 
     return $user->id === $profile->user_id;
 });
+
+Broadcast::channel('artist-profile.{id}', function ($user, $id) {
+    $profile = \App\Models\Profile::find($id);
+
+    if (!$profile) return false;
+
+    return $user->id === $profile->user_id;
+});

@@ -77,6 +77,7 @@ class ArtistFullResource extends JsonResource
 
         return [
             'id'                    => $this->id,
+            'profile_id'            => $this->profile->id,
             'artist_name'           => $this->profile->business_name ?? '',
             'artist_type_id'        => $this->artist_type_id ?? '',
             'artist_type'           => $artist_type,
