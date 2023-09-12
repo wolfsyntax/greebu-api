@@ -14,5 +14,13 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+    return $user->id === $id;
+});
+
+Broadcast::channel('profile.{id}', function ($user, $id) {
+    $profile = \App\Models\Profile::find($id);
+
+    if (!$profile) return false;
+
+    return $user->id === $profile->user_id;
 });
