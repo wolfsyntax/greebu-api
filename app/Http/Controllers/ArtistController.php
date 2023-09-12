@@ -561,7 +561,7 @@ class ArtistController extends Controller
             ->withProperties($data)
             ->log('Artist/Group member added.');
 
-        broadcast(new UpdateMember($data));
+        // broadcast(new UpdateMember($data));
 
         return response()->json([
             'status'        => 200,
@@ -678,7 +678,7 @@ class ArtistController extends Controller
             ->withProperties($data)
             ->log('Artist/Group member removed.');
 
-        broadcast(new UpdateMember($data));
+        // broadcast(new UpdateMember($data));
 
         return response()->json([
             'status' => 200,
@@ -773,7 +773,7 @@ class ArtistController extends Controller
             'members'   => new MemberCollection($artist->members()->get()),
         ];
 
-        broadcast(new UpdateMember($data));
+        // broadcast(new UpdateMember($data));
 
         return response()->json([
             'status'        => 200,
