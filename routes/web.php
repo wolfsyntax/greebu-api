@@ -27,6 +27,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Broadcast::routes(['middleware' => 'auth:api', 'prefix' => 'api']);
 
 // Auth::routes(['verify' => true]);
 // Auth::routes();

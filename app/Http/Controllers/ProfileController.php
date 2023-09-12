@@ -39,6 +39,9 @@ use App\Libraries\AwsService;
 use App\Models\ArtistGenres;
 use DB;
 
+use App\Events\UpdateProfile;
+use App\Events\TestNotification;
+
 class ProfileController extends Controller
 {
     //
@@ -255,6 +258,9 @@ class ProfileController extends Controller
 
         // $profile->save();
         // $account->save();
+
+        broadcast(new UpdateProfile($data));
+        // broadcast(new TestNotification('Just a test'));
 
         return response()->json([
             'status'    => 200,
