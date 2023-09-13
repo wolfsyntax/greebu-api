@@ -259,7 +259,7 @@ class ProfileController extends Controller
         // $profile->save();
         // $account->save();
 
-        // broadcast(new UpdateProfile($data));
+        if (!app()->isProduction()) broadcast(new UpdateProfile($data));
 
         return response()->json([
             'status'    => 200,
@@ -459,8 +459,8 @@ class ProfileController extends Controller
                 $cover_host = parse_url($profile->cover_photo)['host'] ?? '';
                 if ($cover_host === '' && $profile->cover_photo) {
 
-                    if ($service->check_aws_object($profile->cover_photo, $profile->bucket)) {
-                        $service->delete_aws_object($profile->cover_photo, $profile->bucket);
+                    if ($service->check_aws_object($profile->cover_photo)) {
+                        $service->delete_aws_object($profile->cover_photo);
                     }
                 }
 
