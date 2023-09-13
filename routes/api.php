@@ -509,4 +509,16 @@ Route::post('image-type', function (Request $request) {
 
 // use Image;
 Route::post('image/compression', function (Request $request) {
+
+    $request->validate([
+        'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+    ]);
+
+    if ($request->hasFile('avatar')) {
+        $file = $request->file('avatar');
+
+        $path = Storage::disk('s3')->put('avatar/' . time() . '.' . $file->getClientOriginalExtension(), $file);
+
+        return response()->json([]);
+    }
 });
