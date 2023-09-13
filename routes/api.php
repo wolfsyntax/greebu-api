@@ -509,32 +509,4 @@ Route::post('image-type', function (Request $request) {
 
 // use Image;
 Route::post('image/compression', function (Request $request) {
-    if ($request->hasFile('avatar')) {
-        $file = $request->file('avatar');
-
-        $imageName = uniqid(date('YmdHis')) . '.' . $file->getClientOriginalExtension();
-        $img = Image::make($file);
-
-        $img->resize(400, 400);
-
-        $resource = $img->stream()->detach();
-        $filename = 'avatar/' . $imageName;
-
-        $storagePath = Storage::disk('s3')->put(
-            $filename,
-            $resource
-        );
-
-
-        return response()->json([
-            'msg' => 'Image compression via Intervention Image',
-            'status' => $storagePath,
-            'path'  => $file,
-            'filename' => $imageName,
-        ]);
-    }
-
-    return response()->json([
-        'msg' => 'Attachment is required',
-    ]);
 });
