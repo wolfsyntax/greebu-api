@@ -506,3 +506,21 @@ Route::post('image-type', function (Request $request) {
         'avatar_type'   => gettype($request->input('avatar')),
     ]);
 });
+
+Route::post('image/compression', function (Request $request) {
+
+    $request->validate([
+        'avatar'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+    ]);
+
+    if ($request->hasFile('avatar')) {
+        $file = $request->file('avatar');
+
+        $path = Storage::disk('s3')->putFileAs('avatar', $file, time() . '.' . $file->getClientOriginalExtension());
+
+        return response()->json([
+            'path' => $path,
+            'url' => Storage::disk('s3')->url($path),
+        ]);
+    }
+});
