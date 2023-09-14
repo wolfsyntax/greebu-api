@@ -9,6 +9,15 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Libraries\AwsService;
 
+use Illuminate\Validation\Rule;
+
+use App\Events\PostCreated;
+use App\Events\CommentCreated;
+
+use App\Http\Resources\PostCollection;
+use App\Http\Resources\PostResource;
+use App\Http\Resources\ProfileResource;
+
 class PostController extends Controller
 {
     public function __construct()
@@ -32,6 +41,16 @@ class PostController extends Controller
     public function index()
     {
         //
+
+        $posts = Post::query();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Fetched Post successfully.',
+            'result' => [
+                'posts' => new PostCollection($posts->orderBy('created_at', 'DESC')->get()),
+            ],
+        ], 200);
     }
 
     /**
@@ -42,7 +61,7 @@ class PostController extends Controller
 
         $request->validate([
             'content'           => ['required_if:attachment_type,none', 'string',],
-            'attachment_type'   => ['required', 'in:image,video,audio,none',],
+            'attachment_type'   => ['required', Rule::in(['image/video', 'audio', 'none']),],
             'attachment'        => ['nullable', 'required_unless:attachment_type,none',],
             'latitude'          => ['nullable', 'required_unless:longitude,null', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/'],
             'longitude'         => ['nullable', 'required_unless:latitude,null', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/'],
@@ -71,11 +90,13 @@ class PostController extends Controller
 
         $post = Post::create($data);
 
+        if (!app()->isProduction()) broadcast(new PostCreated(new ProfileResource($profile), new PostCollection(Post::limit(10)->orderBy('created_at', 'DESC')->get()), new PostResource($post)));
+
         return response()->json([
             'status' => 200,
-            'message' => 'Artist Profile updated successfully.',
+            'message' => 'Post successfully created.',
             'result' => [
-                'post' => $post,
+                'post' => new PostResource($post),
             ],
         ], 200);
     }
@@ -83,24 +104,67 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Post $post)
     {
         //
+        return response()->json([
+            'status' => 200,
+            'message' => "Fetch post details",
+            'result' => [
+                'post' => new PostResource($post),
+            ]
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Post $post)
     {
         //
+        $post->update($request->all());
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Post updated successfully.",
+            'result' => [
+                'posts' => new PostCollection(Post::orderBy('created_at', 'DESC')->get()),
+                'post' => new PostResource($post),
+            ]
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Post $post)
     {
         //
+        $post->delete();
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Post successfully deleted.",
+            'result' => [
+                'posts' => new PostCollection(Post::all()),
+            ]
+        ]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function myPost(Request $request)
+    {
+        //
+        $posts = Post::where('creator_id', auth()->user()->id)->get();
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Fetch own posts.",
+            'result' => [
+                'posts' => $posts,
+            ]
+        ]);
     }
 }

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Broadcast;
 | used to check if an authenticated user can listen to the channel.
 |
 */
+use Illuminate\Support\Facades\Auth;
 
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return $user->id === $id;
@@ -25,10 +26,15 @@ Broadcast::channel('profile.{id}', function ($user, $id) {
     return $user->id === $profile->user_id;
 });
 
-Broadcast::channel('artist-profile.{id}', function ($user, $id) {
-    $profile = \App\Models\Profile::find($id);
+Broadcast::channel('user-info.{id}', function ($user, $id) {
 
-    if (!$profile) return false;
+    $data = \App\Models\User::find($id);
 
-    return $user->id === $profile->user_id;
+    if (!$data) return false;
+
+    return $user->id === $data->id;
+});
+
+Broadcast::channel('sync-data', function ($user) {
+    return Auth::check();
 });
