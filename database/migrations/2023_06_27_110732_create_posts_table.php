@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('creator_id')->index()->constrained(table: 'profiles');
 
-            $table->enum('attachment_type', ['image', 'video', 'audio', 'none']);
+            $table->enum('attachment_type', ['image/video', 'audio', 'none']);
             $table->string('attachment')->nullable()->default('');
             $table->longText('content')->nullable();
 
