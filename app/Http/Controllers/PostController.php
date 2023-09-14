@@ -16,6 +16,7 @@ use App\Events\CommentCreated;
 
 use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostResource;
+use App\Http\Resources\ProfileResource;
 
 class PostController extends Controller
 {
@@ -89,7 +90,7 @@ class PostController extends Controller
 
         $post = Post::create($data);
 
-        if (!app()->isProduction()) broadcast(new PostCreated($profile, $post));
+        if (!app()->isProduction()) broadcast(new PostCreated(new ProfileResource($profile), new PostCollection(Post::limit(10)->orderBy('created_at', 'DESC')->get()), new PostResource($post)));
 
         return response()->json([
             'status' => 200,
@@ -127,7 +128,7 @@ class PostController extends Controller
             'status' => 200,
             'message' => "Post updated successfully.",
             'result' => [
-                'posts' => new PostCollection(Post::all()),
+                'posts' => new PostCollection(Post::orderBy('created_at', 'DESC')->get()),
                 'post' => new PostResource($post),
             ]
         ]);

@@ -16,15 +16,17 @@ class PostCreated implements ShouldBroadcast
 
     public $profile;
     public $post;
+    public $posts;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($profile, $post)
+    public function __construct($profile, $posts, $post)
     {
         //
         $this->profile = $profile;
         $this->post = $post;
+        $this->posts = $posts;
     }
 
     /**
