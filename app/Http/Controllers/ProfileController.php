@@ -110,8 +110,8 @@ class ProfileController extends Controller
                 'accept_booking'        => ['nullable', 'in:true,false'],
                 'accept_proposal'       => ['nullable', 'in:true,false'],
                 // sample songs
-                'song'                  => ['nullable', 'file', 'mimes:mp3', 'max:65536',], // Max 64MB ~ 65536
-                'song_title'            => ['required_if:song,!=,null', 'string', 'max:255',],
+                'song'                  => ['required', 'file', 'mimes:mp3', 'max:65536',], // Max 64MB ~ 65536
+                'song_title'            => ['required', 'string', 'max:255',],
             ], [
                 'required'              => ':Attribute is required.',
                 'artist_type.exists'    => ':Attribute is a invalid option.',
