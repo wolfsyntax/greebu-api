@@ -116,6 +116,7 @@ class ProfileController extends Controller
                 'required'              => ':Attribute is required.',
                 'artist_type.exists'    => ':Attribute is a invalid option.',
                 'in'                    => ':Attribute is invalid.',
+                'song.mimes'            => 'The :Attribute should be in a mp3 format.',
                 'song.max'              => ":Attribute maximum file size to upload is 64MB (65536 KB). Try to compress it to make it under 64MB.",
                 'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
             ]);
@@ -451,7 +452,7 @@ class ProfileController extends Controller
             $service = new AwsService();
 
             $request->validate([
-                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(399)->minHeight(150)->maxWidth(1958)->maxHeight(745),], //'dimensions:min_width=400,min_height=150,max_width=851,max_height=315',],
+                'cover_photo'    => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),], //'dimensions:min_width=400,min_height=150,max_width=851,max_height=315',],
             ]);
 
             if ($request->hasFile('cover_photo')) {

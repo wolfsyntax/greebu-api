@@ -74,7 +74,7 @@ class Profile extends Model
 
     public function organizer()
     {
-        return $this->hasOne(Artist::class);
+        return $this->hasOne(Organizer::class);
     }
 
     public function providers()
