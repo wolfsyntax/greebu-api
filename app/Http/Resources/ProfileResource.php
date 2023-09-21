@@ -80,6 +80,11 @@ class ProfileResource extends JsonResource
             'is_freeloader'     => $this->is_freeloader,
             'role'              => $roles,
             'bucket'             => $this->bucket,
+            // Social Media Links
+            'spotify'               => $this->spotify,
+            'youtube'               => $this->youtube,
+            'twitter'               => $this->twitter,
+            'instagram'             => $this->instagram,
         ];
         return parent::toArray($request);
     }

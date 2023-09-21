@@ -37,12 +37,8 @@ class OrganizerSeeder extends Seeder
 
             $organizer = Organizer::create([
                 'profile_id'        => $profile->id,
-                'first_name'        => $user->first_name,
-                'last_name'         => $user->last_name,
-                'email'             => $user->email,
-                'phone_alt'         => '',
-                'bio'               => '',
-                'facebook_url'      => ''
+                'accept_proposal'   => $faker->boolean(20),
+                'send_proposal'     => $faker->boolean(40),
             ]);
         });
     }

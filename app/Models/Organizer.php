@@ -19,9 +19,7 @@ class Organizer extends Model
      */
     protected $fillable = [
         'profile_id',
-        'first_name', 'last_name',
-        'email', 'phone_alt', 'facebook_url',
-        'bio', 'banned_at',
+        'accept_proposal', 'send_proposal',
     ];
 
     protected $appends = [];

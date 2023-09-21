@@ -16,10 +16,11 @@ return new class extends Migration
             $table->foreignUuid('profile_id')->constrained();
             $table->foreignUuid('artist_type_id')->nullable()->constrained();
 
-            $table->string('youtube_channel')->nullable()->default('');
-            $table->string('twitter_username')->nullable()->default('');
-            $table->string('instagram_username')->nullable()->default('');
-            $table->string('spotify_profile')->nullable()->default('');
+            // $table->string('youtube_channel')->nullable()->default('');
+            // $table->string('twitter_username')->nullable()->default('');
+            // $table->string('instagram_username')->nullable()->default('');
+            // $table->string('spotify_profile')->nullable()->default('');
+
             $table->unsignedDecimal('professional_fee')->nullable()->default(0.00);
             $table->boolean('is_hourly')->nullable()->default(0)->comment('1 - hourly, 0 - by set');
 
