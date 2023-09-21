@@ -15,13 +15,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('profile_id')->constrained();
 
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('email');
-            $table->string('phone_alt', 64)->nullable()->default('');
-            $table->string('bio');
-            $table->string('facebook_url');
-            $table->timestamp('banned_at')->nullable();
+            $table->boolean('accept_proposal')->nullable()->default(false)->comment('Accept proposal from artist.');
+            $table->boolean('send_proposal')->nullable()->default(false)->comment('Send proposal to artist.');
+
+            // $table->timestamp('banned_at')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

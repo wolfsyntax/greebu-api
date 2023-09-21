@@ -31,6 +31,7 @@ use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\NetworkController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\OrganizerController;
 use App\Http\Controllers\SiteSettingsController;
 
 use App\Http\Controllers\TwilioController;
@@ -95,6 +96,8 @@ Route::post('/user/{user}/verify', [TwilioController::class, 'verify']);
 Route::get('/user/{user}/resend-otp', [TwilioController::class, 'twilio']);
 
 Route::post('/email/resend/{user}', [VerificationController::class, 'resend']); //->name('verification.resend');
+
+Route::get('organizer/forms', [OrganizerController::class, 'create']);
 
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {

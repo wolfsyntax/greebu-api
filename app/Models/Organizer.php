@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class Organizer extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
@@ -19,9 +22,7 @@ class Organizer extends Model
      */
     protected $fillable = [
         'profile_id',
-        'first_name', 'last_name',
-        'email', 'phone_alt', 'facebook_url',
-        'bio', 'banned_at',
+        'accept_proposal', 'send_proposal',
     ];
 
     protected $appends = [];
@@ -41,4 +42,29 @@ class Organizer extends Model
         'bio'           => 'string',
         'banned_at'     => 'timestamp',
     ];
+
+    public function profile()
+    {
+        return $this->belongsTo(Profile::class);
+    }
+
+    /**
+     * The roles that belong to the Artist
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function eventTypes(): HasMany
+    {
+        return $this->hasMany(OrganizerEventTypes::class);
+    }
+
+    /**
+     * Get all of the staffs for the Organizer
+     *
+     * @return \Illuminate\DatabMemberquent\Relations\HasMany
+     */
+    public function staffs(): HasMany
+    {
+        return $this->hasMany(OrganizerStaff::class);
+    }
 }

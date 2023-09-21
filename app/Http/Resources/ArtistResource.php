@@ -90,6 +90,11 @@ class ArtistResource extends JsonResource
             'cover'                 => $cover ?? '',
             'follower'              => $this->profile->followers_count,
             'following'             => $this->profile->following_count,
+            // Social Media Links
+            'spotify'               => $this->profile->spotify,
+            'youtube'               => $this->profile->youtube,
+            'twitter'               => $this->profile->twitter,
+            'instagram'             => $this->profile->instagram,
         ];
         return parent::toArray($request);
     }

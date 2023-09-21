@@ -28,9 +28,12 @@ use App\Rules\MatchCurrentPhone;
 use App\Rules\DimensionRule;
 
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
+
 use App\Notifications\EmailVerification;
 
 use App\Http\Resources\ArtistFullResource;
+use App\Http\Resources\OrganizerResource;
 use App\Http\Resources\MemberCollection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
@@ -102,15 +105,15 @@ class ProfileController extends Controller
         'artist_type'           => ['required', 'exists:artist_types,title',],
         'artist_name'           => ['required', 'string',],
         'genres'                => ['required', 'array',],
-        'youtube_channel'       => ['nullable', 'string', 'max:255'],
-        'twitter_username'      => ['nullable', 'string', 'max:255'],
-        'instagram_username'    => ['nullable', 'string', 'max:255'],
-        'spotify_profile'       => ['nullable', 'string', 'max:255'],
+        'youtube'               => ['nullable', 'string', 'max:255'],
+        'twitter'               => ['nullable', 'string', 'max:255'],
+        'instagram'             => ['nullable', 'string', 'max:255'],
+        'spotify'               => ['nullable', 'string', 'max:255'],
         'accept_request'        => ['nullable', 'in:true,false'],
         'accept_booking'        => ['nullable', 'in:true,false'],
         'accept_proposal'       => ['nullable', 'in:true,false'],
-        // sample songs
-        'song'                  => ['sometimes', 'file', 'mimes:mp3', 'max:65536',], // Max 64MB ~ 65536
+        // sample songs max(kilobytes) 10mb ~ 10000
+        'song'                  => ['sometimes', 'file', File::types(['mp3', 'mp4'])->max(10000), /*'mimes:mp3', 'max:65536',*/], // Max 64MB ~ 65536
         'song_title'            => ['required_if:song,!=,null', 'string', 'max:255',],
       ], [
         'required'              => ':Attribute is required.',
@@ -119,6 +122,13 @@ class ProfileController extends Controller
         'song.mimes'            => 'The :Attribute should be in a mp3 format.',
         'song.max'              => ":Attribute maximum file size to upload is 64MB (65536 KB). Try to compress it to make it under 64MB.",
         'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
+      ]);
+
+      $profile->update([
+        'youtube'   => $request->input('youtube'),
+        'spotify'   => $request->input('spotify'),
+        'twitter'   => $request->input('twitter'),
+        'instagram' => $request->input('instagram'),
       ]);
 
       $account = Artist::firstOrCreate([
@@ -133,10 +143,10 @@ class ProfileController extends Controller
 
       $account->update([
         'artist_type_id'        => $artistType->id,
-        'youtube_channel'       => $request->input('youtube_channel'),
-        'twitter_username'      => $request->input('twitter_username'),
-        'instagram_username'    => $request->input('instagram_username'),
-        'spotify_profile'       => $request->input('spotify_profile'),
+        // 'youtube_channel'       => $request->input('youtube_channel'),
+        // 'twitter_username'      => $request->input('twitter_username'),
+        // 'instagram_username'    => $request->input('instagram_username'),
+        // 'spotify_profile'       => $request->input('spotify_profile'),
         'accept_request'        => $request->input('accept_request', 'false') === 'true' ? true : false,
         'accept_booking'        => $request->input('accept_booking', 'false') === 'true' ? true : false,
         'accept_proposal'       => $request->input('accept_proposal', 'false') === 'true' ? true : false,
@@ -222,17 +232,46 @@ class ProfileController extends Controller
         'city'                  => ['required', 'string', 'max:255',],
         'province'              => ['required', 'string', 'max:255',],
         'bio'                   => ['required', 'string', 'max:255',],
+        'facebook'              => ['nullable', 'string', 'max:255',],
+        'twitter'               => ['nullable', 'string', 'max:255',],
+        'instagram'             => ['nullable', 'string', 'max:255',],
+        'event_types'           => ['required', 'array',],
+        'accept_proposal'       => ['nullable', 'in:true,false',],
+        'organizer_name'        => ['required', 'string',],
+        'send_proposal'         => ['nullable', 'in:true,false',],
         'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),],
       ], [
         'required'              => ':Attribute is required.',
         'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
       ]);
 
+      $profile->update([
+        'business_name' => $request->input('organizer_name'),
+        'facebook'      => $request->input('facebook'),
+        'twitter'       => $request->input('twitter'),
+        'instagram'     => $request->input('instagram'),
+      ]);
+
+      $profile = $this->updateProfileV2($request, $profile, $request->hasFile('avatar') ? 's3' : '');
+
       $account = Organizer::firstOrCreate([
         'profile_id' => $profile->id,
       ]);
 
-      $data['account']    = $account;
+      $account->update([
+        'accept_proposal'         => $request->input('accept_proposal', 'false') === 'true' ? true : false,
+        'send_proposal'           => $request->input('send_proposal', 'false') === 'true' ? true : false,
+      ]);
+
+      $account->eventTypes()->delete();
+
+      foreach ($request->input('event_types') as $value) {
+        $account->eventTypes()->create([
+          'event_type' => ucwords($value),
+        ]);
+      }
+
+      $data['account']    = new OrganizerResource($account);
     } else {
 
       $request->validate([
@@ -252,7 +291,6 @@ class ProfileController extends Controller
 
       $data['account']    = $account;
     }
-
 
     $data['user']       = $user;
     $data['profile']    = new ProfileResource($profile);

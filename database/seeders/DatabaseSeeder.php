@@ -11,6 +11,7 @@ use App\Models\UserPH;
 use App\Models\Profile;
 use App\Models\Artist;
 use App\Models\Genre;
+use App\Models\OrganizerStaff;
 use Faker\Factory as Faker;
 
 class DatabaseSeeder extends Seeder
@@ -34,6 +35,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             EventTypeSeeder::class,
             RoleAndPermissionSeeder::class,
+            StaffRoleSeeder::class,
             PurposeSeeder::class,
             SongTypeSeeder::class,
             SupportedLanguageSeeder::class,

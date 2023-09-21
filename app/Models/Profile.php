@@ -28,7 +28,8 @@ class Profile extends Model
         'avatar', 'cover_photo', 'bio',
         'street_address', 'city', 'zip_code', 'province', 'country',
         'last_accessed', 'bucket',
-
+        // social media profile
+        'youtube', 'spotify', 'twitter', 'instagram', 'facebook',
     ];
 
     protected $appends = [];
@@ -50,6 +51,12 @@ class Profile extends Model
         'bio'               => 'string',
         'last_accessed'     => 'timestamp',
         'bucket'            => 'string',
+        // social media profile
+        'youtube'           => 'string',
+        'spotify'           => 'string',
+        'twitter'           => 'string',
+        'instagram'         => 'string',
+        'facebook'          => 'string',
     ];
 
     protected $attributes = [
@@ -59,6 +66,12 @@ class Profile extends Model
         'city'              => '',
         'zip_code'          => '',
         'province'          => '',
+        // social media profile
+        'youtube'           => '',
+        'spotify'           => '',
+        'twitter'           => '',
+        'instagram'         => '',
+        'facebook'          => '',
         // 'country'           => 'Philippines',
     ];
 
