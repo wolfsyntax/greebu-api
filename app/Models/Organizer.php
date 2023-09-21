@@ -57,4 +57,14 @@ class Organizer extends Model
     {
         return $this->hasMany(OrganizerEventTypes::class);
     }
+
+    /**
+     * Get all of the staffs for the Organizer
+     *
+     * @return \Illuminate\DatabMemberquent\Relations\HasMany
+     */
+    public function staffs(): HasMany
+    {
+        return $this->hasMany(OrganizerStaff::class);
+    }
 }

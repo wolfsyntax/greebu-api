@@ -33,6 +33,7 @@ use Illuminate\Validation\Rules\File;
 use App\Notifications\EmailVerification;
 
 use App\Http\Resources\ArtistFullResource;
+use App\Http\Resources\OrganizerResource;
 use App\Http\Resources\MemberCollection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
@@ -236,14 +237,13 @@ class ProfileController extends Controller
         'instagram'             => ['nullable', 'string', 'max:255',],
         'event_types'           => ['required', 'array',],
         'accept_proposal'       => ['nullable', 'in:true,false',],
+        'organizer_name'        => ['required', 'string',],
         'send_proposal'         => ['nullable', 'in:true,false',],
         'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),],
       ], [
         'required'              => ':Attribute is required.',
         'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
       ]);
-
-      $profile->business_name = $request->input('artist_name');
 
       $profile->update([
         'business_name' => $request->input('organizer_name'),
@@ -271,7 +271,7 @@ class ProfileController extends Controller
         ]);
       }
 
-      $data['account']    = $account;
+      $data['account']    = new OrganizerResource($account);
     } else {
 
       $request->validate([
