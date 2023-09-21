@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Organizer;
+use App\Models\EventType;
+
 use Illuminate\Http\Request;
 
 class OrganizerController extends Controller
@@ -21,6 +23,13 @@ class OrganizerController extends Controller
     public function create()
     {
         //
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Organizer form options.',
+            'result'    => [
+                'event_types' => EventType::select('id', 'name')->get(),
+            ],
+        ]);
     }
 
     /**
