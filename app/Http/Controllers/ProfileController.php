@@ -231,26 +231,45 @@ class ProfileController extends Controller
         'city'                  => ['required', 'string', 'max:255',],
         'province'              => ['required', 'string', 'max:255',],
         'bio'                   => ['required', 'string', 'max:255',],
-        'facebook'               => ['nullable', 'string', 'max:255'],
-        'twitter'               => ['nullable', 'string', 'max:255'],
-        'instagram'             => ['nullable', 'string', 'max:255'],
+        'facebook'              => ['nullable', 'string', 'max:255',],
+        'twitter'               => ['nullable', 'string', 'max:255',],
+        'instagram'             => ['nullable', 'string', 'max:255',],
+        'event_types'           => ['required', 'array',],
+        'accept_proposal'       => ['nullable', 'in:true,false',],
+        'send_proposal'         => ['nullable', 'in:true,false',],
         'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),],
       ], [
         'required'              => ':Attribute is required.',
         'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
       ]);
 
+      $profile->business_name = $request->input('artist_name');
+
       $profile->update([
-        'facebook'   => $request->input('facebook'),
-        'twitter'   => $request->input('twitter'),
-        'instagram' => $request->input('instagram'),
+        'business_name' => $request->input('organizer_name'),
+        'facebook'      => $request->input('facebook'),
+        'twitter'       => $request->input('twitter'),
+        'instagram'     => $request->input('instagram'),
       ]);
+
+      $profile = $this->updateProfileV2($request, $profile, $request->hasFile('avatar') ? 's3' : '');
 
       $account = Organizer::firstOrCreate([
         'profile_id' => $profile->id,
       ]);
 
-      $account->update($request->only(['accept_proposal', 'send_proposal',]));
+      $account->update([
+        'accept_proposal'         => $request->input('accept_proposal', 'false') === 'true' ? true : false,
+        'send_proposal'           => $request->input('send_proposal', 'false') === 'true' ? true : false,
+      ]);
+
+      $account->eventTypes()->delete();
+
+      foreach ($request->input('event_types') as $value) {
+        $account->eventTypes()->create([
+          'event_type' => ucwords($value),
+        ]);
+      }
 
       $data['account']    = $account;
     } else {

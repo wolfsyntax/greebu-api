@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class Organizer extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
@@ -39,4 +42,19 @@ class Organizer extends Model
         'bio'           => 'string',
         'banned_at'     => 'timestamp',
     ];
+
+    public function profile()
+    {
+        return $this->belongsTo(Profile::class);
+    }
+
+    /**
+     * The roles that belong to the Artist
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function eventTypes(): HasMany
+    {
+        return $this->hasMany(OrganizerEventTypes::class);
+    }
 }

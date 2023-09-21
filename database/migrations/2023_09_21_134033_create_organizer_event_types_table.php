@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('organizer_event_types', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('organizer_id')->index()->constrained();
+            $table->string('event_type', 255)->nullable();
             $table->timestamps();
         });
     }
