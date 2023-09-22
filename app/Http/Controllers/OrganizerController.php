@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 
 use App\Libraries\AwsService;
 use App\Http\Resources\OrganizerResource;
+use App\Models\StaffRole;
 
 class OrganizerController extends Controller
 {
@@ -23,14 +24,21 @@ class OrganizerController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         //
+        $roles = StaffRole::query()->select('name');
+        $usage = $request->input('usage', 'organizer');
+
+        if ($usage) {
+            $roles = $roles->where('usage', strtolower($usage));
+        }
         return response()->json([
             'status'    => 200,
             'message'   => 'Organizer form options.',
             'result'    => [
-                'event_types' => EventType::select('id', 'name')->get(),
+                'event_types' => EventType::select('name')->orderBy('name', 'ASC')->get()->pluck('name'),
+                'staff_roles' => $roles->orderBy('name', 'ASC')->get()->pluck('name'),
             ],
         ]);
     }
