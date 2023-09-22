@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+use App\Models\StaffRole;
+
 class StaffRoleSeeder extends Seeder
 {
     /**
@@ -22,7 +24,7 @@ class StaffRoleSeeder extends Seeder
             ['name' => 'Production Manager', 'usage' => 'organizer',],
             ['name' => 'Operations Manager', 'usage' => 'organizer',],
             ['name' => 'Registration Manager', 'usage' => 'organizer',],
-            ['name' => 'Others', 'usage' => 'organizer',],
+            // ['name' => 'Others', 'usage' => 'organizer',],
             // ['name' => '', 'usage' => 'organizer', ],
             // ['name' => '', 'usage' => 'artists', ],
             ['name' => 'Vocalist', 'usage' => 'artists',],
@@ -31,8 +33,12 @@ class StaffRoleSeeder extends Seeder
             ['name' => 'Rhythm Guitarist', 'usage' => 'artists',],
             ['name' => 'Bassist', 'usage' => 'artists',],
             ['name' => 'Keyboardist', 'usage' => 'artists',],
-            ['name' => 'Others', 'usage' => 'artists',],
+            // ['name' => 'Others', 'usage' => 'artists',],
             // ['name' => '', 'usage' => '', ],
         ];
+
+        foreach ($roles as $role) {
+            StaffRole::create($role);
+        }
     }
 }

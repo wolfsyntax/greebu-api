@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name')->comment('Role of Member');
             $table->enum('usage', ['organizer', 'artists', 'service-provider',])->default('organizer');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
