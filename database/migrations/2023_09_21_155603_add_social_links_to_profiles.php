@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('profiles', function (Blueprint $table) {
             $table->string('youtube', 255)->nullable()->default('');
             $table->string('spotify', 255)->nullable()->default('');
-            $table->string('twitter', 255)->nullable()->default('');
+            $table->string('twitter', 255)->nullable()->default('X');
             $table->string('instagram', 255)->nullable()->default('');
             $table->string('facebook', 255)->nullable()->default('');
         });
@@ -26,7 +26,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('profiles', function (Blueprint $table) {
-            //
+            $table->dropColumn('youtube');
+            $table->dropColumn('spotify');
+            $table->dropColumn('twitter');
+            $table->dropColumn('instagram');
+            $table->dropColumn('facebook');
         });
     }
 };

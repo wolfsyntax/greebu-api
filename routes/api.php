@@ -189,6 +189,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::apiResource('song-requests', SongController::class);
 
+    Route::post('/organizer/staff', [OrganizerController::class, 'staff']);
     // Route::middleware('role:super-admin')->apiResource('site-settings', SiteSettingsController::class);
     Route::apiResource('site-settings', SiteSettingsController::class);
 

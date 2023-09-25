@@ -45,6 +45,7 @@ class OrganizerResource extends JsonResource
             'facebook'          => $this->profile->facebook,
             'twitter'           => $this->profile->twitter,
             'instagram'         => $this->profile->instagram,
+            'threads'           => $this->profile->threads,
             'bio'               => $this->profile->bio,
         ];
 

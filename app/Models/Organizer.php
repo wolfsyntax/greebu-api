@@ -61,7 +61,7 @@ class Organizer extends Model
     /**
      * Get all of the staffs for the Organizer
      *
-     * @return \Illuminate\DatabMemberquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function staffs(): HasMany
     {

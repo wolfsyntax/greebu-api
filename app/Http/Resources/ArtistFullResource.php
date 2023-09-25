@@ -97,6 +97,7 @@ class ArtistFullResource extends JsonResource
             'spotify'               => $this->profile->spotify,
             'youtube'               => $this->profile->youtube,
             'twitter'               => $this->profile->twitter,
+            // 'threads'               => $this->profile->threads,
             'instagram'             => $this->profile->instagram,
             'street_address'        => $this->profile->street_address ?? '',
             'city'                  => $this->profile->city ?? '',

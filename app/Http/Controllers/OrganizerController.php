@@ -110,7 +110,7 @@ class OrganizerController extends Controller
         }
 
         $data = [
-            'artist_id'     => $organizer->id,
+            'organizer_id'     => $organizer->id,
             'first_name'    => $request->input('member_name', ''),
             'last_name'     => $request->input('last_name', ''),
             'role'          => $request->input('role', 'others'),
