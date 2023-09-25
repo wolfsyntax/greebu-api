@@ -34,12 +34,14 @@ use App\Notifications\EmailVerification;
 
 use App\Http\Resources\ArtistFullResource;
 use App\Http\Resources\OrganizerResource;
+use App\Http\Resources\StaffCollection;
 use App\Http\Resources\MemberCollection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Auth\Events\Registered;
 use App\Libraries\AwsService;
 use App\Models\ArtistGenres;
+use App\Models\OrganizerStaff;
 use DB;
 
 use App\Events\UpdateProfile;
@@ -272,6 +274,7 @@ class ProfileController extends Controller
             }
 
             $data['account']    = new OrganizerResource($account);
+            $data['members'] = new StaffCollection(OrganizerStaff::where('organizer_id', $account->id)->get());
         } else {
 
             $request->validate([
@@ -583,6 +586,7 @@ class ProfileController extends Controller
             $data['event_types'] = $eventTypes->pluck('event_type');
 
             $data['account'] = new OrganizerResource($account);
+            $data['members'] = new StaffCollection(OrganizerStaff::where('organizer_id', $account->id)->get());
         } else {
 
             $account = ServiceProvider::firstOrCreate([

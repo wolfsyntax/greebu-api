@@ -33,6 +33,7 @@ class OrganizerResource extends JsonResource
         }
 
         return [
+            'id'                => $this->id,
             'organizer_name'    => $this->profile->business_name,
             'avatar'            => $avatar,
             'cover'             => $cover,
@@ -45,6 +46,7 @@ class OrganizerResource extends JsonResource
             'facebook'          => $this->profile->facebook,
             'twitter'           => $this->profile->twitter,
             'instagram'         => $this->profile->instagram,
+            'threads'           => $this->profile->threads,
             'bio'               => $this->profile->bio,
         ];
 

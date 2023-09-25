@@ -84,7 +84,9 @@ class ProfileResource extends JsonResource
             'spotify'               => $this->spotify,
             'youtube'               => $this->youtube,
             'twitter'               => $this->twitter,
+            'facebook'              => $this->facebook,
             'instagram'             => $this->instagram,
+            'threads'               => $this->threads,
         ];
         return parent::toArray($request);
     }

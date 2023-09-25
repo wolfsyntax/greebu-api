@@ -510,7 +510,12 @@ class ArtistController extends Controller
         }
 
         $user = auth()->user()->load('profiles');
-        $artist = Artist::with(['profile', 'artistType', 'genres', 'members'])->where('profile_id', $user->profiles->first()->id)->first();
+
+        $profile = Profile::where('user_id', $user->id)->whereHas('roles', function ($query) {
+            $query->where('name', 'artists');
+        })->first();
+
+        $artist = Artist::with(['profile', 'artistType', 'genres', 'members'])->where('profile_id', $profile->id)->first();
 
         $member = Member::where('first_name', $request->input('member_name'))->where('artist_id', $artist->id)->first();
 
@@ -720,7 +725,12 @@ class ArtistController extends Controller
 
         $user = auth()->user()->load('profiles');
 
-        $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
+        // $artist = Artist::where('profile_id', $user->profiles->first()->id)->first();
+        $profile = Profile::where('user_id', $user->id)->whereHas('roles', function ($query) {
+            $query->where('name', 'artists');
+        })->first();
+
+        $artist = Artist::where('profile_id', $profile->id)->first();
 
         if (!$member->where('artist_id', $artist->id)->first()) {
             return response()->json([

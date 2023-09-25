@@ -72,7 +72,7 @@ class Artist extends Model
     /**
      * Get all of the members for the Artist
      *
-     * @return \Illuminate\DatabMemberquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function members(): HasMany
     {
