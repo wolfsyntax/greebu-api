@@ -237,6 +237,7 @@ class ProfileController extends Controller
                 'facebook'              => ['nullable', 'string', 'max:255',],
                 'twitter'               => ['nullable', 'string', 'max:255',],
                 'instagram'             => ['nullable', 'string', 'max:255',],
+                'threads'             => ['nullable', 'string', 'max:255',],
                 'event_types'           => ['required', 'array',],
                 'accept_proposal'       => ['nullable', 'in:true,false',],
                 'organizer_name'        => ['required', 'string',],
@@ -252,6 +253,7 @@ class ProfileController extends Controller
                 'facebook'      => $request->input('facebook'),
                 'twitter'       => $request->input('twitter'),
                 'instagram'     => $request->input('instagram'),
+                'threads'     => $request->input('threads'),
             ]);
 
             $profile = $this->updateProfileV2($request, $profile, $request->hasFile('avatar') ? 's3' : '');

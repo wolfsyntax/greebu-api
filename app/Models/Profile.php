@@ -29,7 +29,7 @@ class Profile extends Model
         'street_address', 'city', 'zip_code', 'province', 'country',
         'last_accessed', 'bucket',
         // social media profile
-        'youtube', 'spotify', 'twitter', 'instagram', 'facebook',
+        'youtube', 'spotify', 'twitter', 'instagram', 'facebook', 'threads',
     ];
 
     protected $appends = [];
@@ -57,6 +57,7 @@ class Profile extends Model
         'twitter'           => 'string',
         'instagram'         => 'string',
         'facebook'          => 'string',
+        'threads'          => 'string',
     ];
 
     protected $attributes = [
