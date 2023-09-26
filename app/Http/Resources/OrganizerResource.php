@@ -18,26 +18,25 @@ class OrganizerResource extends JsonResource
         $eventTypes = \App\Models\OrganizerEventTypes::where('organizer_id', $this->id)->get()->pluck('event_type');
 
         $avatar = $this->profile->avatar ?? '';
-        $cover =  $this->profile->cover ?? '';
+        $cover =  $this->profile->cover_photo ?? '';
 
         $service = new AwsService();
 
         if ($this->profile->bucket && in_array($this->profile->bucket, ['s3', 's3priv',])) {
             if ($avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
-                $avatar = $service->get_aws_object($avatar, $this->profile->bucket === 's3priv');
+                $avatar = $service->get_aws_object($avatar, false);
             }
 
             if ($cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
-                $cover = $service->get_aws_object($cover, $this->profile->bucket === 's3priv');
+                $cover = $service->get_aws_object($cover, false);
             }
         }
 
         return [
             'id'                => $this->id,
             'organizer_name'    => $this->profile->business_name,
-            'company_name'      => $this->company_name,
             'avatar'            => $avatar,
-            'cover'             => $cover,
+            'cover_photo'       => $cover,
             'event_types'       => $eventTypes,
             'street_address'    => $this->profile->street_address ?? '',
             'city'              => $this->profile->city ?? '',

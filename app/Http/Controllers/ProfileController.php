@@ -521,11 +521,21 @@ class ProfileController extends Controller
                 $profile->save();
             }
 
+            $account = $profile;
+            $role = $profile->roles->first()->name;
+
+            if ($role === 'organizer') {
+                $account = new OrganizerResource(Organizer::where('profile_id', $account->id)->first());
+            } else if ($role === 'artists') {
+                $account = new ArtistFullResource(Artist::where('profile_id', $account->id)->first());
+            }
+
             return response()->json([
-                'status'    => 200,
-                'message'   => 'Update Profile Cover Photo.',
-                'result'    => [
-                    'profile' => new ProfileResource($profile),
+                'status'        => 200,
+                'message'       => 'Update Profile Cover Photo.',
+                'result'        => [
+                    'account'   => $account,
+                    'profile'   => new ProfileResource($profile),
                 ],
             ]);
         } else {
