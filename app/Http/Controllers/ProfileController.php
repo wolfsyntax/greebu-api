@@ -230,19 +230,23 @@ class ProfileController extends Controller
         } else if ($role === 'organizer') {
 
             $request->validate([
+                'organizer_name'        => ['required', 'string',],
+                'company_name'          => ['required', 'string',],
+                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),],
+                'event_types'           => ['required', 'array',],
+                // social links
+                'facebook'              => ['nullable', 'string', 'max:255',],
+                'twitter'               => ['nullable', 'string', 'max:255',],
+                'instagram'             => ['nullable', 'string', 'max:255',],
+                'threads'               => ['nullable', 'string', 'max:255',],
+                // Address
                 'street_address'        => ['required', 'string', 'max:255',],
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:255',],
-                'facebook'              => ['nullable', 'string', 'max:255',],
-                'twitter'               => ['nullable', 'string', 'max:255',],
-                'instagram'             => ['nullable', 'string', 'max:255',],
-                'threads'             => ['nullable', 'string', 'max:255',],
-                'event_types'           => ['required', 'array',],
-                'accept_proposal'       => ['nullable', 'in:true,false',],
-                'organizer_name'        => ['required', 'string',],
+                // Options
                 'send_proposal'         => ['nullable', 'in:true,false',],
-                'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),],
+                'accept_proposal'       => ['nullable', 'in:true,false',],
             ], [
                 'required'              => ':Attribute is required.',
                 'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
@@ -263,6 +267,7 @@ class ProfileController extends Controller
             ]);
 
             $account->update([
+                'company_name'            => $request->input('company_name'),
                 'accept_proposal'         => $request->input('accept_proposal', 'false') === 'true' ? true : false,
                 'send_proposal'           => $request->input('send_proposal', 'false') === 'true' ? true : false,
             ]);
