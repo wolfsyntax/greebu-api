@@ -14,24 +14,35 @@ return new class extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
-            $table->foreignUuid('organizer_id')->constrained();
-            $table->foreignUuid('artist_id')->constrained();
+            $table->foreignUuid('organizer_id')->constrained()->comment('Event Creator');
 
-            $table->string('title');
-            $table->longText('description')->nullable();
-            $table->string('thumbnail');
-            $table->text('venue');
-            $table->string('lat', 32);
-            $table->string('long', 32);
-            $table->unsignedBigInteger('capacity')->nullable()->default(1);
-            $table->boolean('is_public')->default(true);
+            $table->string('cover_photo');
+
+            $table->foreignUuid('event_types_id')->constrained()->comment('Event Type');
+
+            $table->string('event_name')->comment('Name of Event');
+            $table->text('venue')->comment('Location');
+            $table->boolean('is_public')->default(true)->comment('Audience');
+
+            $table->date('start_date')->comment('Start Date');
+            $table->date('end_date')->comment('End Date');
+
+            $table->time('start_time')->comment('Start Time');
+            $table->time('end_time')->comment('End Time');
+
+            $table->longText('description')->nullable()->comment('Event Details');
+
+            // Additional info for venue
+            $table->string('lat', 32)->nullable()->default('0.0000000')->comment('Venue Coordinates - Latitude');
+            $table->string('long', 32)->nullable()->default('0.0000000')->comment('Venue Coordinates - Longitude');
+
+            $table->unsignedBigInteger('capacity')->nullable()->default(0);
+
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_free')->default(false);
-            $table->enum('status', ['draft', 'open', 'closed', 'ongoing', 'past', 'cancelled'])->nullable()->default('draft');
 
-            $table->date('event_date');
-            $table->time('start_time');
-            $table->time('end_time');
+            $table->enum('status', ['draft', 'open', 'closed', 'ongoing', 'past', 'cancelled'])->nullable()->default('draft');
+            $table->enum('review_status', ['pending', 'accepted', 'rejected']); //->nullable()->default('accepted');
 
             $table->timestamps();
             $table->softDeletes();
