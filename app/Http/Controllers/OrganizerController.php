@@ -18,6 +18,13 @@ use App\Http\Resources\StaffCollection;
 
 class OrganizerController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware(['role:organizer'])->only([
+            'create', 'staff', 'addStaff', 'editStaff', 'removeStaff',
+        ]);
+    }
     /**
      * Display a listing of the resource.
      */

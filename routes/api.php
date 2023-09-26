@@ -172,6 +172,8 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('account/update/{profile}/avatar', [ProfileController::class, 'profilePic']);
     Route::post('account/update/{profile}/banner', [ProfileController::class, 'bannerImage']);
 
+    Route::apiResource('events', EventController::class); //->middleware(['roles:organizer']);
+
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
 
