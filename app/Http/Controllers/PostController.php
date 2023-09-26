@@ -22,7 +22,7 @@ class PostController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['role:artists'])->only([
+        $this->middleware(['role:artists|organizer'])->only([
             'store', 'update',
         ]);
 

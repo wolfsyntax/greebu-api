@@ -35,6 +35,7 @@ class OrganizerResource extends JsonResource
         return [
             'id'                => $this->id,
             'organizer_name'    => $this->profile->business_name,
+            'company_name'      => $this->company_name,
             'avatar'            => $avatar,
             'cover'             => $cover,
             'event_types'       => $eventTypes,

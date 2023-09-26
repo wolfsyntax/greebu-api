@@ -23,6 +23,7 @@ class Organizer extends Model
     protected $fillable = [
         'profile_id',
         'accept_proposal', 'send_proposal',
+        'company_name',
     ];
 
     protected $appends = [];
@@ -33,14 +34,9 @@ class Organizer extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'profile_id'    => 'string',
-        'first_name'    => 'string',
-        'last_name'     => 'string',
-        'email'         => 'string',
-        'phone_alt'     => 'string',
-        'facebook_url'  => 'string',
-        'bio'           => 'string',
-        'banned_at'     => 'timestamp',
+        'accept_proposal'   => 'boolean',
+        'send_proposal'     => 'boolean',
+        'company_name'      => 'string',
     ];
 
     public function profile()
