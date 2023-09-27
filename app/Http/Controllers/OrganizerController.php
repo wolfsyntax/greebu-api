@@ -22,7 +22,8 @@ class OrganizerController extends Controller
     public function __construct()
     {
         $this->middleware(['role:organizer'])->only([
-            'create', 'staff', 'addStaff', 'editStaff', 'removeStaff',
+            'create',
+            'staff', 'addStaff', 'editStaff', 'removeStaff',
         ]);
     }
     /**

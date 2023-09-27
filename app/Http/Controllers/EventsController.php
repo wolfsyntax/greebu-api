@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\EventType;
+
 use Illuminate\Http\Request;
 
-class EventController extends Controller
+class EventsController extends Controller
 {
     public function __construct()
     {
@@ -21,12 +23,23 @@ class EventController extends Controller
         //
     }
 
+    public function create(Request $request)
+    {
+        return response()->json([
+            'status'    => 200,
+            'message'   => '',
+            'result'    => [
+                'event_types' => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+            ]
+        ]);
+    }
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         //
+        $request->validate([]);
     }
 
     /**
