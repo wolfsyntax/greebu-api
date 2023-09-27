@@ -31,9 +31,9 @@ class EventSeeder extends Seeder
                 'event_types_id'    => $faker->randomElement(\App\Models\EventType::get()->pluck('id')->toArray()),
                 'cover_photo'       => $faker->imageUrl(width: 424, height: 424),
                 'event_name'        => Str::lower($faker->sentence(10)),
-                'venue'             => Str::lower($faker->city()),
+                'location'          => Str::lower($faker->city()),
 
-                'is_public'         => rand(1, 0),
+                'audience'          => rand(1, 0),
 
                 'start_date'        => now()->add(mt_rand(5, 10), 'days'), //date('Y-m-d', $timestamp),
                 'end_date'          => now()->add(mt_rand(15, 45), 'days'), //date('Y-m-d', $timestamp),

@@ -21,12 +21,14 @@ class Event extends Model
     protected $fillable = [
         'organizer_id', 'event_types_id',
         'cover_photo', 'event_name',
-        'venue', 'is_public', 'start_date', 'end_date',
+        'location', 'audience', 'start_date', 'end_date',
         'start_time', 'end_time', 'description',
         'lat', 'long',
         'capacity',
         'is_featured', 'is_free',
         'status', 'review_status',
+        // What are you looking for?
+        'look_for', 'look_type', 'requirements',
     ];
 
     protected $appends = [];
@@ -55,6 +57,9 @@ class Event extends Model
         'is_free'           => 'boolean',
         'status'            => 'string',
         'review_status'     => 'string',
+        'look_for'          => 'string',
+        'look_type'         => 'string',
+        'requirements'      => 'string',
     ];
 
     protected $attributes = [
@@ -70,6 +75,9 @@ class Event extends Model
         'is_free'           => false,
         'status'            => 'draft',
         'review_status'     => 'accepted',
+        'look_for'          => '',
+        'look_type'         => '',
+        'requirements'      => '',
     ];
 
     public static function create(array $attributes)
