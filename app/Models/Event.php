@@ -28,7 +28,7 @@ class Event extends Model
         'is_featured', 'is_free',
         'status', 'review_status',
         // What are you looking for?
-        'look_for', 'look_type', 'requirements',
+        'look_for', 'look_type', 'requirement',
     ];
 
     protected $appends = [];
@@ -43,8 +43,8 @@ class Event extends Model
         'event_types_id'    => 'string',
         'cover_photo'       => 'string',
         'event_name'        => 'string',
-        'venue'             => 'string',
-        'is_public'         => 'boolean',
+        'location'             => 'string',
+        'audience'          => 'boolean',
         'start_date'        => 'datetime:Y-m-d',
         'end_date'          => 'datetime:Y-m-d',
         'start_time'        => 'datetime:H:i:s',
@@ -59,14 +59,15 @@ class Event extends Model
         'review_status'     => 'string',
         'look_for'          => 'string',
         'look_type'         => 'string',
-        'requirements'      => 'string',
+        'requirement'       => 'string',
+
     ];
 
     protected $attributes = [
         // 'cover_photo'       => '',
         'event_name'        => '',
-        'venue'             => '',
-        'is_public'         => true,
+        'location'          => '',
+        'audience'          => true,
         'description'       => '',
         'lat'               => '0.00',
         'long'              => '0.00',
@@ -77,16 +78,6 @@ class Event extends Model
         'review_status'     => 'accepted',
         'look_for'          => '',
         'look_type'         => '',
-        'requirements'      => '',
+        'requirement'      => '',
     ];
-
-    public static function create(array $attributes)
-    {
-        $attributes['start_date']       = \Carbon\Carbon::now()->addDays(5);
-        $attributes['end_date']         = \Carbon\Carbon::now()->addDays(15);
-        $attributes['start_time']       = \Carbon\Carbon::now()->toTimeString();
-        $attributes['end_time']         = \Carbon\Carbon::now()->addHours(5)->toTimeString();
-
-        return parent::create($attributes);
-    }
 }
