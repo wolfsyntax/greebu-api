@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('services_categories', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->text('description');
-            $table->string('card_photo');
+            $table->text('description')->nullable();
+            $table->string('card_photo')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

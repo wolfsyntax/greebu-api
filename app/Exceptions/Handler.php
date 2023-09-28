@@ -84,6 +84,7 @@ class Handler extends ExceptionHandler
                     'message'   => 'Server Error.',
                     'result'    => [
                         'errors' => $e->getMessage(),
+                        'request' => $request
                     ],
                 ], 203);
             }

@@ -50,6 +50,7 @@ class DatabaseSeeder extends Seeder
             TestSeeder::class,
             OrganizerSeeder::class,
             EventSeeder::class,
+            ServiceProviderSeeder::class,
         ]);
 
         $this->faker = Faker::create();

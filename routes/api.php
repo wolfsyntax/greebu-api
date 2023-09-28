@@ -99,7 +99,7 @@ Route::get('/user/{user}/resend-otp', [TwilioController::class, 'twilio']);
 Route::post('/email/resend/{user}', [VerificationController::class, 'resend']); //->name('verification.resend');
 
 Route::get('organizer/forms', [OrganizerController::class, 'create']);
-Route::get('event/create', [EventsController::class, 'create']);
+Route::get('events/create', [EventController::class, 'create']);
 
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
@@ -174,7 +174,10 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('account/update/{profile}/avatar', [ProfileController::class, 'profilePic']);
     Route::post('account/update/{profile}/banner', [ProfileController::class, 'bannerImage']);
 
-    Route::apiResource('events', EventController::class); //->middleware(['roles:organizer']);
+    Route::post('events/{event}/look', [EventController::class, 'stepTwo']);
+    Route::apiResource('events', EventController::class)->except(['create',]); //->middleware(['roles:organizer']);
+
+    // Route::apiResource('event', EventsController::class); //->middleware(['roles:organizer']);
 
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
