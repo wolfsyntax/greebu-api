@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use Illuminate\Pagination\LengthAwarePaginator;
+
 use App\Models\ArtistType;
 use App\Models\ServicesCategory;
 
@@ -13,7 +15,10 @@ use App\Models\EventType;
 use App\Models\EventPricing;
 use App\Models\EventParticipant;
 
+use App\Models\City;
+
 use App\Http\Resources\EventResource;
+use App\Http\Resources\EventCollection;
 use App\Http\Resources\EventArtistTypeCollection;
 use App\Http\Resources\EventServicesTypeCollection;
 
@@ -41,20 +46,87 @@ class EventController extends Controller
     public function index(Request $request)
     {
         // Event Filters
-        $search = $request->input('search');
-        $orderBy = $request->input('sortBy', 'ASC');
-        $city = $request->input('city', '');
-        $cost = $request->input('cost', 'free');
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+            'location'      => ['nullable', 'string', 'max:255',],
+            'cost'          => ['sometimes', 'in:true,false',],
+            'event_type'    => ['nullable', 'uuid', /*'exists:event_types,id',*/],
+        ]);
 
+        $search = $request->input('search', '');
+        $orderBy = $request->input('sortBy', 'ASC');
+        $city = $request->input('location', '');
+        $cost = $request->input('cost', 'free');
+        $event_type = $request->input('event_type', '');
+
+
+        $events = Event::query();
+
+        if ($search) {
+            $events = $events->where('event_name', 'LIKE', '%' . $search . '%');
+        }
+
+        if ($city) {
+            $events = $events->where('location', 'LIKE', '%' . $city . '%');
+        }
+
+        if ($cost) {
+            $events = $events->where(
+                'is_free',
+                strtolower($cost) === 'FREE' ? true : false
+            );
+        }
+
+        if ($event_type) {
+            $events = $events->where('event_types_id', $event_type);
+        }
+
+        $events = $events->orderBy('start_date', $orderBy)
+            ->orderBy('end_date', $orderBy);
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 16));
+        $offset = ($page - 1) * $perPage;
+
+        if (auth()->check()) {
+
+            $data = [
+                'events'        => new EventCollection($events->skip($offset)->take($perPage)->get()),
+                'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+                'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->pluck('name'),
+                'pagination'    => [
+                    'total'     => $events->count(),
+                    'last_page' => ceil($events->count() / $perPage),
+                    'per_page'  => $perPage,
+                    'offset'    => $offset,
+                ],
+                'query'         => [
+                    $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+                ],
+            ];
+        } else {
+
+            $data = [
+                'events'        => new EventCollection($events->skip($offset)->take($perPage)->get()),
+                'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+                'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->pluck('name'),
+                'pagination'    => [
+                    'total'     => $events->count(),
+                    'last_page' => ceil($events->count() / $perPage),
+                    'per_page'  => $perPage,
+                    'offset'    => $offset,
+                ],
+                'query'         => [
+                    $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+                ],
+            ];
+        }
         return response()->json([
-            'status'    => 200,
-            'message'   => 'Geebu Event\'s',
-            'result'    => [
-                'events'    => Event::where('title', 'LIKE', '%' . $search . '%')->where('venue', 'LIKE', '%' . $city . '%')->where(
-                    'is_free',
-                    strtolower($cost) === 'FREE' ? true : false
-                )->orderBy('event_date', $orderBy)->get(),
-            ],
+            'status'            => 200,
+            'message'           => 'Events list successfully fetched.',
+            'result'            => $data,
         ]);
     }
 
@@ -330,6 +402,61 @@ class EventController extends Controller
             'message'       => "Event successfully updated.",
             'result'        => [
                 'event'     => new EventResource($event),
+            ]
+        ]);
+    }
+
+    public function verifyEvent(Request $request)
+    {
+        $lookType = ['nullable', 'string', 'max:255',];
+
+        if ($request->input('look_for')) {
+
+            $selection = [
+                'artist'    => array_map('strtolower', ArtistType::select('title')->get()->pluck('title')->toArray()),
+                'service'   => array_map('strtolower', ServicesCategory::select('name')->get()->pluck('name')->toArray()),
+            ];
+
+            $lookType = ['nullable', 'string', 'max:255', Rule::in($selection[$request->input('look_for', 'artist')]),];
+        }
+
+        $request->validate([
+            'cover_photo'   => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
+            'event_type'    => ['required', 'exists:event_types,id',],
+            'event_name'    => ['required', 'string', 'max:255',],
+            'location'      => ['required', 'string', 'max:255',],
+            'audience'      => ['required', 'in:true,false',],
+            'start_date'    => ['required', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
+            'end_date'      => ['required', 'date', 'after_or_equal:start_date',],
+            'start_time'    => ['required', 'date_format:H:i'],
+            'end_time'      => ['required', 'date_format:H:i',],
+            'description'   => ['required', 'string',],
+            'lat'           => ['nullable', 'string', 'regex:/^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
+            'long'          => ['nullable', 'string', 'regex:/^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
+            'is_featured'   => ['nullable', 'in:true,false',],
+            'is_free'       => ['nullable', 'in:true,false',],
+            'status'        => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
+            'review_status' => ['nullable', 'in:pending,accepted,rejected',],
+            'look_for'      => ['nullable', 'string', 'max:255', 'in:artist,service',],
+            'look_type'     => $lookType,
+            'requirement'   => ['nullable', 'string',],
+        ], [
+            'cover_photo.dimensions'    => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
+        ]);
+
+        return response()->json([
+            'status'        => 201,
+            'message'       => 'Event successfully validated.',
+            'result'        => [
+                'event'     => $request->only([
+                    'cover_photo',
+                    'event_type', 'event_type',  'event_name',
+                    'location', 'audience', 'start_date',
+                    'end_date', 'start_time', 'end_time', 'description',
+                    'lat', 'long', 'is_featured',
+                    'is_free', 'status', 'review_status',
+                    'look_for', 'look_type', 'requirement',
+                ]),
             ]
         ]);
     }

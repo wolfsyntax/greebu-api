@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignUuid('event_types_id')->constrained()->comment('Event Type');
 
             $table->string('event_name')->comment('Name of Event');
-            $table->text('location')->comment('Location');
+            // $table->text('location')->nullable()->comment('Location');
             $table->boolean('audience')->default(true)->comment('Audience');
 
             $table->date('start_date')->comment('Start Date');
