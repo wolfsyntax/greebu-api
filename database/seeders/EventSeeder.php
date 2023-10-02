@@ -28,11 +28,14 @@ class EventSeeder extends Seeder
             Event::create([
                 'organizer_id'      => $faker->randomElement(Organizer::get()->pluck('id')->toArray()),
                 // 'artist_id'       => $this->faker->randomElement(Artist::get()->pluck('id')->toArray()),
-                'event_types_id'    => $faker->randomElement(\App\Models\EventType::get()->pluck('id')->toArray()),
+                'event_type'        => $faker->randomElement(array_map('strtolower', \App\Models\EventType::get()->pluck('name')->toArray())),
                 'cover_photo'       => $faker->imageUrl(width: 424, height: 424),
                 'event_name'        => Str::lower($faker->sentence(10)),
-                'location'          => Str::lower($faker->city()),
-
+                // 'location'          => Str::lower($faker->city()),
+                'street_address'    => Str::lower($faker->streetAddress()),
+                'barangay'          => Str::lower($faker->streetName()),
+                'city'              => Str::lower($faker->city),
+                'province'          => Str::lower($faker->state),
                 'audience'          => rand(1, 0),
 
                 'start_date'        => now()->add(mt_rand(5, 10), 'days'), //date('Y-m-d', $timestamp),
@@ -44,8 +47,8 @@ class EventSeeder extends Seeder
                 'description'       => Str::lower($faker->sentence(20)),
 
 
-                'lat'               => (mt_rand(10, 50) / mt_getrandmax()),
-                'long'              => (mt_rand(10, 50) / mt_getrandmax()),
+                'lat'               => '0.00',
+                'long'              => '0.00',
                 'capacity'          => 0,
 
                 'is_featured'       => rand(1, 0),

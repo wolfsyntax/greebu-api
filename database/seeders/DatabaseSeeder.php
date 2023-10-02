@@ -46,6 +46,7 @@ class DatabaseSeeder extends Seeder
             BankCardSeeder::class,
             PaymentSeeder::class,
             CountrySeeder::class,
+            CitySeeder::class,
             DurationSeeder::class,
             TestSeeder::class,
             OrganizerSeeder::class,

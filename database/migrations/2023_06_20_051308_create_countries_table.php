@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('iso2')->nullable();
             $table->string('iso3')->nullable();
+            $table->string('capital')->nullable();
             $table->string('currency')->nullable();
             $table->string('symbol')->nullable();
             $table->boolean('is_supported')->nullable()->default(false);

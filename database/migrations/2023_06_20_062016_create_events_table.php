@@ -18,10 +18,10 @@ return new class extends Migration
 
             $table->string('cover_photo');
 
-            $table->foreignUuid('event_types_id')->constrained()->comment('Event Type');
-
+            // $table->foreignUuid('event_types_id')->constrained()->comment('Event Type');
+            $table->string('event_type')->comment('Type of Event');
             $table->string('event_name')->comment('Name of Event');
-            $table->text('location')->comment('Location');
+            // $table->text('location')->nullable()->comment('Location');
             $table->boolean('audience')->default(true)->comment('Audience');
 
             $table->date('start_date')->comment('Start Date');

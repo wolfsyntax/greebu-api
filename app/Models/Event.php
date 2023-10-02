@@ -19,9 +19,11 @@ class Event extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'organizer_id', 'event_types_id',
+        'organizer_id', 'event_type',
         'cover_photo', 'event_name',
-        'location', 'audience', 'start_date', 'end_date',
+        // 'location',
+        'street_address', 'barangay', 'city', 'province',
+        'audience', 'start_date', 'end_date',
         'start_time', 'end_time', 'description',
         'lat', 'long',
         'capacity',
@@ -31,7 +33,9 @@ class Event extends Model
         'look_for', 'look_type', 'requirement',
     ];
 
-    protected $appends = [];
+    protected $appends = [
+        'location',
+    ];
 
     /**
      * The attributes that should be cast.
@@ -40,10 +44,10 @@ class Event extends Model
      */
     protected $casts = [
         'organizer_id'      => 'string',
-        'event_types_id'    => 'string',
+        'event_type'        => 'string',
         'cover_photo'       => 'string',
         'event_name'        => 'string',
-        'location'             => 'string',
+        // 'location'             => 'string',
         'audience'          => 'boolean',
         'start_date'        => 'datetime:Y-m-d',
         'end_date'          => 'datetime:Y-m-d',
@@ -60,13 +64,17 @@ class Event extends Model
         'look_for'          => 'string',
         'look_type'         => 'string',
         'requirement'       => 'string',
-
+        'street_address'    => 'string',
+        'barangay'          => 'string',
+        'city'              => 'string',
+        'province'          => 'string',
     ];
 
     protected $attributes = [
         // 'cover_photo'       => '',
         'event_name'        => '',
-        'location'          => '',
+        'event_type'        => '',
+        // 'location'          => '',
         'audience'          => true,
         'description'       => '',
         'lat'               => '0.00',
@@ -79,5 +87,24 @@ class Event extends Model
         'look_for'          => '',
         'look_type'         => '',
         'requirement'      => '',
+        'street_address'    => 'string',
+        'barangay'          => 'string',
+        'city'              => 'string',
+        'province'          => 'string',
+
     ];
+
+    /**
+     * Get Location
+     * @return string
+     */
+    public function getLocationAttribute(): string
+    {
+        return $this->street_address . ',' . $this->barangay . ',' . $this->city . ',' . $this->province;
+    }
+
+    // public function eventType()
+    // {
+    //     return $this->hasOne(EventType::class);
+    // }
 }

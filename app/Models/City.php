@@ -4,16 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-class EventType extends Model
+class City extends Model
 {
-    use HasFactory, SoftDeletes, HasUuids;
-
-    // public $incrementing = false;
-    // protected $keyType = 'string';
+    use HasFactory, HasUuids, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -21,7 +18,8 @@ class EventType extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 'description',
+        'name', 'ascii', 'lat', 'lng',
+        'province', 'country',
     ];
 
     protected $appends = [];
@@ -33,11 +31,18 @@ class EventType extends Model
      */
     protected $casts = [
         'name'          => 'string',
-        'description'   => 'string',
+        'ascii'         => 'string',
+        'lat'           => 'string',
+        'lng'           => 'string',
+        'province'      => 'string',
+        'country'       => 'string',
     ];
 
-    public function setNameAttribute(string $value): string
-    {
-        return $this->attributes['name'] = strtolower($value);
-    }
+    protected $attributes = [
+        'ascii'         => '',
+        'lat'           => '0.0000000',
+        'lng'           => '0.0000000',
+        'province'      => 'Camarines Sur',
+        'country'       => 'Philippines',
+    ];
 }
