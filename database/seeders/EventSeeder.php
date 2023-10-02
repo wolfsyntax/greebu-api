@@ -28,7 +28,7 @@ class EventSeeder extends Seeder
             Event::create([
                 'organizer_id'      => $faker->randomElement(Organizer::get()->pluck('id')->toArray()),
                 // 'artist_id'       => $this->faker->randomElement(Artist::get()->pluck('id')->toArray()),
-                'event_types_id'    => $faker->randomElement(\App\Models\EventType::get()->pluck('id')->toArray()),
+                'event_type'        => $faker->randomElement(array_map('strtolower', \App\Models\EventType::get()->pluck('name')->toArray())),
                 'cover_photo'       => $faker->imageUrl(width: 424, height: 424),
                 'event_name'        => Str::lower($faker->sentence(10)),
                 // 'location'          => Str::lower($faker->city()),

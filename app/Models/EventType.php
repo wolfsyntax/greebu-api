@@ -35,4 +35,9 @@ class EventType extends Model
         'name'          => 'string',
         'description'   => 'string',
     ];
+
+    public function setNameAttribute(string $value): string
+    {
+        return $this->attributes['name'] = strtolower($value);
+    }
 }

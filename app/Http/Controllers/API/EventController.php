@@ -15,6 +15,8 @@ use App\Models\EventType;
 use App\Models\EventPricing;
 use App\Models\EventParticipant;
 
+use App\Rules\EventTypeRule;
+
 use App\Models\City;
 
 use App\Http\Resources\EventResource;
@@ -60,7 +62,6 @@ class EventController extends Controller
         $cost = $request->input('cost', 'free');
         $event_type = $request->input('event_type', '');
 
-
         $events = Event::query();
 
         if ($search) {
@@ -79,7 +80,7 @@ class EventController extends Controller
         }
 
         if ($event_type) {
-            $events = $events->where('event_types_id', $event_type);
+            $events = $events->where('event_type', $event_type);
         }
 
         $events = $events->orderBy('start_date', $orderBy)
@@ -136,14 +137,18 @@ class EventController extends Controller
     public function create()
     {
         //
+        $event_types = EventType::query()->select('name');
+        $artist_types = ArtistType::query()->select('title');
+        $service_types = ServicesCategory::query()->select('name');
+
         return response()->json([
             'status' => 200,
             'message' => 'Create Event',
             'result'    => [
                 // 'event_artist_type'     => ArtistType::orderBy('title', 'ASC')->get(),
-                'event_artist_type'     => array_map('strtolower', ArtistType::orderBy('title', 'ASC')->get()->pluck('title')->toArray()),
-                'event_service_type'    => array_map('strtolower', ServicesCategory::orderBy('name', 'ASC')->get()->pluck('name')->toArray()),
-                'event_types'           => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+                'event_artist_type'     => array_map('strtolower', $artist_types->orderBy('title', 'ASC')->get()->pluck('title')->toArray()),
+                'event_service_type'    => array_map('strtolower', $service_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray()),
+                'event_types'           => $event_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray(), //$event_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray(), // array_map('strtolower', $event_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray()),
                 'event_pricing'         => EventPricing::all(),
             ],
         ]);
@@ -163,14 +168,18 @@ class EventController extends Controller
                 'service'   => array_map('strtolower', ServicesCategory::select('name')->get()->pluck('name')->toArray()),
             ];
 
-            $lookType = ['nullable', 'string', 'max:255', Rule::in($selection[$request->input('look_for', 'artist')]),];
+            $lookType = ['required', 'string', 'max:255', Rule::in($selection[$request->input('look_for')]),];
         }
 
         $request->validate([
             'cover_photo'   => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
-            'event_type'    => ['required', 'exists:event_types,id',],
+            'event_type'    => ['required', 'string', new EventTypeRule(),], // comment exists if allowed to input custom event type
             'event_name'    => ['required', 'string', 'max:255',],
-            'location'      => ['required', 'string', 'max:255',],
+            // 'location'      => ['required', 'string', 'max:255',],
+            'street_address'    => ['required', 'string', 'max:255',],
+            'barangay'          => ['required', 'string', 'max:255',],
+            'city'              => ['required', 'string', 'max:255',],
+            'province'          => ['required', 'string', 'max:255',],
             'audience'      => ['required', 'in:true,false',],
             'start_date'    => ['required', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
             'end_date'      => ['required', 'date', 'after_or_equal:start_date',],
@@ -202,9 +211,13 @@ class EventController extends Controller
         $event = Event::create([
             'organizer_id'      => $organizer->id,
             'cover_photo'       => '', //$request->input('cover_photo'),
-            'event_types_id'    => $request->input('event_type'),
+            'event_type'        => $request->input('event_type'),
             'event_name'        => $request->input('event_name'),
-            'location'          => $request->input('location'),
+            // 'location'          => $request->input('location'),
+            'street_address'    => $request->input('street_address'),
+            'barangay'          => $request->input('barangay'),
+            'city'              => $request->input('city'),
+            'province'          => $request->input('province'),
             'audience'          => $request->input('audience', 'false') === 'true' ? true : false,
             'start_date'        => $request->input('start_date'),
             'end_date'          => $request->input('end_date'),
@@ -421,10 +434,14 @@ class EventController extends Controller
         }
 
         $request->validate([
-            'cover_photo'   => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
-            'event_type'    => ['required', 'exists:event_types,id',],
-            'event_name'    => ['required', 'string', 'max:255',],
-            'location'      => ['required', 'string', 'max:255',],
+            'cover_photo'       => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
+            'event_type'        => ['required', 'string', new EventTypeRule(),],
+            'event_name'        => ['required', 'string', 'max:255',],
+            // 'location'       => ['required', 'string', 'max:255',],
+            'street_address'    => ['required', 'string', 'max:255',],
+            'barangay'          => ['required', 'string', 'max:255',],
+            'city'              => ['required', 'string', 'max:255',],
+            'province'          => ['required', 'string', 'max:255',],
             'audience'      => ['required', 'in:true,false',],
             'start_date'    => ['required', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
             'end_date'      => ['required', 'date', 'after_or_equal:start_date',],

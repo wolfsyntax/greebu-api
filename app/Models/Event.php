@@ -19,7 +19,7 @@ class Event extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'organizer_id', 'event_types_id',
+        'organizer_id', 'event_type',
         'cover_photo', 'event_name',
         // 'location',
         'street_address', 'barangay', 'city', 'province',
@@ -44,7 +44,7 @@ class Event extends Model
      */
     protected $casts = [
         'organizer_id'      => 'string',
-        'event_types_id'    => 'string',
+        'event_type'        => 'string',
         'cover_photo'       => 'string',
         'event_name'        => 'string',
         // 'location'             => 'string',
@@ -73,6 +73,7 @@ class Event extends Model
     protected $attributes = [
         // 'cover_photo'       => '',
         'event_name'        => '',
+        'event_type'        => '',
         // 'location'          => '',
         'audience'          => true,
         'description'       => '',
@@ -94,7 +95,7 @@ class Event extends Model
     ];
 
     /**
-     * Get Email masking
+     * Get Location
      * @return string
      */
     public function getLocationAttribute(): string
@@ -102,8 +103,8 @@ class Event extends Model
         return $this->street_address . ',' . $this->barangay . ',' . $this->city . ',' . $this->province;
     }
 
-    public function eventType()
-    {
-        return $this->hasOne(EventType::class);
-    }
+    // public function eventType()
+    // {
+    //     return $this->hasOne(EventType::class);
+    // }
 }
