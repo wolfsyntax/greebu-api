@@ -107,4 +107,9 @@ class Event extends Model
     // {
     //     return $this->hasOne(EventType::class);
     // }
+
+    public function organizer()
+    {
+        return $this->belongsTo(Organizer::class);
+    }
 }

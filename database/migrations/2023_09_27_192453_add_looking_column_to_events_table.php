@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->string('look_for')->nullable()->default('');
-            $table->string('look_type')->nullable()->default('');
-            $table->longText('requirement')->nullable();
+            $table->string('look_for')->nullable()->default('')->after('description');
+            $table->string('look_type')->nullable()->default('')->after('look_for');
+            $table->longText('requirement')->nullable()->after('look_type');
             // Venue address
-            $table->longText('street_address')->nullable()->comment('Unit/Floor No. Premises/Bldg. Name, House/Bldg. No., Street Name');
-            $table->string('barangay')->nullable()->default('')->comment('Village/Subdivision, District, Barangay');
-            $table->string('city')->nullable()->default('')->comment('Town/City');
-            $table->string('province')->nullable()->default('')->comment('Province');
+            $table->longText('street_address')->nullable()->after('event_name')->comment('Unit/Floor No. Premises/Bldg. Name, House/Bldg. No., Street Name');
+            $table->string('barangay')->nullable()->default('')->after('street_address')->comment('Village/Subdivision, District, Barangay');
+            $table->string('city')->nullable()->default('')->after('barangay')->comment('Town/City');
+            $table->string('province')->nullable()->default('')->after('city')->comment('Province');
         });
     }
 

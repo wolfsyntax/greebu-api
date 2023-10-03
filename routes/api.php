@@ -234,7 +234,7 @@ Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
     Route::post('phone/verify', [UserController::class, 'phoneVerify2']);
 });
 
-Route::controller(EventController::class)->middleware(['throttle:5,1'])->group(function () {
+Route::controller(EventController::class)->group(function () {
     Route::get('/events', 'index');
 });
 

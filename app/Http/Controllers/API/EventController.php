@@ -51,40 +51,41 @@ class EventController extends Controller
         $request->validate([
             'search'        => ['nullable', 'string', 'max:255',],
             'sortBy'        => ['sometimes', 'in:ASC,DESC',],
-            'location'      => ['nullable', 'string', 'max:255',],
-            'cost'          => ['sometimes', 'in:true,false',],
-            'event_type'    => ['nullable', 'uuid', /*'exists:event_types,id',*/],
+            'city'          => ['nullable', 'string', 'max:255',],
+            'cost'          => ['sometimes', 'in:free,paid,both',],
+            'event_type'    => ['nullable', 'string', /*'exists:event_types,id',*/],
         ]);
 
         $search = $request->input('search', '');
-        $orderBy = $request->input('sortBy', 'ASC');
-        $city = $request->input('location', '');
+        $orderBy = $request->input('sortBy', 'DESC');
+        $city = $request->input('city', '');
         $cost = $request->input('cost', 'free');
         $event_type = $request->input('event_type', '');
 
         $events = Event::query();
 
-        if ($search) {
+        if ($search !== '') {
             $events = $events->where('event_name', 'LIKE', '%' . $search . '%');
         }
 
-        if ($city) {
-            $events = $events->where('location', 'LIKE', '%' . $city . '%');
+        if ($city !== '') {
+            $events = $events->where('city', 'LIKE', '%' . $city . '%');
         }
 
-        if ($cost) {
+        if ($cost === 'free' || $cost === 'paid') {
+
             $events = $events->where(
                 'is_free',
-                strtolower($cost) === 'FREE' ? true : false
+                strtolower($cost) === 'free' ? 1 : 0
             );
         }
 
-        if ($event_type) {
-            $events = $events->where('event_type', $event_type);
+        if ($event_type !== '') {
+            $events = $events->where('event_type', 'LIKE', '%' . $event_type . '%');
         }
 
-        $events = $events->orderBy('start_date', $orderBy)
-            ->orderBy('end_date', $orderBy);
+        $events = $events->orderBy('created_at', $orderBy);
+        // ->orderBy('start_date', $orderBy);
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
