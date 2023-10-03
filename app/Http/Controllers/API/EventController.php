@@ -51,40 +51,41 @@ class EventController extends Controller
         $request->validate([
             'search'        => ['nullable', 'string', 'max:255',],
             'sortBy'        => ['sometimes', 'in:ASC,DESC',],
-            'location'      => ['nullable', 'string', 'max:255',],
-            'cost'          => ['sometimes', 'in:true,false',],
-            'event_type'    => ['nullable', 'uuid', /*'exists:event_types,id',*/],
+            'city'          => ['nullable', 'string', 'max:255',],
+            'cost'          => ['sometimes', 'in:free,paid,both',],
+            'event_type'    => ['nullable', 'string', /*'exists:event_types,id',*/],
         ]);
 
         $search = $request->input('search', '');
-        $orderBy = $request->input('sortBy', 'ASC');
-        $city = $request->input('location', '');
+        $orderBy = $request->input('sortBy', 'DESC');
+        $city = $request->input('city', '');
         $cost = $request->input('cost', 'free');
         $event_type = $request->input('event_type', '');
 
         $events = Event::query();
 
-        if ($search) {
+        if ($search !== '') {
             $events = $events->where('event_name', 'LIKE', '%' . $search . '%');
         }
 
-        if ($city) {
-            $events = $events->where('location', 'LIKE', '%' . $city . '%');
+        if ($city !== '') {
+            $events = $events->where('city', 'LIKE', '%' . $city . '%');
         }
 
-        if ($cost) {
+        if ($cost === 'free' || $cost === 'paid') {
+
             $events = $events->where(
                 'is_free',
-                strtolower($cost) === 'FREE' ? true : false
+                strtolower($cost) === 'free' ? 1 : 0
             );
         }
 
-        if ($event_type) {
-            $events = $events->where('event_type', $event_type);
+        if ($event_type !== '') {
+            $events = $events->where('event_type', 'LIKE', '%' . $event_type . '%');
         }
 
-        $events = $events->orderBy('start_date', $orderBy)
-            ->orderBy('end_date', $orderBy);
+        $events = $events->orderBy('created_at', $orderBy);
+        // ->orderBy('start_date', $orderBy);
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
@@ -134,17 +135,24 @@ class EventController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         //
         $event_types = EventType::query()->select('name');
         $artist_types = ArtistType::query()->select('title');
         $service_types = ServicesCategory::query()->select('name');
+        $cities = City::query();
+
+        if ($request->query('city'))  $cities = $cities->where('name', 'LIKE', '%' . $request->query('city') . '%');
+        if ($request->query('event_type')) $event_types = $event_types->where('name', 'LIKE', '%' . $request->query('event_type') . '%');
+        if ($request->query('artist_type')) $artist_types = $artist_types->where('title', 'LIKE', '%' . $request->query('artist_type') . '%');
+        if ($request->query('service_type')) $service_types = $service_types->where('name', 'LIKE', '%' . $request->query('service_type') . '%');
 
         return response()->json([
             'status' => 200,
             'message' => 'Create Event',
             'result'    => [
+                'city'                  => $cities->orderBy('name', 'asc')->limit(10)->get(),
                 // 'event_artist_type'     => ArtistType::orderBy('title', 'ASC')->get(),
                 'event_artist_type'     => array_map('strtolower', $artist_types->orderBy('title', 'ASC')->get()->pluck('title')->toArray()),
                 'event_service_type'    => array_map('strtolower', $service_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray()),
