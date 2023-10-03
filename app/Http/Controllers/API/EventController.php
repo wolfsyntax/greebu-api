@@ -134,17 +134,24 @@ class EventController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         //
         $event_types = EventType::query()->select('name');
         $artist_types = ArtistType::query()->select('title');
         $service_types = ServicesCategory::query()->select('name');
+        $cities = City::query();
+
+        if ($request->query('city'))  $cities = $cities->where('name', 'LIKE', '%' . $request->query('city') . '%');
+        if ($request->query('event_type')) $event_types = $event_types->where('name', 'LIKE', '%' . $request->query('event_type') . '%');
+        if ($request->query('artist_type')) $artist_types = $artist_types->where('title', 'LIKE', '%' . $request->query('artist_type') . '%');
+        if ($request->query('service_type')) $service_types = $service_types->where('name', 'LIKE', '%' . $request->query('service_type') . '%');
 
         return response()->json([
             'status' => 200,
             'message' => 'Create Event',
             'result'    => [
+                'city'                  => $cities->orderBy('name', 'asc')->limit(10)->get(),
                 // 'event_artist_type'     => ArtistType::orderBy('title', 'ASC')->get(),
                 'event_artist_type'     => array_map('strtolower', $artist_types->orderBy('title', 'ASC')->get()->pluck('title')->toArray()),
                 'event_service_type'    => array_map('strtolower', $service_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray()),
