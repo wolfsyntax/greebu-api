@@ -19,6 +19,7 @@ return new class extends Migration
             $table->bigInteger('total_member')->nullable()->default(1);
             $table->longText('cover_letter')->nullable();
             $table->string('sample_song')->nullable()->default('');
+            $table->enum('status', ['pending', 'accepted', 'declined'])->default('pending');
 
             $table->timestamps();
             $table->softDeletes();
