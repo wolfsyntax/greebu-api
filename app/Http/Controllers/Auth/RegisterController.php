@@ -136,6 +136,7 @@ class RegisterController extends Controller
             'zip_code'          => '',
             'province'          => '',
             'is_freeloader'     => $account === 'customers',
+            'last_accessed'     => now(),
             'bucket'            => '',
         ])->assignRole($request->input('account_type'));
 
@@ -195,6 +196,12 @@ class RegisterController extends Controller
 
         $user->save();
 
+        activity()
+            ->performedOn($user)
+            ->withProperties([
+                'profile'    => $userProfiles,
+            ])
+            ->log('User account registration.');
         // event(new Registered($user));
 
         // $user->notify(new EmailVerification($user));

@@ -59,16 +59,16 @@ class EventController extends Controller
         $search = $request->input('search', '');
         $orderBy = $request->input('sortBy', 'DESC');
         $city = $request->input('city', '');
-        $cost = $request->input('cost', 'free');
+        $cost = $request->input('cost', '');
         $event_type = $request->input('event_type', '');
 
         $events = Event::query();
 
-        if ($search !== '') {
+        if ($search) {
             $events = $events->where('event_name', 'LIKE', '%' . $search . '%');
         }
 
-        if ($city !== '') {
+        if ($city) {
             $events = $events->where('city', 'LIKE', '%' . $city . '%');
         }
 
@@ -167,16 +167,16 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        $lookType = ['nullable', 'string', 'max:255',];
+        $lookType = ['nullable', 'array',];
 
         if ($request->input('look_for')) {
 
-            $selection = [
-                'artist'    => array_map('strtolower', ArtistType::select('title')->get()->pluck('title')->toArray()),
-                'service'   => array_map('strtolower', ServicesCategory::select('name')->get()->pluck('name')->toArray()),
-            ];
+            // $selection = [
+            //     'artist'    => array_map('strtolower', ArtistType::select('title')->get()->pluck('title')->toArray()),
+            //     'service'   => array_map('strtolower', ServicesCategory::select('name')->get()->pluck('name')->toArray()),
+            // ];
 
-            $lookType = ['required', 'string', 'max:255', Rule::in($selection[$request->input('look_for')]),];
+            // $lookType = ['required', 'string', 'max:255', Rule::in($selection[$request->input('look_for')]),];
         }
 
         $request->validate([
@@ -201,7 +201,7 @@ class EventController extends Controller
             'status'        => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
             'review_status' => ['nullable', 'in:pending,accepted,rejected',],
             'look_for'      => ['nullable', 'string', 'max:255', 'in:artist,service',],
-            'look_type'     => $lookType,
+            'look_types'     => $lookType,
             'requirement'   => ['nullable', 'string',],
         ], [
             'cover_photo.dimensions'    => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
@@ -239,13 +239,22 @@ class EventController extends Controller
             'status'            => $request->input('status', 'open'),
             'review_status'     => $request->input('review_status', 'accepted'),
             'look_for'          => $request->input('look_for', ''),
-            'look_type'         => $request->input('look_type', ''),
+            // 'look_type'         => $request->input('look_type', ''),
             'requirement'       => $request->input('requirement', ''),
         ]);
 
         if ($request->hasFile('cover_photo')) {
             $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $organizer->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
             $event->save();
+        }
+
+        $event->lookTypes()->delete();
+
+        foreach ($request->input('look_types') as $value) {
+            $event->lookTypes()->create([
+                'look_type' => strtolower($value),
+                'look_for'  => strtolower($request->input('look_for')),
+            ]);
         }
 
         return response()->json([
@@ -279,31 +288,42 @@ class EventController extends Controller
     public function update(Request $request, Event $event)
     {
 
-        $selection = [
-            'artist'    => array_map('strtolower', ArtistType::select('title')->get()->pluck('title')->toArray()),
-            'service'   => array_map('strtolower', ServicesCategory::select('name')->get()->pluck('name')->toArray()),
-        ];
+        $lookType = ['nullable', 'array',];
+
+        if ($request->input('look_for')) {
+
+            // $selection = [
+            //     'artist'    => array_map('strtolower', ArtistType::select('title')->get()->pluck('title')->toArray()),
+            //     'service'   => array_map('strtolower', ServicesCategory::select('name')->get()->pluck('name')->toArray()),
+            // ];
+
+            // $lookType = ['required', 'string', 'max:255', Rule::in($selection[$request->input('look_for')]),];
+        }
 
         $request->validate([
-            'cover_photo'   => ['nullable', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
-            'event_type'    => ['nullable', 'exists:event_types,id',],
-            'event_name'    => ['nullable', 'string', 'max:255',],
-            'location'      => ['nullable', 'string', 'max:255',],
-            'audience'      => ['nullable', 'in:true,false',],
-            'start_date'    => ['nullable', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
-            'end_date'      => ['nullable', 'date', 'after_or_equal:start_date',],
-            'start_time'    => ['nullable', 'date_format:H:i'],
-            'end_time'      => ['nullable', 'date_format:H:i',],
-            'description'   => ['nullable', 'string',],
+            'cover_photo'   => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
+            'event_type'    => ['required', 'string', new EventTypeRule(),], // comment exists if allowed to input custom event type
+            'event_name'    => ['required', 'string', 'max:255',],
+            // 'location'      => ['required', 'string', 'max:255',],
+            'street_address'    => ['required', 'string', 'max:255',],
+            'barangay'          => ['required', 'string', 'max:255',],
+            'city'              => ['required', 'string', 'max:255',],
+            'province'          => ['required', 'string', 'max:255',],
+            'audience'      => ['required', 'in:true,false',],
+            'start_date'    => ['required', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
+            'end_date'      => ['required', 'date', 'after_or_equal:start_date',],
+            'start_time'    => ['required', 'date_format:H:i'],
+            'end_time'      => ['required', 'date_format:H:i',],
+            'description'   => ['required', 'string',],
             'lat'           => ['nullable', 'string', 'regex:/^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
             'long'          => ['nullable', 'string', 'regex:/^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
             'is_featured'   => ['nullable', 'in:true,false',],
             'is_free'       => ['nullable', 'in:true,false',],
             'status'        => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
             'review_status' => ['nullable', 'in:pending,accepted,rejected',],
-            'look_for'      => ['required', 'string', 'max:255', 'in:artist,service',],
-            'look_type'     => ['required', 'string', 'max:255', Rule::in($selection[$request->input('look_for', 'artist')]),],
-            'requirement'   => ['required', 'string',],
+            'look_for'      => ['nullable', 'string', 'max:255', 'in:artist,service',],
+            'look_types'     => $lookType,
+            'requirement'   => ['nullable', 'string',],
         ], [
             'cover_photo.dimensions'    => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
         ]);
@@ -312,11 +332,33 @@ class EventController extends Controller
             $query->where('name', 'organizer');
         })->first();
 
+
         $organizer = \App\Models\Organizer::where('profile_id', $profile->id)->firstOrFail();
 
-        if (!$organizer) abort(404, 'User does not have organizer account.');
+        if (!$organizer) {
+
+            activity()
+                ->performedOn($event)
+                ->withProperties([
+                    'profile'   => $profile,
+                    'user'      => auth()->user(),
+                ])
+                ->log('User does not have organizer account.');
+
+            abort(404, 'User does not have organizer account.');
+        }
 
         if (!$event->where('organizer_id', $organizer->id)->first()) {
+
+            activity()
+                ->performedOn($event)
+                ->withProperties([
+                    'organizer' => $organizer,
+                    'profile'   => $profile,
+                    'user'      => auth()->user(),
+                ])
+                ->log('Organizer is not the event creator.');
+
             abort(403, 'Organizer is not the event creator.');
         }
 
@@ -340,10 +382,31 @@ class EventController extends Controller
         if ($request->has('status')) $event->status = $request->input('status');
         if ($request->has('review_status')) $event->review_status = $request->input('review_status');
         if ($request->has('look_for')) $event->look_for = $request->input('look_fo');
-        if ($request->has('look_type')) $event->look_type = $request->input('look_type');
+        // if ($request->has('look_type')) $event->look_type = $request->input('look_type');
         if ($request->has('requirement')) $event->requirement = $request->input('requirement');
 
         $event->save();
+
+        if ($request->has('look_type')) $event->look_type = $request->input('look_type');
+
+        $event->lookTypes()->delete();
+
+        foreach ($request->input('look_types') as $value) {
+            $event->lookTypes()->create([
+                'look_type' => strtolower($value),
+                'look_for'  => strtolower($request->input('look_for')),
+            ]);
+        }
+
+        activity()
+            ->performedOn($event)
+            ->withProperties([
+                'look_types'    => $event->lookTypes()->get(),
+                'organizer'     => $organizer,
+                'profile'       => $profile,
+                'user'          => auth()->user(),
+            ])
+            ->log('Event successfully updated.');
 
         return response()->json([
             'status'        => 200,

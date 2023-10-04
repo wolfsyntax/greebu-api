@@ -39,12 +39,14 @@ class EventResource extends JsonResource
             }
         }
 
+        // return parent::toArray($request);
+
         return [
             'id'                => $this->id,
             'organizer_avatar'  => $avatar,
             'organizer_name'    => $this->organizer->profile->business_name ?? '',
             'organizer_id'      => $this->organizer_id,
-            'event_types_id'    => $this->event_types_id,
+            'event_type'        => $this->event_type,
             'cover_photo'       => $cover,
             'event_name'        => $this->event_name,
             'location'          => $this->location,
@@ -69,8 +71,7 @@ class EventResource extends JsonResource
             'look_for'          => $this->look_for,
             'look_type'         => $this->look_type,
             'requirement'       => $this->requirement,
-            'organizer'         => Organizer::find($this->organizer_id),
-            'event_type'        => EventType::find($this->event_types_id),
+
         ];
         return parent::toArray($request);
     }

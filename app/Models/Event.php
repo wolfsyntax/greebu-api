@@ -30,7 +30,7 @@ class Event extends Model
         'is_featured', 'is_free',
         'status', 'review_status',
         // What are you looking for?
-        'look_for', 'look_type', 'requirement',
+        'look_for', /*'look_type',*/ 'requirement',
     ];
 
     protected $appends = [
@@ -62,7 +62,7 @@ class Event extends Model
         'status'            => 'string',
         'review_status'     => 'string',
         'look_for'          => 'string',
-        'look_type'         => 'string',
+        // 'look_type'         => 'string',
         'requirement'       => 'string',
         'street_address'    => 'string',
         'barangay'          => 'string',
@@ -85,7 +85,7 @@ class Event extends Model
         'status'            => 'draft',
         'review_status'     => 'accepted',
         'look_for'          => '',
-        'look_type'         => '',
+        // 'look_type'         => '',
         'requirement'      => '',
         'street_address'    => 'string',
         'barangay'          => 'string',
@@ -111,5 +111,10 @@ class Event extends Model
     public function organizer()
     {
         return $this->belongsTo(Organizer::class);
+    }
+
+    public function lookTypes()
+    {
+        return $this->hasMany(LookType::class);
     }
 }
