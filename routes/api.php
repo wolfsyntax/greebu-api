@@ -28,6 +28,7 @@ use App\Http\Controllers\PostController;
 use App\Models\Subscription;
 use App\Http\Controllers\Admin\CountryController as AdminCountryController;
 use App\Http\Controllers\API\EventController;
+use App\Http\Controllers\API\ProposalController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\NetworkController;
 use App\Http\Controllers\SongController;
@@ -145,7 +146,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     });
     Route::post('/logout', [LoginController::class, 'logout']);
     Route::post('/artists-filter', [ArtistController::class, 'index']);
-
+    Route::apiResource('artist-proposal', ProposalController::class);
     Route::resource('artists', ArtistController::class)->except(['index']);
     Route::post('/artists/member', [ArtistController::class, 'members']);
     Route::get('/artists/{artist}/member/{member}', [ArtistController::class, 'memberInfo']);

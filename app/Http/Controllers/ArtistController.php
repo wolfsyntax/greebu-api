@@ -28,6 +28,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\Libraries\AwsService;
 
 use App\Events\UpdateMember;
+use Faker\Provider\HtmlLorem;
+use Faker\Provider\Lorem;
 
 class ArtistController extends Controller
 {
@@ -63,7 +65,6 @@ class ArtistController extends Controller
             'genre'         => ['nullable', 'string',],
             'search'        => ['nullable', 'string',],
         ]);
-
 
         $genre = strtolower($request->input('genre', ''));
         $artist_type = strtolower($request->input('artist_type', ''));

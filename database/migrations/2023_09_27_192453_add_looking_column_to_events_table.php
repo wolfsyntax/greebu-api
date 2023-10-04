@@ -30,7 +30,6 @@ return new class extends Migration
     {
         Schema::table('events', function (Blueprint $table) {
             $table->dropColumn('look_for');
-            $table->dropColumn('look_type');
             $table->dropColumn('requirement');
             $table->dropColumn('street_address');
             $table->dropColumn('barangay');
