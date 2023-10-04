@@ -39,6 +39,7 @@ class EventResource extends JsonResource
             }
         }
 
+        $seeking = \App\Models\LookType::select('look_type')->where('event_id', $this->id)->get()->pluck('look_type');
         // return parent::toArray($request);
 
         return [
@@ -69,7 +70,7 @@ class EventResource extends JsonResource
             'review_status'     => $this->review_status,
             // What are you looking for?
             'look_for'          => $this->look_for,
-            'look_type'         => $this->look_type,
+            'look_types'        => $seeking,
             'requirement'       => $this->requirement,
 
         ];
