@@ -28,14 +28,14 @@ class EventResource extends JsonResource
         } else {
             $avatar_host = parse_url($avatar);
             if (!array_key_exists('host', $avatar_host)) {
-                $avatar = $service->get_aws_object($this->avatar);
+                $avatar = $service->get_aws_object($avatar);
             }
         }
 
         if ($cover) {
             $cover_host = parse_url($cover);
             if (!array_key_exists('host', $cover_host)) {
-                $cover = $service->get_aws_object($this->cover);
+                $cover = $service->get_aws_object($cover);
             }
         }
 

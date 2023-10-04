@@ -249,14 +249,14 @@ class EventController extends Controller
         }
 
         $event->lookTypes()->delete();
-
-        foreach ($request->input('look_types') as $value) {
-            $event->lookTypes()->create([
-                'look_type' => strtolower($value),
-                'look_for'  => strtolower($request->input('look_for')),
-            ]);
+        if ($request->has('look_types')) {
+            foreach ($request->input('look_types') as $value) {
+                $event->lookTypes()->create([
+                    'look_type' => strtolower($value),
+                    'look_for'  => strtolower($request->input('look_for')),
+                ]);
+            }
         }
-
         return response()->json([
             'status'        => 201,
             'message'       => 'Event successfully created.',
