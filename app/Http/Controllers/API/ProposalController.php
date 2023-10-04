@@ -35,7 +35,7 @@ class ProposalController extends Controller
         $request->validate([
             'event_id'      => ['required', 'exists:events,id',],
             'total_member'  => ['required', 'integer', 'min:1',],
-            'cover_letter'  => ['required', 'string',],
+            'cover_letter'  => ['required', 'string', 'max:500',],
         ]);
 
         $data = $request->only(['event_id', 'total_member', 'cover_letter',]);
