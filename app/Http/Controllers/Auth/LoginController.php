@@ -109,6 +109,9 @@ class LoginController extends Controller
                 ], 203);
             }
 
+            $profile->last_accessed = now();
+            $profile->save();
+
             $role = $profile->roles->first()->name ?? 'customers';
 
             $account = null;
@@ -127,6 +130,14 @@ class LoginController extends Controller
 
             $user->last_login = now();
             $user->save();
+
+            activity()
+                ->performedOn($user)
+                ->withProperties([
+                    'profile'    => $profile,
+                    'account'   => $account,
+                ])
+                ->log('Login Successfully.');
 
             return response()->json([
                 'status'        => 200,

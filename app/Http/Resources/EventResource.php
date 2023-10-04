@@ -28,23 +28,26 @@ class EventResource extends JsonResource
         } else {
             $avatar_host = parse_url($avatar);
             if (!array_key_exists('host', $avatar_host)) {
-                $avatar = $service->get_aws_object($this->avatar);
+                $avatar = $service->get_aws_object($avatar);
             }
         }
 
         if ($cover) {
             $cover_host = parse_url($cover);
             if (!array_key_exists('host', $cover_host)) {
-                $cover = $service->get_aws_object($this->cover);
+                $cover = $service->get_aws_object($cover);
             }
         }
+
+        $seeking = \App\Models\LookType::select('look_type')->where('event_id', $this->id)->get()->pluck('look_type');
+        // return parent::toArray($request);
 
         return [
             'id'                => $this->id,
             'organizer_avatar'  => $avatar,
             'organizer_name'    => $this->organizer->profile->business_name ?? '',
             'organizer_id'      => $this->organizer_id,
-            'event_types_id'    => $this->event_types_id,
+            'event_type'        => $this->event_type,
             'cover_photo'       => $cover,
             'event_name'        => $this->event_name,
             'location'          => $this->location,
@@ -67,10 +70,9 @@ class EventResource extends JsonResource
             'review_status'     => $this->review_status,
             // What are you looking for?
             'look_for'          => $this->look_for,
-            'look_type'         => $this->look_type,
+            'look_types'        => $seeking,
             'requirement'       => $this->requirement,
-            'organizer'         => Organizer::find($this->organizer_id),
-            'event_type'        => EventType::find($this->event_types_id),
+
         ];
         return parent::toArray($request);
     }
