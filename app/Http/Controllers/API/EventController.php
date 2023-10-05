@@ -65,7 +65,7 @@ class EventController extends Controller
         $events = Event::query();
 
         if ($search) {
-            $events = $events->where('event_name', 'LIKE', '%' . $search . '%');
+            $events = $events->where('event_name', 'LIKE', '%' . $search . '%')->where('venue_name', 'LIKE', '%' . $search . '%');
         }
 
         if ($city) {
@@ -183,6 +183,7 @@ class EventController extends Controller
             'cover_photo'   => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
             'event_type'    => ['required', 'string', new EventTypeRule(),], // comment exists if allowed to input custom event type
             'event_name'    => ['required', 'string', 'max:255',],
+            'venue_name'    => ['required', 'string', 'max:255',],
             // 'location'      => ['required', 'string', 'max:255',],
             'street_address'    => ['required', 'string', 'max:255',],
             'barangay'          => ['required', 'string', 'max:255',],
@@ -221,6 +222,7 @@ class EventController extends Controller
             'cover_photo'       => '', //$request->input('cover_photo'),
             'event_type'        => $request->input('event_type'),
             'event_name'        => $request->input('event_name'),
+            'venue_name'        => $request->input('venue_name'),
             // 'location'          => $request->input('location'),
             'street_address'    => $request->input('street_address'),
             'barangay'          => $request->input('barangay'),
@@ -304,6 +306,7 @@ class EventController extends Controller
             'cover_photo'   => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
             'event_type'    => ['required', 'string', new EventTypeRule(),], // comment exists if allowed to input custom event type
             'event_name'    => ['required', 'string', 'max:255',],
+            'venue_name'    => ['required', 'string', 'max:255',],
             // 'location'      => ['required', 'string', 'max:255',],
             'street_address'    => ['required', 'string', 'max:255',],
             'barangay'          => ['required', 'string', 'max:255',],
@@ -368,6 +371,7 @@ class EventController extends Controller
 
         if ($request->has('event_type')) $event->event_types_id = $request->input('event_type');
         if ($request->has('event_name')) $event->event_name = $request->input('event_name');
+        if ($request->has('venue_name')) $event->venue_name = $request->input('venue_name');
         if ($request->has('location')) $event->location = $request->input('location');
         if ($request->has('audience')) $event->audience = $request->input('audience');
         if ($request->has('start_date')) $event->start_date = $request->input('start_date');

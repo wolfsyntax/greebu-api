@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('events', function (Blueprint $table) {
             $table->string('look_for')->nullable()->default('')->after('description');
             // $table->string('look_type')->nullable()->default('')->after('look_for');
+            $table->string('venue_name')->after('event_name')->nullable()->default('');
             $table->longText('requirement')->nullable()->after('description');
             // Venue address
             $table->longText('street_address')->nullable()->after('event_name')->comment('Unit/Floor No. Premises/Bldg. Name, House/Bldg. No., Street Name');
