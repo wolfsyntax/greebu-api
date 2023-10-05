@@ -102,7 +102,7 @@ class Event extends Model
      */
     public function getLocationAttribute(): string
     {
-        return $this->street_address . ',' . $this->barangay . ',' . $this->city . ',' . $this->province;
+        return $this->street_address . ', ' . $this->barangay . ', ' . $this->city . ', ' . $this->province;
     }
 
     // public function eventType()
