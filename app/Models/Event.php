@@ -20,7 +20,7 @@ class Event extends Model
      */
     protected $fillable = [
         'organizer_id', 'event_type',
-        'cover_photo', 'event_name',
+        'cover_photo', 'event_name', 'venue_name',
         // 'location',
         'street_address', 'barangay', 'city', 'province',
         'audience', 'start_date', 'end_date',
@@ -68,12 +68,14 @@ class Event extends Model
         'barangay'          => 'string',
         'city'              => 'string',
         'province'          => 'string',
+        'venue_name'        => 'string',
     ];
 
     protected $attributes = [
         // 'cover_photo'       => '',
         'event_name'        => '',
         'event_type'        => '',
+        'venue_name'        => '',
         // 'location'          => '',
         'audience'          => true,
         'description'       => '',

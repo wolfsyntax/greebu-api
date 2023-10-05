@@ -51,6 +51,7 @@ class EventResource extends JsonResource
             'event_type'        => $this->event_type,
             'cover_photo'       => $cover,
             'event_name'        => $this->event_name,
+            'venue_name'        => $this->venue_name,
             'location'          => $this->location,
             'street_address'    => $this->street_address,
             'barangay'          => $this->barangay,
