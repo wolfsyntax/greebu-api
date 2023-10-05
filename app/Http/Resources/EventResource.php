@@ -46,6 +46,7 @@ class EventResource extends JsonResource
             'id'                => $this->id,
             'organizer_avatar'  => $avatar,
             'organizer_name'    => $this->organizer->profile->business_name ?? '',
+            'organizer_company' => $this->organizer->company_name ?? '',
             'organizer_id'      => $this->organizer_id,
             'event_type'        => $this->event_type,
             'cover_photo'       => $cover,
@@ -72,7 +73,7 @@ class EventResource extends JsonResource
             'look_for'          => $this->look_for,
             'look_types'        => $seeking,
             'requirement'       => $this->requirement,
-
+            'created_at'        => $this->created_at,
         ];
         return parent::toArray($request);
     }
