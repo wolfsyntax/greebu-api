@@ -55,6 +55,7 @@ class ProposalController extends Controller
         $proposal = ArtistProposal::create($data);
 
         return response()->json([
+            'status'        => 201,
             'message'       => 'Artist proposal successfully created.',
             'result'        => [
                 'proposal'  => $proposal,
