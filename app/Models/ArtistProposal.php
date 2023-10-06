@@ -16,7 +16,7 @@ class ArtistProposal extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'event_id', 'artist_id', 'total_member', 'cover_letter',
+        'event_id', 'artist_id', 'total_member', 'cover_letter', 'accepted_at', 'declined_at',
     ];
 
     protected $appends = [];

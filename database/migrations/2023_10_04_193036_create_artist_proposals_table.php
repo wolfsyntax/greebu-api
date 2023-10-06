@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('sample_song')->nullable()->default('');
             $table->enum('status', ['pending', 'accepted', 'declined'])->default('pending');
 
+            $table->timestamp('accepted_at')->nullable();
+            $table->timestamp('declined_at')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });

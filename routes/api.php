@@ -144,6 +144,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
         Route::get('user-details', [UserController::class, 'profile']);
     });
+
     Route::post('/logout', [LoginController::class, 'logout']);
     Route::post('/artists-filter', [ArtistController::class, 'index']);
     Route::apiResource('artist-proposal', ProposalController::class);
@@ -199,6 +200,9 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::get('song-requests/create', [SongController::class, 'create']);
 
     Route::apiResource('song-requests', SongController::class);
+
+    Route::post('/organizer/{proposal}/accept-proposal', [ProposalController::class, 'organizerAccept']);
+    Route::post('/organizer/{proposal}/decline-proposal', [ProposalController::class, 'organizerDecline']);
 
     Route::get('/organizer/staff', [OrganizerController::class, 'staff']);
     Route::post('/organizer/staff', [OrganizerController::class, 'addStaff']);

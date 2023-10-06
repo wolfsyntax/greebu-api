@@ -46,7 +46,7 @@ class Handler extends ExceptionHandler
             if ($request->is('api/*')) {
                 return response()->json([
                     'status'    => 404,
-                    'message'   => 'Page not found.',
+                    'message'   => $e->getMessage(),
                     'result'    => [],
                 ], 203);
             }
