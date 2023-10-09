@@ -101,11 +101,18 @@ Route::post('/email/resend/{user}', [VerificationController::class, 'resend']); 
 
 Route::get('organizer/forms', [OrganizerController::class, 'create']);
 
-Route::get('events', [EventController::class, 'index']);
+
 Route::get('events/create', [EventController::class, 'create']);
 
+Route::controller(EventController::class)->group(function () {
+    Route::get('/events', 'index');
+});
+
+Route::get('events-list', [EventController::class, 'index']);
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
+
+    Route::get('events', [EventController::class, 'index'])->middleware(['role:artists|organizer']);
 
     Route::get('/', function () {
         if (auth()->user()) {
@@ -237,10 +244,6 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
     Route::post('phone/send', [UserController::class, 'phone']);
     Route::post('phone/verify', [UserController::class, 'phoneVerify2']);
-});
-
-Route::controller(EventController::class)->group(function () {
-    Route::get('/events', 'index');
 });
 
 Route::get('fetch/{path}', function ($path) {

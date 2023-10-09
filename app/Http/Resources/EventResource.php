@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\Organizer;
 use App\Models\EventType;
+use App\Models\Profile;
+
 use App\Libraries\AwsService;
 
 class EventResource extends JsonResource
@@ -39,8 +41,15 @@ class EventResource extends JsonResource
             }
         }
 
-        $seeking = \App\Models\LookType::select('look_type')->where('event_id', $this->id)->get()->pluck('look_type');
-        // return parent::toArray($request);
+        $seeking = \App\Models\LookType::select('look_type')->where('event_id', $this->id)->get()->map->look_type;
+
+        $accept_proposal = false;
+
+        if (auth()->user()) {
+            $userId = auth()->id();
+            $profile = Profile::myAccount('artists')->first();
+            if ($profile) $accept_proposal = true;
+        }
 
         return [
             'id'                => $this->id,
@@ -75,6 +84,7 @@ class EventResource extends JsonResource
             'look_types'        => $seeking,
             'requirement'       => $this->requirement,
             'created_at'        => $this->created_at,
+            'accept_proposal'   => $this->when($accept_proposal, $this->organizer->accept_proposal),
         ];
         return parent::toArray($request);
     }

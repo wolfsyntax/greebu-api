@@ -63,4 +63,14 @@ class Organizer extends Model
     {
         return $this->hasMany(OrganizerStaff::class);
     }
+
+    /**
+     * Get all of the events created by Organizer
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
+    }
 }
