@@ -30,4 +30,24 @@ class ArtistProposal extends Model
     {
         return $this->belongsTo(Artist::class);
     }
+
+    public function scopeFilterBy($query, $filter)
+    {
+        return $query->where('status', $filter);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeAccepted($query)
+    {
+        return $query->where('status', 'accepted');
+    }
+
+    public function scopeDeclined($query)
+    {
+        return $query->where('status', 'declined');
+    }
 }

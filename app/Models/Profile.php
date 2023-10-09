@@ -105,4 +105,18 @@ class Profile extends Model
     {
         return $this->belongsToMany(Profile::class, 'followers', 'follower_id', 'following_id')->withTimestamps();
     }
+
+    public function scopeAccount($query, string $role)
+    {
+        return $query->whereHas('roles', function ($query) use ($role) {
+            $query->where('name', 'LIKE', '%' . $role . '%');
+        });
+    }
+
+    public function scopeMyAccount($query, string $role)
+    {
+        return $query->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
+            $query->where('name', 'LIKE', '%' . $role . '%');
+        });
+    }
 }

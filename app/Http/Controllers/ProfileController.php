@@ -71,9 +71,7 @@ class ProfileController extends Controller
 
         $role = $request->input('role');
 
-        $profile = Profile::where('user_id', $user->id)->whereHas('roles', function ($query) use ($role) {
-            $query->where('name', 'LIKE', '%' . $role . '%');
-        })->first();
+        $profile = Profile::myAccount($role)->first();
 
         $data = [];
 

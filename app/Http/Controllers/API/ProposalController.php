@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ArtistProposalCollection;
+// use App\Http\Resources\ArtistProposalCollection;
+use App\Http\Resources\ArtistProposalResource;
+use App\Http\Resources\ProfileResource;
 use Illuminate\Http\Request;
 
 use Illuminate\Pagination\LengthAwarePaginator;
+
 
 use App\Models\Event;
 use App\Models\Artist;
@@ -55,34 +58,31 @@ class ProposalController extends Controller
 
         $role = $request->query('role');
 
-        $profile = \App\Models\Profile::where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
-            $query->where('name', 'LIKE', '%' . $role . '%');
-        })->first();
+        $profile = \App\Models\Profile::myAccount($request->query('role'))->first();
 
         if (!$profile) abort(404, 'User profile not found.');
-
 
         $proposals = ArtistProposal::query();
 
         if ($role === 'artists') {
             $account = Artist::where('profile_id', $profile->id)->first();
-            $proposals = $proposals->where('artist_id', $account->id)->where('status', $filterBy)
+            $proposals = $proposals->where('artist_id', $account->id)->filterBy($filterBy)
                 ->orderBy('created_at', $orderBy)
                 ->skip($offset)
                 ->take($perPage)
                 ->get();
 
-            $proposals = new ArtistProposalCollection($proposals);
+            $proposals = ArtistProposalResource::collection($proposals);
         } else {
             $account = Organizer::where('profile_id', $profile->id)->first();
             $events = Event::where('organizer_id', $account->id)->get()->pluck('id');
-            $proposals = $proposals->whereIn('event_id', $events)->where('status', $filterBy)
+            $proposals = $proposals->whereIn('event_id', $events)->filterBy($filterBy)
                 ->orderBy('created_at', $orderBy)
                 ->skip($offset)
                 ->take($perPage)
                 ->get();
 
-            $proposals = new ArtistProposalCollection($proposals);
+            $proposals = ArtistProposalResource::collection($proposals);
         }
 
         return response()->json([
@@ -146,9 +146,7 @@ class ProposalController extends Controller
 
         $role = $request->query('role');
 
-        $profile = \App\Models\Profile::where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
-            $query->where('name', 'LIKE', '%' . $role . '%');
-        })->first();
+        $profile = \App\Models\Profile::myAccount($request->query('role'))->first();
 
         if (!$profile) abort(404, 'User profile not found.');
 
@@ -176,9 +174,7 @@ class ProposalController extends Controller
 
         $data = $request->only(['event_id', 'total_member', 'cover_letter',]);
 
-        $profile = Profile::where('user_id', auth()->user()->id)->whereHas('roles', function ($query) {
-            $query->where('name', 'artists');
-        })->first();
+        $profile = Profile::myAccount('artists')->first();
 
         $artist = Artist::where('profile_id', $profile->id)->first();
 

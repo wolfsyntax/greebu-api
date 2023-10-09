@@ -37,8 +37,12 @@ class EventController extends Controller
     public function __construct()
     {
         $this->middleware(['role:organizer'])->only([
-            'store', 'update', 'destroy',
+            'store', 'update', 'destroy', 'verifyEvent',
         ]);
+
+        // $this->middleware(['role:artists|organizer'])->only([
+        //     'index',
+        // ]);
 
         $this->services = new AwsService();
     }
@@ -47,6 +51,7 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
+
         // Event Filters
         $request->validate([
             'search'        => ['nullable', 'string', 'max:255',],
@@ -95,9 +100,9 @@ class EventController extends Controller
         if (auth()->check()) {
 
             $data = [
-                'events'        => new EventCollection($events->skip($offset)->take($perPage)->get()),
+                'events'        => EventResource::collection($events->skip($offset)->take($perPage)->get()),
                 'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-                'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->pluck('name'),
+                'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
                 'pagination'    => [
                     'total'     => $events->count(),
                     'last_page' => ceil($events->count() / $perPage),
@@ -111,9 +116,9 @@ class EventController extends Controller
         } else {
 
             $data = [
-                'events'        => new EventCollection($events->skip($offset)->take($perPage)->get()),
+                'events'        => EventResource::collection($events->skip($offset)->take($perPage)->get()),
                 'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-                'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->pluck('name'),
+                'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
                 'pagination'    => [
                     'total'     => $events->count(),
                     'last_page' => ceil($events->count() / $perPage),
@@ -154,9 +159,9 @@ class EventController extends Controller
             'result'    => [
                 'city'                  => $cities->orderBy('name', 'asc')->limit(10)->get(),
                 // 'event_artist_type'     => ArtistType::orderBy('title', 'ASC')->get(),
-                'event_artist_type'     => array_map('strtolower', $artist_types->orderBy('title', 'ASC')->get()->pluck('title')->toArray()),
-                'event_service_type'    => array_map('strtolower', $service_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray()),
-                'event_types'           => $event_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray(), //$event_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray(), // array_map('strtolower', $event_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray()),
+                'event_artist_type'     => array_map('strtolower', $artist_types->orderBy('title', 'ASC')->get()->map->title->toArray()),
+                'event_service_type'    => array_map('strtolower', $service_types->orderBy('name', 'ASC')->get()->map->name->toArray()),
+                'event_types'           => $event_types->orderBy('name', 'ASC')->get()->map->name->toArray(), //$event_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray(), // array_map('strtolower', $event_types->orderBy('name', 'ASC')->get()->pluck('name')->toArray()),
                 'event_pricing'         => EventPricing::all(),
             ],
         ]);
@@ -180,37 +185,35 @@ class EventController extends Controller
         }
 
         $request->validate([
-            'cover_photo'   => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
-            'event_type'    => ['required', 'string', new EventTypeRule(),], // comment exists if allowed to input custom event type
-            'event_name'    => ['required', 'string', 'max:255',],
-            'venue_name'    => ['required', 'string', 'max:255',],
+            'cover_photo'       => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
+            'event_type'        => ['required', 'string', new EventTypeRule(),], // comment exists if allowed to input custom event type
+            'event_name'        => ['required', 'string', 'max:255',],
+            'venue_name'        => ['required', 'string', 'max:255',],
             // 'location'      => ['required', 'string', 'max:255',],
             'street_address'    => ['required', 'string', 'max:255',],
             'barangay'          => ['required', 'string', 'max:255',],
             'city'              => ['required', 'string', 'max:255',],
             'province'          => ['required', 'string', 'max:255',],
-            'audience'      => ['required', 'in:true,false',],
-            'start_date'    => ['required', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
-            'end_date'      => ['required', 'date', 'after_or_equal:start_date',],
-            'start_time'    => ['required', 'date_format:H:i'],
-            'end_time'      => ['required', 'date_format:H:i',],
-            'description'   => ['required', 'string',],
-            'lat'           => ['nullable', 'string', 'regex:/^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
-            'long'          => ['nullable', 'string', 'regex:/^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
-            'is_featured'   => ['nullable', 'in:true,false',],
-            'is_free'       => ['nullable', 'in:true,false',],
-            'status'        => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
-            'review_status' => ['nullable', 'in:pending,accepted,rejected',],
-            'look_for'      => ['nullable', 'string', 'max:255', 'in:artist,service',],
-            'look_types'     => $lookType,
-            'requirement'   => ['nullable', 'string',],
+            'audience'          => ['required', 'in:true,false',],
+            'start_date'        => ['required', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
+            'end_date'          => ['required', 'date', 'after_or_equal:start_date',],
+            'start_time'        => ['required', 'date_format:H:i'],
+            'end_time'          => ['required', 'date_format:H:i',],
+            'description'       => ['required', 'string',],
+            'lat'               => ['nullable', 'string', 'regex:/^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
+            'long'              => ['nullable', 'string', 'regex:/^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
+            'is_featured'       => ['nullable', 'in:true,false',],
+            'is_free'           => ['nullable', 'in:true,false',],
+            'status'            => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
+            'review_status'     => ['nullable', 'in:pending,accepted,rejected',],
+            'look_for'          => ['nullable', 'string', 'max:255', 'in:artist,service',],
+            'look_types'        => $lookType,
+            'requirement'       => ['nullable', 'string',],
         ], [
             'cover_photo.dimensions'    => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
         ]);
 
-        $profile = \App\Models\Profile::where('user_id', auth()->user()->id)->whereHas('roles', function ($query) {
-            $query->where('name', 'organizer');
-        })->first();
+        $profile = \App\Models\Profile::myAccount('organizer')->first();
 
 
         $organizer = \App\Models\Organizer::where('profile_id', $profile->id)->firstOrFail();
@@ -501,8 +504,8 @@ class EventController extends Controller
         if ($request->input('look_for')) {
 
             $selection = [
-                'artist'    => array_map('strtolower', ArtistType::select('title')->get()->pluck('title')->toArray()),
-                'service'   => array_map('strtolower', ServicesCategory::select('name')->get()->pluck('name')->toArray()),
+                'artist'    => array_map('strtolower', ArtistType::select('title')->get()->map->title->toArray()),
+                'service'   => array_map('strtolower', ServicesCategory::select('name')->get()->map->name->toArray()),
             ];
 
             $lookType = ['nullable', 'string', 'max:255', Rule::in($selection[$request->input('look_for', 'artist')]),];
@@ -517,21 +520,21 @@ class EventController extends Controller
             'barangay'          => ['required', 'string', 'max:255',],
             'city'              => ['required', 'string', 'max:255',],
             'province'          => ['required', 'string', 'max:255',],
-            'audience'      => ['required', 'in:true,false',],
-            'start_date'    => ['required', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
-            'end_date'      => ['required', 'date', 'after_or_equal:start_date',],
-            'start_time'    => ['required', 'date_format:H:i'],
-            'end_time'      => ['required', 'date_format:H:i',],
-            'description'   => ['required', 'string',],
-            'lat'           => ['nullable', 'string', 'regex:/^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
-            'long'          => ['nullable', 'string', 'regex:/^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
-            'is_featured'   => ['nullable', 'in:true,false',],
-            'is_free'       => ['nullable', 'in:true,false',],
-            'status'        => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
-            'review_status' => ['nullable', 'in:pending,accepted,rejected',],
-            'look_for'      => ['nullable', 'string', 'max:255', 'in:artist,service',],
-            'look_type'     => $lookType,
-            'requirement'   => ['nullable', 'string',],
+            'audience'          => ['required', 'in:true,false',],
+            'start_date'        => ['required', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
+            'end_date'          => ['required', 'date', 'after_or_equal:start_date',],
+            'start_time'        => ['required', 'date_format:H:i'],
+            'end_time'          => ['required', 'date_format:H:i',],
+            'description'       => ['required', 'string',],
+            'lat'               => ['nullable', 'string', 'regex:/^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
+            'long'              => ['nullable', 'string', 'regex:/^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
+            'is_featured'       => ['nullable', 'in:true,false',],
+            'is_free'           => ['nullable', 'in:true,false',],
+            'status'            => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
+            'review_status'     => ['nullable', 'in:pending,accepted,rejected',],
+            'look_for'          => ['nullable', 'string', 'max:255', 'in:artist,service',],
+            'look_type'         => $lookType,
+            'requirement'       => ['nullable', 'string',],
         ], [
             'cover_photo.dimensions'    => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
         ]);
