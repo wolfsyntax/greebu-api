@@ -144,7 +144,9 @@ class LoginController extends Controller
                 'message'       => 'Login Successfully.',
                 'result'        => [
                     'profile'   => new ProfileResource($profile),
+                    'profile_notification'  => $profile->unreadNotifications,
                     'user'      => $user,
+                    'user_notification' => $user->unreadNotifications,
                     'account'   => $account,
                     'token'     => $user->createToken("user_auth")->accessToken,
                     'roles'     => $userRoles,

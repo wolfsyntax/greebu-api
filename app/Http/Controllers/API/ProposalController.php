@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ArtistProposalResource;
 use App\Http\Resources\ProfileResource;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Notification;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -16,6 +17,7 @@ use App\Models\Artist;
 use App\Models\Organizer;
 use App\Models\Profile;
 use App\Models\ArtistProposal;
+use App\Notifications\CreateProposalNotification;
 
 class ProposalController extends Controller
 {
@@ -186,11 +188,15 @@ class ProposalController extends Controller
 
         $proposal = ArtistProposal::create($data);
 
+        $organizer_profile = $proposal->event->organizer->profile;
+        $organizer_profile->notify(new CreateProposalNotification($proposal));
+
         return response()->json([
             'status'        => 201,
             'message'       => 'Artist proposal successfully created.',
             'result'        => [
                 'proposal'  => $proposal,
+                'org'       => $organizer_profile,
             ]
         ]);
     }
