@@ -8,7 +8,7 @@ use App\Http\Resources\ArtistProposalResource;
 use App\Http\Resources\ProfileResource;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notification;
-
+use App\Events\NotificationCreated;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 
@@ -103,6 +103,8 @@ class ProposalController extends Controller
         $proposal->accepted_at = now();
         $proposal->save();
 
+        if (!app()->isProduction()) broadcast(new NotificationCreated($proposal->artist->profile));
+
         return response()->json([
             'status'    => 200,
             'message'   => 'Artist Proposal successfully accepted.',
@@ -118,6 +120,8 @@ class ProposalController extends Controller
         $proposal->status = 'declined';
         $proposal->declined_at = now();
         $proposal->save();
+
+        if (!app()->isProduction()) broadcast(new NotificationCreated($proposal->artist->profile));
 
         return response()->json([
             'status'    => 200,
@@ -190,6 +194,8 @@ class ProposalController extends Controller
 
         $organizer_profile = $proposal->event->organizer->profile;
         $organizer_profile->notify(new CreateProposalNotification($proposal));
+
+        if (!app()->isProduction()) broadcast(new NotificationCreated($organizer_profile));
 
         return response()->json([
             'status'        => 201,

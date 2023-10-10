@@ -27,8 +27,8 @@ class NotificationController extends Controller
             'status'    => 200,
             'message'   => '',
             'result'    => [
-                'user'      => $profile->user->unreadNotifications,
-                'profile'   => $profile->unreadNotifications,
+                'user_notification'      => $profile->user->unreadNotifications,
+                'profile_notification'   => $profile->unreadNotifications,
             ],
         ]);
     }

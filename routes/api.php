@@ -118,7 +118,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::get('debug-pusher', function (Request $request) {
 
-        $profile = \App\Models\Profile::myAccount($request->query('role'))->first();
+        $profile = \App\Models\Profile::myAccount($request->query('role', 'artists'))->first();
         broadcast(new \App\Events\NotificationCreated($profile));
 
         return response()->json([
