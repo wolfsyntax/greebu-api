@@ -51,6 +51,7 @@ class CreateProposalNotification extends Notification implements ShouldQueue
     {
 
         return [
+            'event'     => $this->proposal->event,
             'proposal' => $this->proposal->id,
             'artist' => $this->proposal->artist->profile->business_name,
             'organizer' => $this->proposal->event->organizer->profile->id,
@@ -59,8 +60,12 @@ class CreateProposalNotification extends Notification implements ShouldQueue
 
     public function toDatabase($notifiable)
     {
+        $event = $this->proposal->event;
+        $artist_profile = $this->proposal->artist->profile;
+
         return [
-            'message' => 'You have been added to the studio'
+            'message' => $artist_profile->business_name . ' has sent a proposal for ' . $event->event_name,
+            'proposal_id' => $this->proposal->id,
         ];
     }
 }

@@ -196,7 +196,7 @@ class ProposalController extends Controller
             'message'       => 'Artist proposal successfully created.',
             'result'        => [
                 'proposal'  => $proposal,
-                'org'       => $organizer_profile,
+                'organizer' => $organizer_profile,
             ]
         ]);
     }

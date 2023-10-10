@@ -28,6 +28,7 @@ use App\Http\Controllers\PostController;
 use App\Models\Subscription;
 use App\Http\Controllers\Admin\CountryController as AdminCountryController;
 use App\Http\Controllers\API\EventController;
+use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ProposalController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\NetworkController;
@@ -75,6 +76,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('user-notification', function (Request $request, $role = 'artists') {
+});
+
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 
 Route::post('/password/confirm', [ConfirmPasswordController::class, 'confirm']);
@@ -112,6 +116,20 @@ Route::get('events-list', [EventController::class, 'index']);
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
+    Route::get('debug-pusher', function (Request $request) {
+
+        $profile = \App\Models\Profile::myAccount($request->query('role'))->first();
+        broadcast(new \App\Events\NotificationCreated($profile));
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => '',
+            'result'    => [
+                'profile'   => $profile,
+            ]
+        ]);
+    });
+
     Route::get('events', [EventController::class, 'index'])->middleware(['role:artists|organizer']);
 
     Route::get('/', function () {
@@ -119,7 +137,9 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
             return response()->json([
                 'status'    => 200,
                 'message'   => 'Token not expired.',
-                'result'    => []
+                'result'    => [
+                    'user' => tap(auth()->user()->load('profiles'))->first(),
+                ]
             ]);
         }
         return response()->json([
@@ -128,6 +148,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
             'result'    => []
         ], 203);
     });
+
     Route::prefix('test')->group(function () {
         Route::post('/url', function (Request $request) {
             return response()->json([
@@ -188,6 +209,11 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('events/verify', [EventController::class, 'verifyEvent'])->middleware(['throttle:5,1',]);
     Route::post('events/{event}/look', [EventController::class, 'stepTwo']);
     Route::apiResource('events', EventController::class)->except(['index', 'create',]); //->middleware(['roles:organizer']);
+
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
 
     // Route::apiResource('event', EventsController::class); //->middleware(['roles:organizer']);
 
