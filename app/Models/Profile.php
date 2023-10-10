@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Profile extends Model
 {
-    use HasFactory, HasRoles, SoftDeletes, HasUuids;
+    use HasFactory, HasRoles, SoftDeletes, HasUuids, Notifiable;
 
     protected $guard_name = 'web';
     const DELETED_AT = 'deactivated_at';
@@ -90,6 +91,12 @@ class Profile extends Model
     {
         return $this->hasOne(Organizer::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 
     public function providers()
     {
