@@ -42,7 +42,7 @@ return [
                 // 'scheme' => env('PUSHER_SCHEME', 'https'),
                 'encrypted' => true,
                 'useTLS'    => true,
-                'host'      => '127.0.0.1',
+                'host'      => 'api-dev.geebu.ph',
                 'port'      => 6001,
                 'scheme'    => 'http',
                 // 'useTLS' => env('PUSHER_SCHEME', 'https') === 'https',
