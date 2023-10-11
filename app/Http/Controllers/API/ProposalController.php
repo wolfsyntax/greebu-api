@@ -18,6 +18,8 @@ use App\Models\Organizer;
 use App\Models\Profile;
 use App\Models\ArtistProposal;
 use App\Notifications\CreateProposalNotification;
+use App\Notifications\AcceptProposalNotification;
+use App\Notifications\DeclineProposalNotification;
 
 class ProposalController extends Controller
 {
@@ -103,6 +105,9 @@ class ProposalController extends Controller
         $proposal->accepted_at = now();
         $proposal->save();
 
+        $artist_profile = $proposal->artist->profile;
+        $artist_profile->notify(new AcceptProposalNotification($proposal));
+
         if (!app()->isProduction()) broadcast(new NotificationCreated($proposal->artist->profile));
 
         return response()->json([
@@ -120,6 +125,9 @@ class ProposalController extends Controller
         $proposal->status = 'declined';
         $proposal->declined_at = now();
         $proposal->save();
+
+        $artist_profile = $proposal->artist->profile;
+        $artist_profile->notify(new DeclineProposalNotification($proposal));
 
         if (!app()->isProduction()) broadcast(new NotificationCreated($proposal->artist->profile));
 

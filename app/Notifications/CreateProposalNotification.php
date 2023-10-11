@@ -63,21 +63,20 @@ class CreateProposalNotification extends Notification implements ShouldQueue
     {
         $event = $this->proposal->event;
         $artist_profile = $this->proposal->artist->profile;
-        $profile = $this->proposal->artist->profile;
-        // $avatar = $profile->avatar;
-        // if (!$avatar) {
-        //     $avatar = 'https://ui-avatars.com/api/?name=' . substr($profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        // } else {
-        //     $service = new AwsService();
-        //     $avatar_host = parse_url($avatar);
-        //     if (!array_key_exists('host', $avatar_host)) {
-        //         $avatar = $service->get_aws_object($avatar);
-        //     }
-        // }
+        $avatar = $artist_profile->avatar;
+        if (!$avatar) {
+            $avatar = 'https://ui-avatars.com/api/?name=' . substr($artist_profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        } else {
+            $service = new AwsService();
+            $avatar_host = parse_url($avatar);
+            if (!array_key_exists('host', $avatar_host)) {
+                $avatar = $service->get_aws_object($avatar);
+            }
+        }
         return [
             'header' => 'has submitted for your event',
             'sender_name' => $artist_profile->business_name,
-            'sender_avatar' => $artist_profile->avatar,
+            'sender_avatar' => $avatar,
             'sender_id' => $artist_profile->id,
             'time' => $this->proposal->created_at,
             'body' => '',
