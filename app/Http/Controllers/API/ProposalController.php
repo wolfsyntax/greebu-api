@@ -29,7 +29,7 @@ class ProposalController extends Controller
         ]);
 
         $this->middleware(['role:artists|organizer'])->only([
-            'index',
+            'index', 'show',
         ]);
 
         $this->middleware(['role:organizer'])->only([
@@ -210,9 +210,20 @@ class ProposalController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(ArtistProposal $artist_proposal)
     {
-        //
+        $receiver = $artist_proposal->event->organizer->profile->user;
+        $sender = $artist_proposal->artist->profile->user;
+
+        if (!($receiver->id === auth()->id() || $sender  === auth()->id())) return abort(403);
+
+        return response()->json([
+            'status' => 200,
+            'message' => '',
+            'result'    => [
+                'proposal' => new ArtistProposalResource($artist_proposal),
+            ],
+        ]);
     }
 
     /**

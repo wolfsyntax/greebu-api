@@ -8,6 +8,7 @@ use App\Models\Notification;
 use App\Models\Profile;
 
 use App\Events\NotificationCreated;
+use App\Http\Resources\NotificationResource;
 
 class NotificationController extends Controller
 {
@@ -28,46 +29,28 @@ class NotificationController extends Controller
             'message'   => '',
             'result'    => [
                 'user_notification'      => $profile->user->unreadNotifications,
-                'profile_notification'   => $profile->unreadNotifications,
+                'profile_notification'   => NotificationResource::collection($profile->unreadNotifications),
             ],
         ]);
     }
 
-    public function markAsRead(Request $request, $id)
+    public function markAsRead(Request $request, Notification $notification)
     {
 
         $request->validate([
-            'type' => ['required', 'string', 'in:profile,user',],
             'role' => ['required_if:type,profile', 'in:artists,organizer,service-provider,customers',],
         ]);
 
-        if ($request->input('type') === 'user') {
-            $notification = auth()->user()->unreadNotifications->where('id', $id)->first();
-
-            $data = [
-                'user_notification'     => auth()->user()->unreadNotifications,
-                'profile_notification'  => null,
-            ];
-        } else {
-            $profile = Profile::myAccount($request->query('role'))->first();
-            $notification = $profile->unreadNotifications->where('id', $id)->first();
-
-            $data = [
-                'user_notification'     => auth()->user()->unreadNotifications,
-                'profile_notification'  => $profile->unreadNotifications,
-            ];
-
-            if (!app()->isProduction()) broadcast(new NotificationCreated($profile));
-        }
-
-        if ($notification) {
-            $notification->markAsRead();
-        }
+        $notification->update([
+            'read_at' => now(),
+        ]);
 
         return response()->json([
             'status'    => 200,
             'message'   => 'Mark notification as read',
-            'result'    => $data,
+            'result'    => [
+                'notification' => $notification,
+            ],
         ]);
     }
 
@@ -81,25 +64,15 @@ class NotificationController extends Controller
 
         if ($request->input('type') === 'user') {
             auth()->user()->unreadNotifications->markAsRead();
-
-            $data = [
-                'user_notification'     => auth()->user()->unreadNotifications,
-                'profile_notification'  => null,
-            ];
         } else {
             $profile = Profile::myAccount($request->query('role'))->first();
             $profile->unreadNotifications->markAsRead();
-
-            $data = [
-                'user_notification'     => auth()->user()->unreadNotifications,
-                'profile_notification'  => $profile->unreadNotifications,
-            ];
         }
 
         return response()->json([
             'status'    => 200,
             'message'   => 'Mark All notification as read.',
-            'result'    => $data,
+            'result'    => [],
         ]);
     }
 }
