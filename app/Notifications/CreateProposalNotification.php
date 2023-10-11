@@ -74,12 +74,12 @@ class CreateProposalNotification extends Notification implements ShouldQueue
             }
         }
         return [
-            'header' => 'has submitted for your event',
+            'header' => 'has submitted a proposal for your event',
             'sender_name' => $artist_profile->business_name,
             'sender_avatar' => $avatar,
             'sender_id' => $artist_profile->id,
             'time' => $this->proposal->created_at,
-            'body' => '',
+            'body' => 'Click below to review the details',
             'notification_type' => 'artist-proposal',
             'can_view' => true,
             'misc' => [
