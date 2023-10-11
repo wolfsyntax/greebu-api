@@ -17,9 +17,9 @@ use App\Models\Artist;
 use App\Models\Organizer;
 use App\Models\Profile;
 use App\Models\ArtistProposal;
-use App\Notifications\CreateProposalNotification;
-use App\Notifications\AcceptProposalNotification;
-use App\Notifications\DeclineProposalNotification;
+use App\Notifications\Artist\CreateProposalNotification;
+use App\Notifications\Artist\AcceptProposalNotification;
+use App\Notifications\Artist\DeclineProposalNotification;
 
 class ProposalController extends Controller
 {
@@ -201,9 +201,9 @@ class ProposalController extends Controller
         $proposal = ArtistProposal::create($data);
 
         $organizer_profile = $proposal->event->organizer->profile;
-        $organizer_profile->notify(new CreateProposalNotification($proposal));
 
         if (!app()->isProduction()) broadcast(new NotificationCreated($organizer_profile));
+        $organizer_profile->notify(new CreateProposalNotification($proposal));
 
         return response()->json([
             'status'        => 201,
