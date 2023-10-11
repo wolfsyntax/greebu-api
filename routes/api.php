@@ -212,7 +212,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
 
     Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
 
     // Route::apiResource('event', EventsController::class); //->middleware(['roles:organizer']);

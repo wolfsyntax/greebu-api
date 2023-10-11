@@ -36,7 +36,7 @@ class ArtistProposalResource extends JsonResource
         } else {
             $avatar_host = parse_url($organizer_avatar);
             if (!array_key_exists('host', $avatar_host)) {
-                $avatar = $service->get_aws_object($organizer_avatar);
+                $organizer_avatar = $service->get_aws_object($organizer_avatar);
             }
         }
 
