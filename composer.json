@@ -8,6 +8,7 @@
         "php": "^8.1",
         "aws/aws-sdk-php": "^3.277",
         "aws/aws-sdk-php-laravel": "^3.8",
+        "beyondcode/laravel-websockets": "^1.14",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
         "laravel/passport": "^11.8",
