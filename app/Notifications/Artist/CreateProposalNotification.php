@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Artist;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Libraries\AwsService;
 
-class AcceptProposalNotification extends Notification
+class CreateProposalNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -32,9 +32,9 @@ class AcceptProposalNotification extends Notification
         return ['database',];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
+    // /**
+    //  * Get the mail representation of the notification.
+    //  */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
@@ -50,20 +50,22 @@ class AcceptProposalNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
+
         return [
-            //
+            'event'     => $this->proposal->event,
+            'proposal' => $this->proposal->id,
+            'artist' => $this->proposal->artist->profile->business_name,
+            'organizer' => $this->proposal->event->organizer->profile->id,
         ];
     }
 
     public function toDatabase($notifiable)
     {
-
         $event = $this->proposal->event;
-        $organizer_profile = $event->organizer->profile;
-        $avatar = $organizer_profile->avatar;
-
+        $artist_profile = $this->proposal->artist->profile;
+        $avatar = $artist_profile->avatar;
         if (!$avatar) {
-            $avatar = 'https://ui-avatars.com/api/?name=' . substr($organizer_profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $avatar = 'https://ui-avatars.com/api/?name=' . substr($artist_profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
         } else {
             $service = new AwsService();
             $avatar_host = parse_url($avatar);
@@ -72,12 +74,12 @@ class AcceptProposalNotification extends Notification
             }
         }
         return [
-            'header' => 'has accepted your proposal for the event',
-            'sender_name' => $organizer_profile->business_name,
+            'header' => 'has submitted a proposal for your event',
+            'sender_name' => $artist_profile->business_name,
             'sender_avatar' => $avatar,
-            'sender_id' => $organizer_profile->id,
+            'sender_id' => $artist_profile->id,
             'time' => $this->proposal->created_at,
-            'body' => 'Click below to review and respond',
+            'body' => 'Click below to review the details',
             'notification_type' => 'artist-proposal',
             'can_view' => true,
             'misc' => [
