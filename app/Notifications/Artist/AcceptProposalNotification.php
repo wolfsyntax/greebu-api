@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Artist;
 
+use App\Http\Resources\ArtistProposalResource;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -83,6 +84,7 @@ class AcceptProposalNotification extends Notification
             'misc' => [
                 'id'            => $this->proposal->id,
                 'event_name' => $event->event_name,
+                // 'proposal' => new ArtistProposalResource($this->proposal),
             ]
         ];
     }

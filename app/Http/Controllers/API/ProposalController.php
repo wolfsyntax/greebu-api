@@ -223,7 +223,7 @@ class ProposalController extends Controller
         $receiver = $artist_proposal->event->organizer->profile->user;
         $sender = $artist_proposal->artist->profile->user;
 
-        if (!($receiver->id === auth()->id() || $sender  === auth()->id())) return abort(403);
+        if (!($receiver->id === auth()->id() || $sender->id  === auth()->id())) return abort(403);
 
         return response()->json([
             'status' => 200,
