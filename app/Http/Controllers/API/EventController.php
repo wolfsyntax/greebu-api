@@ -89,7 +89,7 @@ class EventController extends Controller
             $events = $events->where('event_type', 'LIKE', '%' . $event_type . '%');
         }
 
-        $events = $events->where('start_date', '>=', now()->addDays(4));
+        $events = $events->where('start_date', '>=', now()->addDays(1)->isoFormat('YYYY-MM-DD'));
         $events = $events->orderBy('created_at', $orderBy);
         // ->orderBy('start_date', $orderBy);
 
