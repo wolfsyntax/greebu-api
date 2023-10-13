@@ -83,7 +83,8 @@ class AcceptProposalNotification extends Notification
             'can_view' => true,
             'misc' => [
                 'id'            => $this->proposal->id,
-                'event_name' => $event->event_name,
+                'event_name'    => $event->event_name,
+                'status'        => $this->proposal->status,
                 // 'proposal' => new ArtistProposalResource($this->proposal),
             ]
         ];

@@ -133,7 +133,7 @@ class ProposalController extends Controller
 
         return response()->json([
             'status'    => 200,
-            'message'   => 'Artist Proposal successfully accepted.',
+            'message'   => 'Artist Proposal successfully declined.',
             'result'    => [
                 'proposal'  => $proposal,
             ]
