@@ -15,9 +15,10 @@ class DeclineProposalNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($proposal)
     {
         //
+        $this->proposal = $proposal;
     }
 
     /**
@@ -27,7 +28,7 @@ class DeclineProposalNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database',];
     }
 
     /**
@@ -81,6 +82,7 @@ class DeclineProposalNotification extends Notification
             'misc' => [
                 'id'            => $this->proposal->id,
                 'event_name' => $event->event_name,
+                'status'        => $this->proposal->status,
             ]
         ];
     }
