@@ -90,8 +90,6 @@ class EventController extends Controller
         }
 
         $events = $events->where('start_date', '>=', now()->addDays(1)->isoFormat('YYYY-MM-DD'));
-        $events = $events->orderBy('created_at', $orderBy);
-        // ->orderBy('start_date', $orderBy);
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
@@ -100,37 +98,55 @@ class EventController extends Controller
 
         if (auth()->check()) {
 
-            $data = [
-                'events'        => EventResource::collection($events->skip($offset)->take($perPage)->get()),
-                'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-                'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
-                'pagination'    => [
-                    'total'     => $events->count(),
-                    'last_page' => ceil($events->count() / $perPage),
-                    'per_page'  => $perPage,
-                    'offset'    => $offset,
-                ],
-                'query'         => [
-                    $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
-                ],
-            ];
+            // $data = [
+            //     'events'        => EventResource::collection($events->skip($offset)->take($perPage)->get()),
+            //     'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+            //     'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
+            //     'pagination'    => [
+            //         'total'     => $events->count(),
+            //         'last_page' => ceil($events->count() / $perPage),
+            //         'per_page'  => $perPage,
+            //         'offset'    => $offset,
+            //     ],
+            //     'query'         => [
+            //         $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+            //     ],
+            // ];
         } else {
 
-            $data = [
-                'events'        => EventResource::collection($events->skip($offset)->take($perPage)->get()),
-                'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-                'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
-                'pagination'    => [
-                    'total'     => $events->count(),
-                    'last_page' => ceil($events->count() / $perPage),
-                    'per_page'  => $perPage,
-                    'offset'    => $offset,
-                ],
-                'query'         => [
-                    $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
-                ],
-            ];
+            // $data = [
+            //     'events'        => EventResource::collection($events->skip($offset)->take($perPage)->get()),
+            //     'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+            //     'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
+            //     'pagination'    => [
+            //         'total'     => $events->count(),
+            //         'last_page' => ceil($events->count() / $perPage),
+            //         'per_page'  => $perPage,
+            //         'offset'    => $offset,
+            //     ],
+            //     'query'         => [
+            //         $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+            //     ],
+            // ];
         }
+
+        $events = $events->orderBy('created_at', $orderBy);
+
+        $data = [
+            'events'        => EventResource::collection($events->skip($offset)->take($perPage)->get()),
+            'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+            'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
+            'pagination'    => [
+                'total'     => $events->count(),
+                'last_page' => ceil($events->count() / $perPage),
+                'per_page'  => $perPage,
+                'offset'    => $offset,
+            ],
+            'query'         => [
+                $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+            ],
+        ];
+
         return response()->json([
             'status'            => 200,
             'message'           => 'Events list successfully fetched.',
