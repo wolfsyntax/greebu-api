@@ -20,6 +20,7 @@ use App\Models\ArtistProposal;
 use App\Notifications\Artist\CreateProposalNotification;
 use App\Notifications\Artist\AcceptProposalNotification;
 use App\Notifications\Artist\DeclineProposalNotification;
+use App\Notifications\Artist\CancelProposal;
 
 class ProposalController extends Controller
 {
@@ -27,7 +28,7 @@ class ProposalController extends Controller
     {
 
         $this->middleware(['role:artists'])->only([
-            'store', 'update', 'destroy',
+            'store', 'update', 'destroy', 'cancelProposal',
         ]);
 
         $this->middleware(['role:artists|organizer'])->only([
@@ -102,7 +103,6 @@ class ProposalController extends Controller
     {
 
         $proposal->status = 'accepted';
-        $proposal->accepted_at = now();
         $proposal->save();
 
         $artist_profile = $proposal->artist->profile;
@@ -123,7 +123,6 @@ class ProposalController extends Controller
     {
 
         $proposal->status = 'declined';
-        $proposal->declined_at = now();
         $proposal->save();
 
         $artist_profile = $proposal->artist->profile;
@@ -134,6 +133,31 @@ class ProposalController extends Controller
         return response()->json([
             'status'    => 200,
             'message'   => 'Artist Proposal successfully declined.',
+            'result'    => [
+                'proposal'  => $proposal,
+            ]
+        ]);
+    }
+
+    public function cancelProposal(Request $request, ArtistProposal $proposal)
+    {
+
+        $artist_profile = $proposal->artist->profile;
+
+        if (auth()->id() !== $artist_profile->user->id) abort(403, "You're not the creator of this proposal.");
+
+        $proposal->status = 'pending';
+        $proposal->cancelled_at = now();
+        $proposal->save();
+
+
+        $artist_profile->notify(new DeclineProposalNotification($proposal));
+
+        if (!app()->isProduction()) broadcast(new NotificationCreated($proposal->artist->profile));
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Artist Proposal successfully cancelled.',
             'result'    => [
                 'proposal'  => $proposal,
             ]
