@@ -84,7 +84,7 @@ class EventResource extends JsonResource
             'look_types'        => $seeking,
             'requirement'       => $this->requirement,
             'created_at'        => $this->created_at,
-            'accept_proposal'   => $this->$accept_proposal, $this->organizer->accept_proposal),
+            'accept_proposal'   => $this->when($this->organizer->accept_proposal, $this->organizer->accept_proposal),
         ];
         return parent::toArray($request);
     }

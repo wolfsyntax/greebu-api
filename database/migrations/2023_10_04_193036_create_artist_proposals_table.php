@@ -25,6 +25,7 @@ return new class extends Migration
             $table->timestamp('declined_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
             $table->text('cancel_reason')->nullable();
+            // $table->enum('cancelled_by', ['artists', 'organizers'])->nullable();
 
             $table->timestamps();
             $table->softDeletes();
