@@ -59,6 +59,9 @@ class ProfileController extends Controller
         $this->middleware(['auth:api'])->only('store', 'update', 'updatePassword', 'updatePhone', 'profilePic', 'bannerImage', 'verifyCurrentEmail', 'verifyCurrentPhone');
         // $this->middleware(['verified'])->only('updatePassword');
         $this->middleware(['throttle:5,1'])->only('store', 'update', 'updatePassword');
+        $this->middleware(['role:artists|organizer', 'throttle:10,1'])->only([
+            'otherSettings',
+        ]);
     }
 
     public function store(Request $request)
@@ -671,5 +674,59 @@ class ProfileController extends Controller
                 'user' => $user,
             ],
         ]);
+    }
+
+    public function otherSettings(Request $request, $role = 'artists')
+    {
+        if ($role !== 'artists' || $role !== 'organizer') abort(404, 'Page not found.');
+
+        $profile = Profile::myAccount($role)->first();
+
+        if (!$profile) abort(403, 'Insufficient privilege to access.');
+
+        if ($role === 'artists') {
+            $request->validate([
+                'accept_request'        => ['sometimes', 'in:true,false'],
+                'accept_booking'        => ['sometimes', 'in:true,false'],
+                'accept_proposal'       => ['sometimes', 'in:true,false'],
+            ]);
+
+            $account = Artist::where('profile_id', $profile->id)->first();
+
+            $account->update([
+                'accept_request' => filter_var($request->input('accept_request', var_export($account->accept_request, true)), FILTER_VALIDATE_BOOLEAN),
+                'accept_booking' => filter_var($request->input('accept_booking', var_export($account->accept_booking, true)), FILTER_VALIDATE_BOOLEAN),
+                'accept_proposal' => filter_var($request->input('accept_proposal', var_export($account->accept_proposal, true)), FILTER_VALIDATE_BOOLEAN),
+            ]);
+
+            $account = new ArtistFullResource($account);
+        } else {
+
+            $request->validate([
+                'send_proposal'         => ['nullable', 'in:true,false',],
+                'accept_proposal'       => ['nullable', 'in:true,false',],
+            ]);
+
+            $account = Organizer::where('profile_id', $profile->id)->first();
+
+            $account->update([
+                // 'send_proposal'     => $request->input('send_proposal', var_export($account->send_proposal, true)) === 'true' ? true : false,
+                // 'accept_proposal'   => $request->input('accept_proposal', var_export($account->accept_proposal, true)) === 'true' ? true : false,
+                'send_proposal'     => filter_var($request->input('send_proposal', var_export($account->send_proposal, true)), FILTER_VALIDATE_BOOLEAN),
+                'accept_proposal'   => filter_var($request->input('accept_proposal', var_export($account->accept_proposal, true)), FILTER_VALIDATE_BOOLEAN),
+            ]);
+
+            $account = new OrganizerResource($account);
+        }
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Profile settings updated successfully.',
+            'result'    => [
+                'profile' => $profile,
+                'account'   => $account,
+            ]
+        ]);
+        // $profile->update($request)
     }
 }

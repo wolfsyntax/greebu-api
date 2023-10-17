@@ -196,6 +196,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::get('account', [ProfileController::class, 'index']);
     Route::post('account/profile', [ProfileController::class, 'store']);
+    Route::post('account/profile/{role?}/others', [ProfileController::class, 'otherSettings']);
 
     Route::post('account/change-password', [ProfileController::class, 'updatePassword']);
 
