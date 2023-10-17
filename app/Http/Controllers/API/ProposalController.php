@@ -151,7 +151,7 @@ class ProposalController extends Controller
         $proposal->save();
 
 
-        $artist_profile->notify(new DeclineProposalNotification($proposal));
+        // $artist_profile->notify(new DeclineProposalNotification($proposal));
 
         if (!app()->isProduction()) broadcast(new NotificationCreated($proposal->artist->profile));
 

@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notification;
 
 use App\Libraries\AwsService;
 
-class CancelProposal extends Notification
+class CancelProposalNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
