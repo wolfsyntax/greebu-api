@@ -19,10 +19,13 @@ return new class extends Migration
             $table->bigInteger('total_member')->nullable()->default(1);
             $table->longText('cover_letter')->nullable();
             $table->string('sample_song')->nullable()->default('');
-            $table->enum('status', ['pending', 'accepted', 'declined'])->default('pending');
+            $table->enum('status', ['pending', 'accepted', 'declined',])->default('pending');
 
             $table->timestamp('accepted_at')->nullable();
             $table->timestamp('declined_at')->nullable();
+            $table->timestamp('cancelled_at')->nullable();
+            $table->text('cancel_reason')->nullable();
+            // $table->enum('cancelled_by', ['artists', 'organizers'])->nullable();
 
             $table->timestamps();
             $table->softDeletes();

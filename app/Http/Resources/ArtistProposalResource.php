@@ -93,6 +93,8 @@ class ArtistProposalResource extends JsonResource
             'song'              => $song,
             'accepted_at'       => $this->accepted_at,
             'declined_at'       => $this->declined_at,
+            'cancelled_at'      => $this->cancelled_at,
+            'cancel_reason'     => $this->when($this->cancelled_at, $this->cancel_reason),
         ];
 
         return parent::toArray($request);

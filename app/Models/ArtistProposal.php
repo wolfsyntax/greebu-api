@@ -16,7 +16,7 @@ class ArtistProposal extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'event_id', 'artist_id', 'total_member', 'cover_letter', 'accepted_at', 'declined_at',
+        'event_id', 'artist_id', 'total_member', 'cover_letter', 'accepted_at', 'declined_at', 'cancelled_at', 'cancel_reason',
     ];
 
     protected $appends = [];
@@ -49,5 +49,18 @@ class ArtistProposal extends Model
     public function scopeDeclined($query)
     {
         return $query->where('status', 'declined');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($query) {
+            if ($query->status === 'accepted') {
+                $query->accepted_at = now();
+            } else if ($query->status === 'declined') {
+                $query->declined_at = now();
+            }
+        });
     }
 }

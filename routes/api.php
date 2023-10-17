@@ -30,7 +30,7 @@ use App\Http\Controllers\Admin\CountryController as AdminCountryController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ProposalController;
-use App\Http\Controllers\EventsController;
+// use App\Http\Controllers\EventsController;
 use App\Http\Controllers\NetworkController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\UserController;
@@ -175,7 +175,10 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::post('/logout', [LoginController::class, 'logout']);
     Route::post('/artists-filter', [ArtistController::class, 'index']);
+
+    Route::post('/artist-proposal/{proposal}/cancel', [ProposalController::class, 'cancelProposal']);
     Route::apiResource('artist-proposal', ProposalController::class);
+
     Route::resource('artists', ArtistController::class)->except(['index']);
     Route::post('/artists/member', [ArtistController::class, 'members']);
     Route::get('/artists/{artist}/member/{member}', [ArtistController::class, 'memberInfo']);
@@ -208,7 +211,8 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::post('events/verify', [EventController::class, 'verifyEvent'])->middleware(['throttle:5,1',]);
     Route::post('events/{event}/look', [EventController::class, 'stepTwo']);
-    Route::apiResource('events', EventController::class)->except(['index', 'create',]); //->middleware(['roles:organizer']);
+    Route::get('events/{event}', [EventController::class, 'show']);
+    Route::apiResource('events', EventController::class)->except(['index', 'create', 'show']); //->middleware(['roles:organizer']);
 
 
     Route::get('/notifications', [NotificationController::class, 'index']);
