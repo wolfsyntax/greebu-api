@@ -14,6 +14,7 @@ use App\Models\Event;
 use App\Models\EventType;
 use App\Models\EventPricing;
 use App\Models\EventParticipant;
+use App\Models\Profile;
 
 use App\Rules\EventTypeRule;
 
@@ -24,6 +25,7 @@ use App\Http\Resources\EventCollection;
 use App\Http\Resources\EventArtistTypeCollection;
 use App\Http\Resources\EventServicesTypeCollection;
 
+use Carbon\Carbon;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
@@ -37,7 +39,7 @@ class EventController extends Controller
     public function __construct()
     {
         $this->middleware(['role:organizer'])->only([
-            'store', 'update', 'destroy', 'verifyEvent',
+            'store', 'update', 'destroy', 'verifyEvent', 'dashboardEvents',
         ]);
 
         // $this->middleware(['role:artists|organizer'])->only([
@@ -577,6 +579,23 @@ class EventController extends Controller
                     'look_for', 'look_type', 'requirement',
                 ]),
             ]
+        ]);
+    }
+
+    public function dashboardEvents(Request $request)
+    {
+        $organizer = Profile::myAccount('organizer')->first()->organizer;
+        return response()->json([
+            // now - End of Month
+            'month'     => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->format('Y-m-d'), now()->endOfMonth()->format('Y-m-d')])->orderBy('start_date', 'ASC')->get()),
+            // now - End of Week
+            'ongoing'   => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->format('Y-m-d'), now()->endOfWeek()->format('Y-m-d')])->orderBy('start_date', 'ASC')->get()),
+            // starting next week
+            'upcoming'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->where('start_date', '>', now()->endOfWeek()->format('Y-m-d'))->orderBy('start_date', 'ASC')->get()),
+            // next month
+            'upcoming_month'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->addMonth()->startOfMonth()->format('Y-m-d'), now()->addMonth()->endOfMonth()->format('Y-m-d')])->orderBy('start_date', 'ASC')->get()),
+            // upcoming week
+            'upcoming_week'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->addWeek()->startOfWeek()->format('Y-m-d'), now()->addWeek()->endOfWeek()])->orderBy('start_date', 'ASC')->get()),
         ]);
     }
 }
