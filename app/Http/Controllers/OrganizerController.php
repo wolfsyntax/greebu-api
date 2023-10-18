@@ -22,7 +22,7 @@ class OrganizerController extends Controller
     public function __construct()
     {
         $this->middleware(['role:organizer'])->only([
-            'create',
+            // 'create',
             'staff', 'addStaff', 'editStaff', 'removeStaff',
         ]);
     }
@@ -49,8 +49,8 @@ class OrganizerController extends Controller
         return response()->json([
             'status'    => 200,
             'message'   => 'Organizer form options.',
-            'result'    => [
-                'event_types' => EventType::select('name')->orderBy('name', 'ASC')->get()->pluck('name'),
+            'result'    => [ // array_map('strtolower', $artist_types->orderBy('title', 'ASC')->get()->map->title->toArray())
+                'event_types' => array_map('ucwords', EventType::select('name')->orderBy('name', 'ASC')->get()->map->name->toArray()),
                 'staff_roles' => $roles->orderBy('name', 'ASC')->get()->pluck('name'),
             ],
         ]);

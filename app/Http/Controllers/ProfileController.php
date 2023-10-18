@@ -678,7 +678,7 @@ class ProfileController extends Controller
 
     public function otherSettings(Request $request, $role = 'artists')
     {
-        if ($role !== 'artists' || $role !== 'organizer') abort(404, 'Page not found.');
+        if (!($role === 'artists' || $role === 'organizer')) abort(404, 'Page not found.');
 
         $profile = Profile::myAccount($role)->first();
 

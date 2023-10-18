@@ -142,12 +142,18 @@ class ProposalController extends Controller
     public function cancelProposal(Request $request, ArtistProposal $proposal)
     {
 
+        $request->validate([
+            'cancel_reason' => ['required', 'string', 'max:255',],
+        ]);
+
         $artist_profile = $proposal->artist->profile;
 
         if (auth()->id() !== $artist_profile->user->id) abort(403, "You're not the creator of this proposal.");
 
         $proposal->status = 'pending';
         $proposal->cancelled_at = now();
+        $proposal->cancel_reason = $request->input('cancel_reason', 'others');
+
         $proposal->save();
 
 

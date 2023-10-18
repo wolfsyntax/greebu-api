@@ -29,7 +29,7 @@ class NotificationController extends Controller
             'message'   => '',
             'result'    => [
                 'user_notification'      => NotificationResource::collection($profile->user->unreadNotifications), //NotificationResource::collection(Notification::where('notifiable_type', 'App\Models\User')->where('notifiable_id', auth()->id())->get()), //$profile->user->unreadNotifications,
-                'profile_notification'   => NotificationResource::collection($profile->user->unreadNotifications) //NotificationResource::collection(Notification::where('notifiable_type', 'App\Models\Profile')->where('notifiable_id', $profile->id)->get()), //NotificationResource::collection($profile->unreadNotifications),
+                'profile_notification'   => NotificationResource::collection($profile->unreadNotifications) //NotificationResource::collection(Notification::where('notifiable_type', 'App\Models\Profile')->where('notifiable_id', $profile->id)->get()), //NotificationResource::collection($profile->unreadNotifications),
             ],
         ]);
     }
