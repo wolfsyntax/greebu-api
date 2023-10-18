@@ -210,6 +210,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('account/update/{profile}/avatar', [ProfileController::class, 'profilePic']);
     Route::post('account/update/{profile}/banner', [ProfileController::class, 'bannerImage']);
 
+    Route::get('events/dashboard', [EventController::class, 'dashboardEvents'])->middleware(['throttle:10,1',]);
     Route::post('events/verify', [EventController::class, 'verifyEvent'])->middleware(['throttle:5,1',]);
     Route::post('events/{event}/look', [EventController::class, 'stepTwo']);
     Route::get('events/{event}', [EventController::class, 'show']);
