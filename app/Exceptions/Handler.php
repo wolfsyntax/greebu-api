@@ -36,7 +36,7 @@ class Handler extends ExceptionHandler
             if ($request->is('api/*')) {
                 return response()->json([
                     'status'    => 403,
-                    'message'   => 'You do not have the required authorization.',
+                    'message'   => $e->getMessage(),
                     'result'    => [],
                 ], 203);
             }
