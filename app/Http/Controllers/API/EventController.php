@@ -40,6 +40,7 @@ class EventController extends Controller
     {
         $this->middleware(['role:organizer'])->only([
             'store', 'update', 'destroy', 'verifyEvent', 'dashboardEvents',
+            'ongoingEvents', 'upcomingEvents', 'pastEvents',
         ]);
 
         // $this->middleware(['role:artists|organizer'])->only([
@@ -585,17 +586,134 @@ class EventController extends Controller
     public function dashboardEvents(Request $request)
     {
         $organizer = Profile::myAccount('organizer')->first()->organizer;
+
+        $starOfWeek = now()->startOfWeek()->format('Y-m-d');
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+        $endOfMonth = now()->endOfMonth()->format('Y-m-d');
+        /*
+            Start of Week => Monday
+            End of Week => Sunday
+        */
         return response()->json([
+            // Past Events
+            'past_event' => EventResource::collection(Event::where('organizer_id', $organizer->id)->where('start_date', '<', $now)->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
             // now - End of Month
-            'month'     => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->format('Y-m-d'), now()->endOfMonth()->format('Y-m-d')])->orderBy('start_date', 'ASC')->get()),
+            'month'     => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [$now, $endOfMonth,])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
             // now - End of Week
-            'ongoing'   => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->format('Y-m-d'), now()->endOfWeek()->format('Y-m-d')])->orderBy('start_date', 'ASC')->get()),
+            'ongoing'   => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [$now, $endOfWeek,])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
             // starting next week
-            'upcoming'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->where('start_date', '>', now()->endOfWeek()->format('Y-m-d'))->orderBy('start_date', 'ASC')->get()),
+            'upcoming'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->where('start_date', '>', $endOfWeek)->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->orderBy('start_time', 'ASC')->get()),
             // next month
-            'upcoming_month'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->addMonth()->startOfMonth()->format('Y-m-d'), now()->addMonth()->endOfMonth()->format('Y-m-d')])->orderBy('start_date', 'ASC')->get()),
+            'upcoming_month'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->addMonth()->startOfMonth()->format('Y-m-d'), now()->addMonth()->endOfMonth()->format('Y-m-d')])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
             // upcoming week
-            'upcoming_week'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->addWeek()->startOfWeek()->format('Y-m-d'), now()->addWeek()->endOfWeek()])->orderBy('start_date', 'ASC')->get()),
+            'upcoming_week'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->addWeek()->startOfWeek()->format('Y-m-d'), now()->addWeek()->endOfWeek()])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
+        ]);
+    }
+
+    public function ongoingEvents(Request $request)
+    {
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+        ]);
+
+        $organizer = Profile::myAccount('organizer')->first()->organizer;
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $search = $request->input('search', '');
+        $orderBy = $request->input('sortBy', 'DESC');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+        $perPage = intval($request->input('per_page', 9));
+        $offset = ($page - 1) * $perPage;
+
+        $events = Event::where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->whereBetween('start_date', [$now, $endOfWeek])->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+
+        return response()->json([
+            'status'        => 200,
+            'message'       => 'Ongoing Events (This Week)',
+            'result'        => [
+                'events'    => EventResource::collection($events->skip($offset)->take($perPage)->get()),
+                'pagination'    => [
+                    'total'     => $events->count(),
+                    'last_page' => ceil($events->count() / $perPage),
+                    'per_page'  => $perPage,
+                    'offset'    => $offset,
+                ],
+                'query'         => $request->only(['search', 'sortBy',]),
+            ],
+        ]);
+    }
+
+    public function upcomingEvents(Request $request)
+    {
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+        ]);
+
+        $organizer = Profile::myAccount('organizer')->first()->organizer;
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+
+        $search = $request->input('search', '');
+        $orderBy = $request->input('sortBy', 'DESC');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+        $perPage = intval($request->input('per_page', 9));
+        $offset = ($page - 1) * $perPage;
+
+        $events = Event::where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->where('start_date', '>', $endOfWeek)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+
+        return response()->json([
+            'status'        => 200,
+            'message'       => 'Upcoming Events',
+            'result'        => [
+                'events'    => EventResource::collection($events->skip($offset)->take($perPage)->get()),
+                'pagination'    => [
+                    'total'     => $events->count(),
+                    'last_page' => ceil($events->count() / $perPage),
+                    'per_page'  => $perPage,
+                    'offset'    => $offset,
+                ],
+                'query'         => $request->only(['search', 'sortBy',]),
+            ],
+        ]);
+    }
+
+    public function pastEvents(Request $request)
+    {
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+        ]);
+
+        $search = $request->input('search', '');
+        $orderBy = $request->input('sortBy', 'DESC');
+
+        $organizer = Profile::myAccount('organizer')->first()->organizer;
+        $now = now()->format('Y-m-d');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+        $perPage = intval($request->input('per_page', 9));
+        $offset = ($page - 1) * $perPage;
+
+        $events = Event::where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->where('start_date', '<', $now)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+
+        return response()->json([
+            'status'        => 200,
+            'message'       => 'Past Events',
+            'result'        => [
+                'events'    => EventResource::collection($events->skip($offset)->take($perPage)->get()),
+                'pagination'    => [
+                    'total'     => $events->count(),
+                    'last_page' => ceil($events->count() / $perPage),
+                    'per_page'  => $perPage,
+                    'offset'    => $offset,
+                ],
+                'query'         => $request->only(['search', 'sortBy',]),
+            ],
         ]);
     }
 }
