@@ -192,7 +192,7 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        $lookType = ['nullable', 'array',];
+        $lookType = ['required', 'array',];
 
         if ($request->input('look_for')) {
 
@@ -226,9 +226,9 @@ class EventController extends Controller
             'is_free'           => ['nullable', 'in:true,false',],
             'status'            => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
             'review_status'     => ['nullable', 'in:pending,accepted,rejected',],
-            'look_for'          => ['nullable', 'string', 'max:255', 'in:artist,service',],
+            'look_for'          => ['required', 'string', 'max:255', 'in:artist,service',],
             'look_types'        => $lookType,
-            'requirement'       => ['nullable', 'string',],
+            'requirement'       => ['required', 'string',],
         ], [
             'cover_photo.dimensions'    => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
         ]);
@@ -301,7 +301,7 @@ class EventController extends Controller
             'status'    => 200,
             'message'   => '...',
             'result'    => [
-                'event' => $event,
+                'event' => new EventResource($event),
             ],
         ]);
     }
@@ -322,41 +322,32 @@ class EventController extends Controller
 
         $lookType = ['nullable', 'array',];
 
-        if ($request->input('look_for')) {
-
-            // $selection = [
-            //     'artist'    => array_map('strtolower', ArtistType::select('title')->get()->pluck('title')->toArray()),
-            //     'service'   => array_map('strtolower', ServicesCategory::select('name')->get()->pluck('name')->toArray()),
-            // ];
-
-            // $lookType = ['required', 'string', 'max:255', Rule::in($selection[$request->input('look_for')]),];
-        }
-
         $request->validate([
-            'cover_photo'   => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
-            'event_type'    => ['required', 'string', new EventTypeRule(),], // comment exists if allowed to input custom event type
-            'event_name'    => ['required', 'string', 'max:255',],
-            'venue_name'    => ['required', 'string', 'max:255',],
+            'mode'              => ['required', 'in:store,update',],
+            'cover_photo'       => ['required_if:mode,store', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
+            'event_type'        => ['required', 'string', new EventTypeRule(),], // comment exists if allowed to input custom event type
+            'event_name'        => ['required', 'string', 'max:255',],
+            'venue_name'        => ['required', 'string', 'max:255',],
             // 'location'      => ['required', 'string', 'max:255',],
             'street_address'    => ['required', 'string', 'max:255',],
             'barangay'          => ['required', 'string', 'max:255',],
             'city'              => ['required', 'string', 'max:255',],
             'province'          => ['required', 'string', 'max:255',],
-            'audience'      => ['required', 'in:true,false',],
-            'start_date'    => ['required', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
-            'end_date'      => ['required', 'date', 'after_or_equal:start_date',],
-            'start_time'    => ['required', 'date_format:H:i'],
-            'end_time'      => ['required', 'date_format:H:i',],
-            'description'   => ['required', 'string',],
-            'lat'           => ['nullable', 'string', 'regex:/^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
-            'long'          => ['nullable', 'string', 'regex:/^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
-            'is_featured'   => ['nullable', 'in:true,false',],
-            'is_free'       => ['nullable', 'in:true,false',],
-            'status'        => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
-            'review_status' => ['nullable', 'in:pending,accepted,rejected',],
-            'look_for'      => ['nullable', 'string', 'max:255', 'in:artist,service',],
-            'look_types'     => $lookType,
-            'requirement'   => ['nullable', 'string',],
+            'audience'          => ['required', 'in:true,false',],
+            'start_date'        => ['required', 'date', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
+            'end_date'          => ['required', 'date', 'after_or_equal:start_date',],
+            'start_time'        => ['required', 'date_format:H:i'],
+            'end_time'          => ['required', 'date_format:H:i',],
+            'description'       => ['required', 'string',],
+            'lat'               => ['nullable', 'string', 'regex:/^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
+            'long'              => ['nullable', 'string', 'regex:/^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/',],
+            'is_featured'       => ['nullable', 'in:true,false',],
+            'is_free'           => ['nullable', 'in:true,false',],
+            'status'            => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
+            'review_status'     => ['nullable', 'in:pending,accepted,rejected',],
+            'look_for'          => ['required', 'string', 'max:255', 'in:artist,service',],
+            'look_types'        => $lookType,
+            'requirement'       => ['required', 'string',],
         ], [
             'cover_photo.dimensions'    => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
         ]);
@@ -399,11 +390,31 @@ class EventController extends Controller
             $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $organizer->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
         }
 
-        if ($request->has('event_type')) $event->event_types_id = $request->input('event_type');
+        if ($request->hasFile('cover_photo')) {
+
+            $service = new AwsService();
+
+            if ($service->check_aws_object($event->cover_photo)) {
+                $service->delete_aws_object($event->cover_photo);
+            }
+
+            $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $organizer->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+            $event->save();
+        }
+
+        $event->lookTypes()->delete();
+
+        if ($request->has('event_type')) $event->event_type = $request->input('event_type');
         if ($request->has('event_name')) $event->event_name = $request->input('event_name');
         if ($request->has('venue_name')) $event->venue_name = $request->input('venue_name');
-        if ($request->has('location')) $event->location = $request->input('location');
-        if ($request->has('audience')) $event->audience = $request->input('audience');
+        if ($request->has('look_for')) $event->look_for = $request->input('look_for');
+
+        if ($request->has('street_address')) $event->street_address = $request->input('street_address');
+        if ($request->has('barangay')) $event->barangay = $request->input('barangay');
+        if ($request->has('city')) $event->city = $request->input('city');
+        if ($request->has('province')) $event->province = $request->input('province');
+
+        if ($request->has('audience')) $event->audience = $request->input('audience', 'false') === 'true' ? true : false;
         if ($request->has('start_date')) $event->start_date = $request->input('start_date');
         if ($request->has('end_date')) $event->end_date = $request->input('end_date');
         if ($request->has('start_time')) $event->start_time = $request->input('start_time');
@@ -415,15 +426,11 @@ class EventController extends Controller
         if ($request->has('is_free')) $event->is_free = $request->input('is_free', 'false') === 'true' ? true : false;
         if ($request->has('status')) $event->status = $request->input('status');
         if ($request->has('review_status')) $event->review_status = $request->input('review_status');
-        if ($request->has('look_for')) $event->look_for = $request->input('look_fo');
+
         // if ($request->has('look_type')) $event->look_type = $request->input('look_type');
         if ($request->has('requirement')) $event->requirement = $request->input('requirement');
 
         $event->save();
-
-        if ($request->has('look_type')) $event->look_type = $request->input('look_type');
-
-        $event->lookTypes()->delete();
 
         foreach ($request->input('look_types') as $value) {
             $event->lookTypes()->create([
@@ -454,9 +461,23 @@ class EventController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, Event $event)
     {
-        //
+        $event->delete();
+        $organizer = Profile::myAccount('organizer')->first()->organizer;
+
+        $orderBy = $request->input('sortBy', 'ASC');
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+        $perPage = intval($request->input('per_page', 9));
+        $offset = ($page - 1) * $perPage;
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Event successfully deleted.",
+            'result' => [
+                'events' => EventResource::collection(Event::where('organizer_id', $organizer->id)->skip($offset)->take($perPage)->get()),
+            ]
+        ]);
     }
 
     /**
@@ -539,7 +560,8 @@ class EventController extends Controller
         }
 
         $request->validate([
-            'cover_photo'       => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
+            'mode'              => ['required', 'in:store,update',],
+            'cover_photo'       => ['required_if:mode,store', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
             'event_type'        => ['required', 'string', new EventTypeRule(),],
             'event_name'        => ['required', 'string', 'max:255',],
             // 'location'       => ['required', 'string', 'max:255',],
@@ -623,13 +645,15 @@ class EventController extends Controller
         $now = now()->format('Y-m-d');
 
         $search = $request->input('search', '');
-        $orderBy = $request->input('sortBy', 'DESC');
+        $orderBy = $request->input('sortBy', 'ASC');
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
         $perPage = intval($request->input('per_page', 9));
         $offset = ($page - 1) * $perPage;
 
-        $events = Event::where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->whereBetween('start_date', [$now, $endOfWeek])->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+        $events = Event::where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)
+            ->whereBetween('start_date', [$now, $endOfWeek])
+            ->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
 
         return response()->json([
             'status'        => 200,
@@ -690,7 +714,7 @@ class EventController extends Controller
         ]);
 
         $search = $request->input('search', '');
-        $orderBy = $request->input('sortBy', 'DESC');
+        $orderBy = $request->input('sortBy', 'ASC');
 
         $organizer = Profile::myAccount('organizer')->first()->organizer;
         $now = now()->format('Y-m-d');
@@ -699,7 +723,7 @@ class EventController extends Controller
         $perPage = intval($request->input('per_page', 9));
         $offset = ($page - 1) * $perPage;
 
-        $events = Event::where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->where('start_date', '<', $now)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+        $events = Event::where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->where('end_date', '<', $now)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
 
         return response()->json([
             'status'        => 200,
