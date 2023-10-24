@@ -212,14 +212,16 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::get('events/dashboard', [EventController::class, 'dashboardEvents'])->middleware(['throttle:10,1',]);
 
-    Route::get('events/past', [EventController::class, 'pastEvents'])->middleware(['throttle:10,1',]);
-    Route::get('events/upcoming', [EventController::class, 'upcomingEvents'])->middleware(['throttle:10,1',]);
-    Route::get('events/ongoing', [EventController::class, 'ongoingEvents'])->middleware(['throttle:10,1',]);
+    Route::get('events/past', [EventController::class, 'pastEvents'])->middleware(['throttle:20,1',]);
+    Route::get('events/upcoming', [EventController::class, 'upcomingEvents'])->middleware(['throttle:20,1',]);
+    Route::get('events/ongoing', [EventController::class, 'ongoingEvents'])->middleware(['throttle:20,1',]);
 
     Route::post('events/verify', [EventController::class, 'verifyEvent'])->middleware(['throttle:5,1',]);
     Route::post('events/{event}/look', [EventController::class, 'stepTwo']);
+    Route::post('events/{event}/update', [EventController::class, 'update'])->middleware(['throttle:10,1',]);
+
     Route::get('events/{event}', [EventController::class, 'show'])->where('event', '[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}');
-    Route::apiResource('events', EventController::class)->except(['index', 'create', 'show']); //->middleware(['roles:organizer']);
+    Route::apiResource('events', EventController::class)->except(['index', 'create', 'show', 'update',]); //->middleware(['roles:organizer']);
 
 
     Route::get('/notifications', [NotificationController::class, 'index']);
