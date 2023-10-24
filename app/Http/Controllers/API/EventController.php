@@ -73,7 +73,7 @@ class EventController extends Controller
         $events = Event::query();
 
         if ($search) {
-            $events = $events->where('event_name', 'LIKE', '%' . $search . '%')->where('venue_name', 'LIKE', '%' . $search . '%');
+            $events = $events->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
         }
 
         if ($city) {
