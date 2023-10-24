@@ -74,6 +74,7 @@ class ArtistProposalResource extends JsonResource
             'event_name'        => $event->event_name,
             'is_public'         => $event->is_public ? 'Public Event' : 'Private Event',
             'created_at'        => $event->created_at,
+            'submitted_at'      => $this->created_at,
             'start_date'        => $event->start_date,
             'end_date'          => $event->end_date,
             'start_time'        => $event->start_time,
