@@ -244,7 +244,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('song-requests/{songRequest}/approval', [SongController::class, 'updateApprovalStatus']);
 
     Route::get('song-requests/create', [SongController::class, 'create']);
-
+    Route::get('song-requests/artists', [SongController::class, 'customSongs']);
     Route::apiResource('song-requests', SongController::class);
 
     Route::post('/organizer/{proposal}/accept-proposal', [ProposalController::class, 'organizerAccept']);

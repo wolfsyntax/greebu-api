@@ -12,6 +12,7 @@ use App\Models\SongType;
 use App\Models\SupportedLanguage;
 use App\Http\Resources\ArtistResource;
 use App\Http\Resources\SongRequestResource;
+use App\Http\Resources\SongCardResource;
 use Carbon\Carbon;
 
 use Illuminate\Support\Facades\Validator;
@@ -175,6 +176,26 @@ class SongController extends Controller
             'result'    => [
                 'song_request' => new SongRequestResource($songRequest),
                 //'artists'  => $songRequest->artists()->get()
+            ],
+        ]);
+    }
+
+    public function customSongs(Request $request)
+    {
+
+        $profile = Profile::myAccount('artist')->first();
+
+        if (!$profile) abort(403, 'No artist profile exists.');
+
+        $song_requests = SongRequest::whereHas('artists', function ($query) use ($profile) {
+            return $query->where('artist_id', $profile->artist->id);
+        })->get();
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => '',
+            'result'    => [
+                'song_requests'  => SongCardResource::collection($song_requests),
             ],
         ]);
     }

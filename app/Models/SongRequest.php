@@ -84,6 +84,11 @@ class SongRequest extends Model
         return $this->belongsTo(Duration::class);
     }
 
+    public function creator()
+    {
+        return $this->belongsTo(Profile::class);
+    }
+
     public function purpose()
     {
         return $this->belongsTo(Purpose::class);
