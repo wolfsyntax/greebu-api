@@ -76,6 +76,8 @@ class EventController extends Controller
             $events = $events->where('city', $city);
         }
 
+        $events = $events->where('start_date', '>=', now()->addDays(1)->isoFormat('YYYY-MM-DD'));
+
         if ($cost === 'free' || $cost === 'paid') {
 
             $events = $events->where(
@@ -91,8 +93,6 @@ class EventController extends Controller
         if ($search) {
             $events = $events->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
         }
-
-        $events = $events->where('start_date', '>=', now()->addDays(1)->isoFormat('YYYY-MM-DD'));
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
