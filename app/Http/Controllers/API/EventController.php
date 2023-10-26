@@ -72,27 +72,40 @@ class EventController extends Controller
 
         $events = Event::query();
 
-        if ($city) {
-            $events = $events->where('city', $city);
-        }
+        $events = $events->when($city !== '', function ($query) use ($city) {
+            return $query->where('city', 'LIKE', '%' . $city);
+        });
 
-        $events = $events->where('start_date', '>=', now()->addDays(1)->isoFormat('YYYY-MM-DD'));
+        // if ($city) {
+        //     $events = $events->where('city', $city);
+        // }
 
-        if ($cost === 'free' || $cost === 'paid') {
+        $events = $events->where('start_date', '>=', now()->addDays(1)->isoFormat('YYYY-MM-DD'))
+            ->when(in_array($cost, ['paid', 'free']), function ($query) use ($cost) {
+                return $query->where(
+                    'is_free',
+                    strtolower($cost) === 'free' ? true : false
+                );
+            })
+            ->when($search !== '', function ($query) use ($search) {
+                return $query->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
+            });
 
-            $events = $events->where(
-                'is_free',
-                strtolower($cost) === 'free' ? 1 : 0
-            );
-        }
+        // if ($cost === 'free' || $cost === 'paid') {
 
-        if ($event_type !== '') {
-            $events = $events->where('event_type', $event_type);
-        }
+        //     $events = $events->where(
+        //         'is_free',
+        //         strtolower($cost) === 'free' ? 1 : 0
+        //     );
+        // }
 
-        if ($search) {
-            $events = $events->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
-        }
+        // if ($event_type !== '') {
+        //     $events = $events->where('event_type', $event_type);
+        // }
+
+        // if ($search) {
+        //     $events = $events->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
+        // }
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
