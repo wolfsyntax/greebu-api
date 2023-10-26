@@ -177,6 +177,11 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('/artists-filter', [ArtistController::class, 'index']);
 
     Route::post('/artist-proposal/{proposal}/cancel', [ProposalController::class, 'cancelProposal']);
+    Route::get('/artist-proposal/accepted', [ProposalController::class, 'acceptedProposal']);
+    Route::get('/artist-proposal/accepted/ongoing', [ProposalController::class, 'acceptedOngoingProposal']);
+    Route::get('/artist-proposal/accepted/upcoming', [ProposalController::class, 'acceptedUpcomingProposal']);
+    Route::get('/artist-proposal/accepted/past', [ProposalController::class, 'acceptedPastProposal']);
+
     Route::apiResource('artist-proposal', ProposalController::class);
 
     Route::resource('artists', ArtistController::class)->except(['index']);

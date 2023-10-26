@@ -9,6 +9,7 @@ use App\Http\Resources\ProfileResource;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notification;
 use App\Events\NotificationCreated;
+use App\Http\Resources\EventResource;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 
@@ -28,7 +29,7 @@ class ProposalController extends Controller
     {
 
         $this->middleware(['role:artists'])->only([
-            'store', 'update', 'destroy', 'cancelProposal',
+            'store', 'update', 'destroy', 'cancelProposal', 'acceptedProposal',
         ]);
 
         $this->middleware(['role:artists|organizer'])->only([
@@ -278,5 +279,228 @@ class ProposalController extends Controller
     public function destroy(ArtistProposal $proposal)
     {
         //
+    }
+
+    public function acceptedProposal(Request $request)
+    {
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+            'filterBy'      => ['nullable', 'in:pending,accepted,declined',],
+        ]);
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 16));
+        $offset = ($page - 1) * $perPage;
+
+        $profile = \App\Models\Profile::myAccount('artists')->first();
+
+        if (!$profile) abort(404, 'User profile not found.');
+
+        $proposals = ArtistProposal::where('status', 'accepted')->whereNot('accepted_at', null)->where('artist_id', $profile->artist->id)->get()->map->event_id;
+
+        $ongoing = Event::query();
+        $upcoming = Event::query();
+        $past = Event::query();
+
+        if ($search) {
+            $ongoing = $ongoing->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
+            $upcoming = $upcoming->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
+            $past = $past->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
+        }
+
+        $ongoing = $ongoing->whereIn('id', $proposals);
+        $upcoming = $upcoming->whereIn('id', $proposals);
+        $past = $past->whereIn('id', $proposals);
+
+        $ongoing = $ongoing->whereBetween('start_date', [$now, $endOfWeek])
+            ->orderBy('start_date', $orderBy)
+            ->orderBy('start_time', 'ASC')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+        $upcoming = $upcoming->where('start_date', '>', $endOfWeek)
+            ->orderBy('start_date', $orderBy)
+            ->orderBy('start_time', 'ASC')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+        $past = $past->where('end_date', '<', $now)
+            ->orderBy('start_date', $orderBy)
+            ->orderBy('start_time', 'ASC')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Accepted events',
+            'result'    => [
+                'now'       => $now,
+                'endOfWeek' => $endOfWeek,
+                'ongoing'   => EventResource::collection($ongoing),
+                'upcoming'  => EventResource::collection($upcoming),
+                'past'      => EventResource::collection($past),
+            ]
+        ]);
+    }
+
+    public function acceptedOngoingProposal(Request $request)
+    {
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+            'filterBy'      => ['nullable', 'in:pending,accepted,declined',],
+        ]);
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 16));
+        $offset = ($page - 1) * $perPage;
+
+        $profile = \App\Models\Profile::myAccount('artists')->first();
+
+        if (!$profile) abort(404, 'User profile not found.');
+
+        $proposals = ArtistProposal::where('status', 'accepted')->whereNot('accepted_at', null)->where('artist_id', $profile->artist->id)->get()->map->event_id;
+
+        $ongoing = Event::query();
+
+        if ($search) $ongoing = $ongoing->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
+
+        $ongoing = $ongoing->whereIn('id', $proposals);
+
+        $ongoing = $ongoing->whereBetween('start_date', [$now, $endOfWeek])
+            ->orderBy('start_date', $orderBy)
+            ->orderBy('start_time', 'ASC')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Accepted ongoing events',
+            'result'    => [
+                'now'       => $now,
+                'endOfWeek' => $endOfWeek,
+                'events'   => EventResource::collection($ongoing),
+            ]
+        ]);
+    }
+
+    public function acceptedUpcomingProposal(Request $request)
+    {
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+            'filterBy'      => ['nullable', 'in:pending,accepted,declined',],
+        ]);
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 16));
+        $offset = ($page - 1) * $perPage;
+
+        $profile = \App\Models\Profile::myAccount('artists')->first();
+
+        if (!$profile) abort(404, 'User profile not found.');
+
+        $proposals = ArtistProposal::where('status', 'accepted')->whereNot('accepted_at', null)->where('artist_id', $profile->artist->id)->get()->map->event_id;
+
+        $upcoming = Event::query();
+
+        if ($search) $upcoming = $upcoming->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
+
+        $upcoming = $upcoming->whereIn('id', $proposals);
+
+        $upcoming = $upcoming->where('start_date', '>', $endOfWeek)
+            ->orderBy('start_date', $orderBy)
+            ->orderBy('start_time', 'ASC')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Accepted upcoming events',
+            'result'    => [
+                'now'       => $now,
+                'endOfWeek' => $endOfWeek,
+                'events'  => EventResource::collection($upcoming),
+            ]
+        ]);
+    }
+
+    public function acceptedPastProposal(Request $request)
+    {
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+            'filterBy'      => ['nullable', 'in:pending,accepted,declined',],
+        ]);
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 16));
+        $offset = ($page - 1) * $perPage;
+
+        $profile = \App\Models\Profile::myAccount('artists')->first();
+
+        if (!$profile) abort(404, 'User profile not found.');
+
+        $proposals = ArtistProposal::where('status', 'accepted')->whereNot('accepted_at', null)->where('artist_id', $profile->artist->id)->get()->map->event_id;
+
+        $past = Event::query();
+
+        if ($search) $past = $past->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
+
+        $past = $past->whereIn('id', $proposals)->where('end_date', '<', $now)
+            ->orderBy('start_date', $orderBy)
+            ->orderBy('start_time', 'ASC')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Accepted past events',
+            'result'    => [
+                'now'       => $now,
+                'endOfWeek' => $endOfWeek,
+                'events'      => EventResource::collection($past),
+            ]
+        ]);
     }
 }
