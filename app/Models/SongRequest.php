@@ -19,13 +19,15 @@ class SongRequest extends Model
      */
     protected $fillable = [
         'creator_id',
-        'artist_type_id', 'genre_id', 'song_type_id', 'language_id',
+        // 'artist_type_id',
+        // 'genre',
+        'song_type_id', 'language_id',
         'duration_id', 'purpose_id',
         'first_name', 'last_name', 'email',
-        'page_status', 'approval_status',
+        'page_status', 'approval_status', 'approved_at',
         'sender', 'receiver',
         'user_story', 'estimate_date',
-        'delivery_date', 'approved_at',
+        'delivery_date', 'approved_at', 'verification_status',
         // 'request_status',
     ];
 
@@ -39,7 +41,7 @@ class SongRequest extends Model
     protected $casts = [
         'creator_id'            => 'string',
         // 'artist_type_id'        => 'string',
-        // 'genre_id'              => 'string',
+        // 'genre'                 => 'string',
         'song_type_id'          => 'string',
         'language_id'           => 'string',
         'duration_id'           => 'string',

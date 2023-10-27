@@ -105,7 +105,7 @@ class ArtistController extends Controller
 
             $artists = $artists->whereHas('genres', function ($query) use ($genre) {
                 // return $query->where('genre_title', 'LIKE', '%' . $genre->title . '%');
-                return $query->where('genre_title', $genre->title);
+                return $query->where('genre_title', $genre);
             });
         }
 

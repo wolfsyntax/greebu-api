@@ -238,19 +238,22 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
 
+    Route::post('song-requests/{role}', [SongController::class, 'store']);
     Route::post('song-requests/info/{song?}', [SongController::class, 'stepOne']);
     Route::post('song-requests/song/{song}', [SongController::class, 'stepTwo'])->middleware(['restrictEdit']);
     Route::post('song-requests/story/{song}', [SongController::class, 'stepThree'])->middleware(['restrictEdit']);
     Route::post('song-requests/review/{song}', [SongController::class, 'stepFinal'])->middleware(['restrictEdit']);
 
 
+    Route::post('song-requests/{songRequest}/delivery', [SongController::class, 'deliveryDate']);
     Route::post('song-requests/{songRequest}/verified', [SongController::class, 'updateVerificationStatus']);
     Route::post('song-requests/{songRequest}/request', [SongController::class, 'updateRequestStatus']);
     Route::post('song-requests/{songRequest}/approval', [SongController::class, 'updateApprovalStatus']);
 
     Route::get('song-requests/create', [SongController::class, 'create']);
     Route::get('song-requests/artists', [SongController::class, 'customSongs']);
-    Route::apiResource('song-requests', SongController::class);
+
+    Route::apiResource('song-requests', SongController::class)->except(['store']);
 
     Route::post('/organizer/{proposal}/accept-proposal', [ProposalController::class, 'organizerAccept']);
     Route::post('/organizer/{proposal}/decline-proposal', [ProposalController::class, 'organizerDecline']);
