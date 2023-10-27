@@ -196,6 +196,25 @@ class SongController extends Controller
         ]);
     }
 
+    public function deliveryDate(Request $request, SongRequest $songRequest)
+    {
+        $request->validate([
+            'delivery_date' => ['required', 'after_or_equal:' . now()->addDays(5)->isoFormat('YYYY-MM-DD'),],
+        ]);
+
+        $songRequest->update([
+            'delivery_date' => $request->input('delivery_date'),
+        ]);
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => '',
+            'result'    => [
+                'song'  => new SongCardResource($songRequest),
+            ],
+        ]);
+    }
+
     public function customSongs(Request $request)
     {
 
@@ -205,7 +224,7 @@ class SongController extends Controller
 
         $song_requests = SongRequest::whereHas('artists', function ($query) use ($profile) {
             return $query->where('artist_id', $profile->artist->id);
-        })->get();
+        })->where('page_status', 'review')->get();
 
         return response()->json([
             'status'    => 200,

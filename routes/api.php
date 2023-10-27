@@ -245,6 +245,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('song-requests/review/{song}', [SongController::class, 'stepFinal'])->middleware(['restrictEdit']);
 
 
+    Route::post('song-requests/{songRequest}/delivery', [SongController::class, 'deliveryDate']);
     Route::post('song-requests/{songRequest}/verified', [SongController::class, 'updateVerificationStatus']);
     Route::post('song-requests/{songRequest}/request', [SongController::class, 'updateRequestStatus']);
     Route::post('song-requests/{songRequest}/approval', [SongController::class, 'updateApprovalStatus']);
