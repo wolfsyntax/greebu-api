@@ -67,26 +67,42 @@ class SongController extends Controller
     {
 
         $request->validate([
-            // 'artist_type_id'    => ['required', 'exists:artist_types,id',],
-            'artists'            => ['required', 'array', 'max:3'],
-            'artists.*.id'       => ['required', 'exists:artists,id',],
-            // 'genre_id'          => ['required', 'exists:genres,id',],
-            'song_type_id'      => ['required', 'exists:song_types,id',], // mood
-            'language_id'       => ['required', '',], // supported_languages
-            'duration_id'       => ['required', '',], // durations
-            'purpose_id'        => ['required', '',], // purposes
+            // Step One
             'first_name'        => ['required', 'string', 'max:255',],
             'last_name'         => ['required', 'string', 'max:255',],
             'email'             => ['required', 'email:rfc,dns', 'max:255',],
+            // 'role'              => ['required', 'in:service-provider,artists,organizer,customers',],
+            // Step Two
+            'artists'            => ['required', 'array', 'max:3'],
+            'artists.*.*'       => ['required', 'exists:artists,id',],
+            'song_type_id'      => ['required', 'exists:song_types,id',], // mood
+            'language_id'       => ['required', 'exists:supported_languages,id',], // supported_languages
+            'duration_id'       => ['required', 'exists:durations,id',], // durations
+            // Step Three
+            'purpose_id'        => ['required', 'exists:purposes,id',], // purposes
             'sender'            => ['required', 'string', 'max:255',],
             'receiver'          => ['required', 'string', 'max:255',],
             'user_story'        => ['required', 'string', 'max:500',],
-            'page_status'       => ['required', 'string', 'max:64'],
+            // // 'artist_type_id'    => ['required', 'exists:artist_types,id',],
+            // 'artists'            => ['required', 'array', 'max:3'],
+            // 'artists.*.id'       => ['required', 'exists:artists,id',],
+            // // 'genre_id'          => ['required', 'exists:genres,id',],
+            // 'song_type_id'      => ['required', 'exists:song_types,id',], // mood
+            // 'language_id'       => ['required', '',], // supported_languages
+            // 'duration_id'       => ['required', '',], // durations
+            // 'purpose_id'        => ['required', '',], // purposes
+
+            // 'sender'            => ['required', 'string', 'max:255',],
+            // 'receiver'          => ['required', 'string', 'max:255',],
+            // 'user_story'        => ['required', 'string', 'max:500',],
+            // 'page_status'       => ['required', 'string', 'max:64'],
         ]);
 
-        $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
-            $query->where('name', 'LIKE', '%' . $role . '%');
-        })->first();
+        // $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
+        //     $query->where('name', 'LIKE', '%' . $role . '%');
+        // })->first();
+
+        $profile = Profile::myAccount($role)->first();
 
         $songs = SongRequest::create([
             'creator_id'        => $profile->id,
@@ -103,7 +119,7 @@ class SongController extends Controller
             'receiver'          => $request->receiver,
             'user_story'        => $request->user_story,
             'request_status'    => 'pending',
-            'page_status'       => $request->page_status,
+            'page_status'       => $request->input('page_status', 'review'),
         ]);
 
         $artist = \App\Models\Artist::whereIn('id', collect($request->artists)->pluck('id'))->get();
@@ -405,7 +421,7 @@ class SongController extends Controller
             'status'    => 200,
             'message'   => 'Song request successfully created.',
             'result'    => [
-                'song_request' => $song,
+                'song_request' => new SongRequestResource($song),
             ],
         ], 200);
     }
@@ -426,6 +442,7 @@ class SongController extends Controller
         // ]);
 
         $request->validate([
+            // 'genre'             => ['required', 'string',],
             'artists'            => ['required', 'array', 'max:3'],
             'artists.*.*'       => ['required', 'exists:artists,id',],
             'song_type_id'      => ['required', 'exists:song_types,id',], // mood
@@ -435,6 +452,7 @@ class SongController extends Controller
         ]);
 
         $song->update([
+            'genre'         => $request->input('genre', ''),
             'song_type_id'  => $request->input('song_type_id'),
             'language_id'   => $request->input('language_id'),
             'duration_id'   => $request->input('duration_id'),
@@ -472,7 +490,7 @@ class SongController extends Controller
             'status'    => 200,
             'message'   => 'Song request successfully created.',
             'result'    => [
-                'song_request' => $song,
+                'song_request' => new SongRequestResource($song),
             ],
         ], 200);
     }
@@ -504,7 +522,7 @@ class SongController extends Controller
             'status'    => 200,
             'message'   => 'Song request successfully created.',
             'result'    => [
-                'song_request' => $song,
+                'song_request' => new SongRequestResource($song),
             ],
         ], 200);
     }
@@ -526,7 +544,7 @@ class SongController extends Controller
             'status'    => 200,
             'message'   => 'Song request successfully created.',
             'result'    => [
-                'song_request' => $song,
+                'song_request' => new SongRequestResource($song),
             ],
         ], 200);
     }

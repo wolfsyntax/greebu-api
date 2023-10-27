@@ -28,10 +28,10 @@ class SongCardResource extends JsonResource
         }
         return [
             'user_story'                => $this->user_story ?? '',
-            'song_request_id'                => $this->id ?? '',
+            'song_request_id'           => $this->id ?? '',
             'purpose'                   => $this->purpose->name ?? '',
             'mood'                      => $this->mood->name ?? '',
-            // 'genre'
+            'genre'                     => $this->genre,
             'language'                  => $this->language->name ?? '',
             'creator'                   => [
                 'name'                  => $this->creator->business_name,
