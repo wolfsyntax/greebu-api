@@ -115,6 +115,11 @@ class Event extends Model
         return $this->belongsTo(Organizer::class);
     }
 
+    public function proposals()
+    {
+        return $this->hasMany(ArtistProposal::class);
+    }
+
     public function lookTypes()
     {
         return $this->hasMany(LookType::class);
