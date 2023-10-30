@@ -88,7 +88,11 @@ class EventController extends Controller
                 );
             })
             ->when($search !== '', function ($query) use ($search) {
-                return $query->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
+                return $query->where('event_name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('venue_name', 'LIKE', '%' . $search . '%')
+                    ->orWhereHas('organizer.profile', function ($query) use ($search) {
+                        return $query->where('business_name', 'LIKE', '%' . $search . '%');
+                    });
             });
 
         // if ($cost === 'free' || $cost === 'paid') {
