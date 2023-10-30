@@ -9,6 +9,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Libraries\AwsService;
 
 class Profile extends Model
 {
@@ -33,7 +34,7 @@ class Profile extends Model
         'youtube', 'spotify', 'twitter', 'instagram', 'facebook', 'threads',
     ];
 
-    protected $appends = [];
+    protected $appends = ['avatarUrl',];
 
     /**
      * The attributes that should be cast.
@@ -125,5 +126,26 @@ class Profile extends Model
         return $query->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
             $query->where('name', 'LIKE', '%' . $role . '%');
         });
+    }
+
+    /**
+     * Get Full name
+     * @return string
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        $service = new AwsService();
+        $avatar = $this->avatar;
+
+        if (!$avatar) {
+            $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        } else {
+            $avatar_host = parse_url($avatar);
+            if (!array_key_exists('host', $avatar_host)) {
+                $avatar = $service->get_aws_object($avatar);
+            }
+        }
+
+        return $avatar;
     }
 }

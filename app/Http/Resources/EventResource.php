@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\Organizer;
 use App\Models\EventType;
 use App\Models\Profile;
-
+use App\Models\ArtistProposal;
 use App\Libraries\AwsService;
 
 class EventResource extends JsonResource
@@ -51,6 +51,22 @@ class EventResource extends JsonResource
             if ($profile) $accept_proposal = true;
         }
 
+
+        $proposals = ArtistProposal::with('artist.profile')->where('event_id', $this->id)->where('status', 'accepted')->whereNot('accepted_at', null)->get();
+
+        $data = [];
+
+        foreach ($proposals as $proposal) {
+            $artist = $proposal->artist;
+            $data[] = [
+                'artist_id'     => $artist->id ?? '',
+                'profile_id'    => $artist->profile->id ?? '',
+                'name'          => $artist->profile->business_name ?? '',
+                'avatar'        => $artist->profile->avatar_url ?? '',
+                'artist_type'   => $artist->artistType->title ?? '',
+            ];
+        }
+
         return [
             'id'                => $this->id,
             'organizer_avatar'  => $avatar,
@@ -85,6 +101,7 @@ class EventResource extends JsonResource
             'requirement'       => $this->requirement,
             'created_at'        => $this->created_at,
             'accept_proposal'   => $this->when($this->organizer->accept_proposal, $this->organizer->accept_proposal),
+            'artist'            => $this->when($data, $data),
         ];
         return parent::toArray($request);
     }
