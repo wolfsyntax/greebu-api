@@ -130,7 +130,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
         ]);
     });
 
-    Route::get('events', [EventController::class, 'index'])->middleware(['role:artists|organizer']);
+    Route::get('events', [EventController::class, 'index'])/*->middleware(['role:organizer'])*/;
 
     Route::get('/', function () {
         if (auth()->user()) {

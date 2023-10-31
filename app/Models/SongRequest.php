@@ -31,7 +31,7 @@ class SongRequest extends Model
         // 'request_status',
     ];
 
-    protected $appends = [];
+    protected $appends = ['clientInfo',];
 
     /**
      * The attributes that should be cast.
@@ -94,5 +94,14 @@ class SongRequest extends Model
     public function purpose()
     {
         return $this->belongsTo(Purpose::class);
+    }
+
+    /**
+     * Get Client name
+     * @return string
+     */
+    public function getClientInfoAttribute(): string
+    {
+        return $this->first_name . ' ' . $this->last_name;
     }
 }
