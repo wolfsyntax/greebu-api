@@ -42,6 +42,7 @@ class SongCardResource extends JsonResource
             'sender'                    => $this->sender ?? '',
             'receiver'                  => $this->receiver ?? '',
             'purpose'                   => $this->purpose->name ?? '',
+            'fullname'                  => $this->clientInfo,
             'first_name'                => $this->first_name ?? '',
             'last_name'                 => $this->last_name ?? '',
             'email'                     => $this->email ?? '',
