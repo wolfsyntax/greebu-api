@@ -102,6 +102,8 @@ class EventResource extends JsonResource
             'created_at'        => $this->created_at,
             'accept_proposal'   => $this->when($this->organizer->accept_proposal, $this->organizer->accept_proposal),
             'artist'            => $this->when($data, $data),
+            'is_cancelled'      => $this->deleted_at ? true : false,
+            'reason'            => $this->reason,
         ];
         return parent::toArray($request);
     }

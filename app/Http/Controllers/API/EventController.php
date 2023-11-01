@@ -497,6 +497,34 @@ class EventController extends Controller
         ]);
     }
 
+    public function cancelEvent(Request $request, Event $event)
+    {
+        $request->validate([
+            'reason' => ['required', 'string', 'max:255',]
+        ]);
+
+        $event->update([
+            'reason' => $request->input('reason', 'others'),
+            'deleted_at' => now(),
+        ]);
+
+        $event->delete();
+
+        $organizer = Profile::myAccount('organizer')->first()->organizer;
+
+        $orderBy = $request->input('sortBy', 'ASC');
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+        $perPage = intval($request->input('per_page', 9));
+        $offset = ($page - 1) * $perPage;
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Event successfully deleted.",
+            'result' => [
+                'events' => EventResource::collection(Event::where('organizer_id', $organizer->id)->skip($offset)->take($perPage)->get()),
+            ]
+        ]);
+    }
     /**
      * Update the specified resource in storage.
      */
@@ -668,7 +696,7 @@ class EventController extends Controller
         $perPage = intval($request->input('per_page', 9));
         $offset = ($page - 1) * $perPage;
 
-        $events = Event::where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)
+        $events = Event::withTrashed()->where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)
             ->whereBetween('start_date', [$now, $endOfWeek])
             ->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
 
@@ -705,7 +733,7 @@ class EventController extends Controller
         $perPage = intval($request->input('per_page', 9));
         $offset = ($page - 1) * $perPage;
 
-        $events = Event::where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->where('start_date', '>', $endOfWeek)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+        $events = Event::withTrashed()->where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->where('start_date', '>', $endOfWeek)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
 
         return response()->json([
             'status'        => 200,
@@ -740,7 +768,7 @@ class EventController extends Controller
         $perPage = intval($request->input('per_page', 9));
         $offset = ($page - 1) * $perPage;
 
-        $events = Event::where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->where('end_date', '<', $now)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+        $events = Event::withTrashed()->where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->where('end_date', '<', $now)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
 
         return response()->json([
             'status'        => 200,
