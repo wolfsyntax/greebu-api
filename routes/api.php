@@ -225,6 +225,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('events/{event}/look', [EventController::class, 'stepTwo']);
     Route::post('events/{event}/update', [EventController::class, 'update'])->middleware(['throttle:10,1',]);
 
+    Route::post('events/{event}', [EventController::class, 'cancelEvent']);
     Route::get('events/{event}', [EventController::class, 'show'])->where('event', '[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}');
     Route::apiResource('events', EventController::class)->except(['index', 'create', 'show', 'update',]); //->middleware(['roles:organizer']);
 

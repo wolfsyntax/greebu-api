@@ -31,6 +31,7 @@ class Event extends Model
         'status', 'review_status',
         // What are you looking for?
         'look_for', /*'look_type',*/ 'requirement',
+        'reason', 'deleted_at',
     ];
 
     protected $appends = [
@@ -43,6 +44,7 @@ class Event extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'reason'            => 'string',
         'organizer_id'      => 'string',
         'event_type'        => 'string',
         'cover_photo'       => 'string',
@@ -72,6 +74,7 @@ class Event extends Model
     ];
 
     protected $attributes = [
+        'reason'            => '',
         // 'cover_photo'       => '',
         'event_name'        => '',
         'event_type'        => '',
