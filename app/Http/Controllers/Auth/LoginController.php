@@ -130,6 +130,7 @@ class LoginController extends Controller
 
             $user->last_login = now();
             $user->save();
+            // $user->setUserRole($role);
 
             activity()
                 ->performedOn($user)

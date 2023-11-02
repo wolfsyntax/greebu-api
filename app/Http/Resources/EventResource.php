@@ -43,16 +43,25 @@ class EventResource extends JsonResource
 
         $seeking = \App\Models\LookType::select('look_type')->where('event_id', $this->id)->get()->map->look_type;
 
-        $accept_proposal = false;
+        // $accept_proposal = false;
+        $artistId = '';
+
+        $profile = null;
+        $canSend = false;
 
         if (auth()->user()) {
-            $userId = auth()->id();
+
             $profile = Profile::myAccount('artists')->first();
-            if ($profile) $accept_proposal = true;
+
+            if ($profile) {
+                $artistId = $profile->artist->id;
+                $canSend = !ArtistProposal::where('event_id', $this->id)->where('artist_id', $artistId)->whereNot('status', 'declined')->exists();
+            }
+            // if ($profile) $accept_proposal = true;
         }
 
 
-        $proposals = ArtistProposal::with('artist.profile')->where('event_id', $this->id)->where('status', 'accepted')->whereNot('accepted_at', null)->get();
+        $proposals = ArtistProposal::with('artist.profile')->where('event_id', $this->id)->where('status', 'accepted')->whereNot('accepted_at', null)->get()->unique(['artist_id', 'event_id',]);
 
         $data = [];
 
@@ -65,6 +74,8 @@ class EventResource extends JsonResource
                 'avatar'        => $artist->profile->avatar_url ?? '',
                 'artist_type'   => $artist->artistType->title ?? '',
             ];
+
+            // if ($canSend && $artist->id === $artistId) $canSend = false;
         }
 
         return [
@@ -104,6 +115,7 @@ class EventResource extends JsonResource
             'artist'            => $this->when($data, $data),
             'is_cancelled'      => $this->deleted_at ? true : false,
             'reason'            => $this->reason,
+            'can_send'          => $this->when($artistId, $canSend),
         ];
         return parent::toArray($request);
     }
