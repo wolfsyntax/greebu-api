@@ -9,6 +9,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Libraries\AwsService;
 
 class Profile extends Model
@@ -112,6 +113,16 @@ class Profile extends Model
     public function following()
     {
         return $this->belongsToMany(Profile::class, 'followers', 'follower_id', 'following_id')->withTimestamps();
+    }
+
+    /**
+     * Get all of the events created by Organizer
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
     }
 
     public function scopeAccount($query, string $role)

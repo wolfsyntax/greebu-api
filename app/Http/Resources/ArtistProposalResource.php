@@ -20,34 +20,35 @@ class ArtistProposalResource extends JsonResource
 
         $event = $this->event;
         $artist = $this->artist;
-        $organizer = $this->event->organizer;
 
         $artist_profile = $this->artist->profile;
-        $organizer_profile = $this->event->organizer->profile;
+        $organizer_profile = $this->event->profile;
 
-        $organizer_avatar = $organizer_profile->avatar;
-        $artist_avatar = $artist_profile->avatar;
+        // $organizer_avatar = $organizer_profile->avatar;
+        // $artist_avatar = $artist_profile->avatar;
+        $organizer_avatar = $organizer_profile->avatarUrl;
+        $artist_avatar = $artist_profile->avatarUrl;
 
         $cover_photo = $event->cover_photo;
         $song = $this->sample_song;
 
-        if (!$organizer_avatar) {
-            $organizer_avatar = 'https://ui-avatars.com/api/?name=' . substr($organizer_profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        } else {
-            $avatar_host = parse_url($organizer_avatar);
-            if (!array_key_exists('host', $avatar_host)) {
-                $organizer_avatar = $service->get_aws_object($organizer_avatar);
-            }
-        }
+        // if (!$organizer_avatar) {
+        //     $organizer_avatar = 'https://ui-avatars.com/api/?name=' . substr($organizer_profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        // } else {
+        //     $avatar_host = parse_url($organizer_avatar);
+        //     if (!array_key_exists('host', $avatar_host)) {
+        //         $organizer_avatar = $service->get_aws_object($organizer_avatar);
+        //     }
+        // }
 
-        if (!$artist_avatar) {
-            $artist_avatar = 'https://ui-avatars.com/api/?name=' . substr($artist_profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        } else {
-            $avatar_host = parse_url($artist_avatar);
-            if (!array_key_exists('host', $avatar_host)) {
-                $artist_avatar = $service->get_aws_object($artist_avatar);
-            }
-        }
+        // if (!$artist_avatar) {
+        //     $artist_avatar = 'https://ui-avatars.com/api/?name=' . substr($artist_profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        // } else {
+        //     $avatar_host = parse_url($artist_avatar);
+        //     if (!array_key_exists('host', $avatar_host)) {
+        //         $artist_avatar = $service->get_aws_object($artist_avatar);
+        //     }
+        // }
 
         if (!$cover_photo) {
             $cover_photo = 'https://ui-avatars.com/api/?name=' . substr($event->event_name, '', 0, 1) . '&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);

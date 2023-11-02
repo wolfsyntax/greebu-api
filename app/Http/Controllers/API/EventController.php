@@ -76,10 +76,6 @@ class EventController extends Controller
             return $query->where('city', 'LIKE', '%' . $city);
         });
 
-        // if ($city) {
-        //     $events = $events->where('city', $city);
-        // }
-
         $events = $events->where('start_date', '>=', now()->addDays(1)->isoFormat('YYYY-MM-DD'))
             ->when(in_array($cost, ['paid', 'free']), function ($query) use ($cost) {
                 return $query->where(
@@ -90,65 +86,15 @@ class EventController extends Controller
             ->when($search !== '', function ($query) use ($search) {
                 return $query->where('event_name', 'LIKE', '%' . $search . '%')
                     ->orWhere('venue_name', 'LIKE', '%' . $search . '%')
-                    ->orWhereHas('organizer.profile', function ($query) use ($search) {
+                    ->orWhereHas('profile', function ($query) use ($search) {
                         return $query->where('business_name', 'LIKE', '%' . $search . '%');
                     });
             });
-
-        // if ($cost === 'free' || $cost === 'paid') {
-
-        //     $events = $events->where(
-        //         'is_free',
-        //         strtolower($cost) === 'free' ? 1 : 0
-        //     );
-        // }
-
-        // if ($event_type !== '') {
-        //     $events = $events->where('event_type', $event_type);
-        // }
-
-        // if ($search) {
-        //     $events = $events->where('event_name', 'LIKE', '%' . $search . '%')->orWhere('venue_name', 'LIKE', '%' . $search . '%');
-        // }
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
         $perPage = intval($request->input('per_page', 16));
         $offset = ($page - 1) * $perPage;
-
-        if (auth()->check()) {
-
-            // $data = [
-            //     'events'        => EventResource::collection($events->skip($offset)->take($perPage)->get()),
-            //     'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-            //     'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
-            //     'pagination'    => [
-            //         'total'     => $events->count(),
-            //         'last_page' => ceil($events->count() / $perPage),
-            //         'per_page'  => $perPage,
-            //         'offset'    => $offset,
-            //     ],
-            //     'query'         => [
-            //         $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
-            //     ],
-            // ];
-        } else {
-
-            // $data = [
-            //     'events'        => EventResource::collection($events->skip($offset)->take($perPage)->get()),
-            //     'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-            //     'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
-            //     'pagination'    => [
-            //         'total'     => $events->count(),
-            //         'last_page' => ceil($events->count() / $perPage),
-            //         'per_page'  => $perPage,
-            //         'offset'    => $offset,
-            //     ],
-            //     'query'         => [
-            //         $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
-            //     ],
-            // ];
-        }
 
         $events = $events->orderBy('created_at', $orderBy);
 
@@ -253,12 +199,13 @@ class EventController extends Controller
         $profile = \App\Models\Profile::myAccount('organizer')->first();
 
 
-        $organizer = \App\Models\Organizer::where('profile_id', $profile->id)->firstOrFail();
+        // $organizer = \App\Models\Organizer::where('profile_id', $profile->id)->firstOrFail();
 
-        if (!$organizer) abort(404, 'User does not have organizer account.');
+        if (!$profile) abort(404, 'User does not have organizer account.');
 
         $event = Event::create([
-            'organizer_id'      => $organizer->id,
+            // 'organizer_id'      => $profile->id,
+            'profile_id'      => $profile->id,
             'cover_photo'       => '', //$request->input('cover_photo'),
             'event_type'        => $request->input('event_type'),
             'event_name'        => $request->input('event_name'),
@@ -286,7 +233,7 @@ class EventController extends Controller
         ]);
 
         if ($request->hasFile('cover_photo')) {
-            $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $organizer->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+            $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $profile->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
             $event->save();
         }
 
@@ -369,14 +316,12 @@ class EventController extends Controller
             'cover_photo.dimensions'    => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
         ]);
 
-        $profile = \App\Models\Profile::where('user_id', auth()->user()->id)->whereHas('roles', function ($query) {
-            $query->where('name', 'organizer');
-        })->first();
+        $profile = \App\Models\Profile::myAccount('organizer')->first();
 
 
-        $organizer = \App\Models\Organizer::where('profile_id', $profile->id)->firstOrFail();
+        // $organizer = \App\Models\Organizer::where('profile_id', $profile->id)->firstOrFail();
 
-        if (!$organizer) {
+        if (!$profile) {
 
             activity()
                 ->performedOn($event)
@@ -389,12 +334,12 @@ class EventController extends Controller
             abort(404, 'User does not have organizer account.');
         }
 
-        if (!$event->where('organizer_id', $organizer->id)->first()) {
+        if (!$event->where('profile_id', $profile->id)->first()) {
 
             activity()
                 ->performedOn($event)
                 ->withProperties([
-                    'organizer' => $organizer,
+                    'organizer' => $profile->organizer,
                     'profile'   => $profile,
                     'user'      => auth()->user(),
                 ])
@@ -404,7 +349,7 @@ class EventController extends Controller
         }
 
         if ($request->hasFile('cover_photo')) {
-            $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $organizer->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+            $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $profile->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
         }
 
         if ($request->hasFile('cover_photo')) {
@@ -415,7 +360,7 @@ class EventController extends Controller
                 $service->delete_aws_object($event->cover_photo);
             }
 
-            $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $organizer->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+            $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $profile->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
             $event->save();
         }
 
@@ -460,7 +405,7 @@ class EventController extends Controller
             ->performedOn($event)
             ->withProperties([
                 'look_types'    => $event->lookTypes()->get(),
-                'organizer'     => $organizer,
+                'organizer'     => $profile->organizer,
                 'profile'       => $profile,
                 'user'          => auth()->user(),
             ])
@@ -481,7 +426,8 @@ class EventController extends Controller
     public function destroy(Request $request, Event $event)
     {
         $event->delete();
-        $organizer = Profile::myAccount('organizer')->first()->organizer;
+        // $organizer = Profile::myAccount('organizer')->first()->organizer;
+        $organizer = Profile::myAccount('organizer')->first();
 
         $orderBy = $request->input('sortBy', 'ASC');
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
@@ -492,7 +438,7 @@ class EventController extends Controller
             'status' => 200,
             'message' => "Event successfully deleted.",
             'result' => [
-                'events' => EventResource::collection(Event::where('organizer_id', $organizer->id)->skip($offset)->take($perPage)->get()),
+                'events' => EventResource::collection(Event::where('profile_id', $organizer->id)->skip($offset)->take($perPage)->get()),
             ]
         ]);
     }
@@ -510,7 +456,8 @@ class EventController extends Controller
 
         $event->delete();
 
-        $organizer = Profile::myAccount('organizer')->first()->organizer;
+        // $organizer = Profile::myAccount('organizer')->first()->organizer;
+        $organizer = Profile::myAccount('organizer')->first();
 
         $orderBy = $request->input('sortBy', 'ASC');
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
@@ -521,7 +468,7 @@ class EventController extends Controller
             'status' => 200,
             'message' => "Event successfully deleted.",
             'result' => [
-                'events' => EventResource::collection(Event::where('organizer_id', $organizer->id)->skip($offset)->take($perPage)->get()),
+                'events' => EventResource::collection(Event::where('profile_id', $organizer->id)->skip($offset)->take($perPage)->get()),
             ]
         ]);
     }
@@ -544,20 +491,18 @@ class EventController extends Controller
             'cover_photo.dimensions'    => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
         ]);
 
-        $profile = \App\Models\Profile::where('user_id', auth()->user()->id)->whereHas('roles', function ($query) {
-            $query->where('name', 'organizer');
-        })->first();
+        $profile = \App\Models\Profile::myAccount('organizer')->first();
 
-        $organizer = \App\Models\Organizer::where('profile_id', $profile->id)->firstOrFail();
+        // $organizer = \App\Models\Organizer::where('profile_id', $profile->id)->firstOrFail();
 
-        if (!$organizer) abort(404, 'User does not have organizer account.');
+        if (!$profile) abort(404, 'User does not have organizer account.');
 
-        if (!$event->where('organizer_id', $organizer->id)->first()) {
+        if (!$event->where('profile_id', $profile->id)->first()) {
             abort(403, 'Organizer is not the event creator.');
         }
 
         if ($request->hasFile('cover_photo')) {
-            $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $organizer->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+            $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $profile->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
         }
 
         if ($request->has('event_type')) $event->event_types_id = $request->input('event_type');
@@ -652,7 +597,8 @@ class EventController extends Controller
 
     public function dashboardEvents(Request $request)
     {
-        $organizer = Profile::myAccount('organizer')->first()->organizer;
+        // $organizer = Profile::myAccount('organizer')->first()->organizer;
+        $organizer = Profile::myAccount('organizer')->first();
 
         $starOfWeek = now()->startOfWeek()->format('Y-m-d');
         $endOfWeek = now()->endOfWeek()->format('Y-m-d');
@@ -664,17 +610,17 @@ class EventController extends Controller
         */
         return response()->json([
             // Past Events
-            'past_event' => EventResource::collection(Event::where('organizer_id', $organizer->id)->where('start_date', '<', $now)->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
+            'past_event' => EventResource::collection(Event::where('profile_id', $organizer->id)->where('start_date', '<', $now)->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
             // now - End of Month
-            'month'     => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [$now, $endOfMonth,])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
+            'month'     => EventResource::collection(Event::where('profile_id', $organizer->id)->whereBetween('start_date', [$now, $endOfMonth,])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
             // now - End of Week
-            'ongoing'   => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [$now, $endOfWeek,])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
+            'ongoing'   => EventResource::collection(Event::where('profile_id', $organizer->id)->whereBetween('start_date', [$now, $endOfWeek,])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
             // starting next week
-            'upcoming'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->where('start_date', '>', $endOfWeek)->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->orderBy('start_time', 'ASC')->get()),
+            'upcoming'  => EventResource::collection(Event::where('profile_id', $organizer->id)->where('start_date', '>', $endOfWeek)->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->orderBy('start_time', 'ASC')->get()),
             // next month
-            'upcoming_month'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->addMonth()->startOfMonth()->format('Y-m-d'), now()->addMonth()->endOfMonth()->format('Y-m-d')])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
+            'upcoming_month'  => EventResource::collection(Event::where('profile_id', $organizer->id)->whereBetween('start_date', [now()->addMonth()->startOfMonth()->format('Y-m-d'), now()->addMonth()->endOfMonth()->format('Y-m-d')])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
             // upcoming week
-            'upcoming_week'  => EventResource::collection(Event::where('organizer_id', $organizer->id)->whereBetween('start_date', [now()->addWeek()->startOfWeek()->format('Y-m-d'), now()->addWeek()->endOfWeek()])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
+            'upcoming_week'  => EventResource::collection(Event::where('profile_id', $organizer->id)->whereBetween('start_date', [now()->addWeek()->startOfWeek()->format('Y-m-d'), now()->addWeek()->endOfWeek()])->orderBy('start_date', 'ASC')->orderBy('start_time', 'ASC')->get()),
         ]);
     }
 
@@ -685,7 +631,7 @@ class EventController extends Controller
             'sortBy'        => ['sometimes', 'in:ASC,DESC',],
         ]);
 
-        $organizer = Profile::myAccount('organizer')->first()->organizer;
+        $profile = Profile::myAccount('organizer')->first();
         $endOfWeek = now()->endOfWeek()->format('Y-m-d');
         $now = now()->format('Y-m-d');
 
@@ -696,7 +642,7 @@ class EventController extends Controller
         $perPage = intval($request->input('per_page', 9));
         $offset = ($page - 1) * $perPage;
 
-        $events = Event::withTrashed()->where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)
+        $events = Event::withTrashed()->where('event_name', 'LIKE', '%' . $search . '%')->where('profile_id', $profile->id)
             ->whereBetween('start_date', [$now, $endOfWeek])
             ->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
 
@@ -723,7 +669,7 @@ class EventController extends Controller
             'sortBy'        => ['sometimes', 'in:ASC,DESC',],
         ]);
 
-        $organizer = Profile::myAccount('organizer')->first()->organizer;
+        $profile = Profile::myAccount('organizer')->first();
         $endOfWeek = now()->endOfWeek()->format('Y-m-d');
 
         $search = $request->input('search', '');
@@ -733,7 +679,7 @@ class EventController extends Controller
         $perPage = intval($request->input('per_page', 9));
         $offset = ($page - 1) * $perPage;
 
-        $events = Event::withTrashed()->where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->where('start_date', '>', $endOfWeek)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+        $events = Event::withTrashed()->where('event_name', 'LIKE', '%' . $search . '%')->where('profile_id', $profile->id)->where('start_date', '>', $endOfWeek)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
 
         return response()->json([
             'status'        => 200,
@@ -761,14 +707,14 @@ class EventController extends Controller
         $search = $request->input('search', '');
         $orderBy = $request->input('sortBy', 'ASC');
 
-        $organizer = Profile::myAccount('organizer')->first()->organizer;
+        $profile = Profile::myAccount('organizer')->first();
         $now = now()->format('Y-m-d');
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
         $perPage = intval($request->input('per_page', 9));
         $offset = ($page - 1) * $perPage;
 
-        $events = Event::withTrashed()->where('event_name', 'LIKE', '%' . $search . '%')->where('organizer_id', $organizer->id)->where('end_date', '<', $now)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+        $events = Event::withTrashed()->where('event_name', 'LIKE', '%' . $search . '%')->where('profile_id', $profile->id)->where('end_date', '<', $now)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
 
         return response()->json([
             'status'        => 200,

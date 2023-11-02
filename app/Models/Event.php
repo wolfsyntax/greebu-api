@@ -19,7 +19,9 @@ class Event extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'organizer_id', 'event_type',
+        // 'organizer_id',
+        'profile_id',
+        'event_type',
         'cover_photo', 'event_name', 'venue_name',
         // 'location',
         'street_address', 'barangay', 'city', 'province',
@@ -45,7 +47,8 @@ class Event extends Model
      */
     protected $casts = [
         'reason'            => 'string',
-        'organizer_id'      => 'string',
+        // 'organizer_id'      => 'string',
+        'profile_id'      => 'string',
         'event_type'        => 'string',
         'cover_photo'       => 'string',
         'event_name'        => 'string',
@@ -113,9 +116,9 @@ class Event extends Model
     //     return $this->hasOne(EventType::class);
     // }
 
-    public function organizer()
+    public function profile()
     {
-        return $this->belongsTo(Organizer::class);
+        return $this->belongsTo(Profile::class);
     }
 
     public function proposals()

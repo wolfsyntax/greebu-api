@@ -21,12 +21,12 @@ class EventResource extends JsonResource
     {
 
         $service = new AwsService();
-        $this->load('organizer.profile');
-        $avatar = $this->organizer->profile->avatar;
+        $this->load('profile');
+        $avatar = $this->profile->avatar;
         $cover =   $this->cover_photo ?? '';
 
         if (!$avatar) {
-            $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->organizer->profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
         } else {
             $avatar_host = parse_url($avatar);
             if (!array_key_exists('host', $avatar_host)) {
@@ -81,9 +81,9 @@ class EventResource extends JsonResource
         return [
             'id'                => $this->id,
             'organizer_avatar'  => $avatar,
-            'organizer_name'    => $this->organizer->profile->business_name ?? '',
-            'organizer_company' => $this->organizer->company_name ?? '',
-            'organizer_id'      => $this->organizer_id,
+            'organizer_name'    => $this->profile->business_name ?? '',
+            'organizer_company' => $this->company_name ?? '',
+            'organizer_id'      => $this->profile_id,
             'event_type'        => $this->event_type,
             'cover_photo'       => $cover,
             'event_name'        => $this->event_name,
@@ -111,7 +111,7 @@ class EventResource extends JsonResource
             'look_types'        => $seeking,
             'requirement'       => $this->requirement,
             'created_at'        => $this->created_at,
-            'accept_proposal'   => $this->when($this->organizer->accept_proposal, $this->organizer->accept_proposal),
+            'accept_proposal'   => $this->when($this->profile->organizer->accept_proposal, $this->profile->organizer->accept_proposal),
             'artist'            => $this->when($data, $data),
             'is_cancelled'      => $this->deleted_at ? true : false,
             'reason'            => $this->reason,

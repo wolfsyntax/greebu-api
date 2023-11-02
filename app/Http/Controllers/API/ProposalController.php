@@ -80,8 +80,8 @@ class ProposalController extends Controller
 
             $proposals = ArtistProposalResource::collection($proposals);
         } else {
-            $account = Organizer::where('profile_id', $profile->id)->first();
-            $events = Event::where('organizer_id', $account->id)->get()->pluck('id');
+            // $account = Organizer::where('profile_id', $profile->id)->first();
+            $events = Event::where('profile_id', $profile->id)->get()->pluck('id');
             $proposals = $proposals->whereIn('event_id', $events)->filterBy($filterBy)
                 ->orderBy('created_at', $orderBy)
                 ->skip($offset)
@@ -231,7 +231,7 @@ class ProposalController extends Controller
 
         $proposal = ArtistProposal::create($data);
 
-        $organizer_profile = $proposal->event->organizer->profile;
+        $organizer_profile = $proposal->event->profile;
 
         if (!app()->isProduction()) broadcast(new NotificationCreated($organizer_profile));
         $organizer_profile->notify(new CreateProposalNotification($proposal));
