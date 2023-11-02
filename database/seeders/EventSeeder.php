@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
 
 use App\Models\Event;
+use App\Models\Profile;
 use App\Models\Organizer;
 use App\Models\Artist;
 use Illuminate\Support\Str;
@@ -26,7 +27,7 @@ class EventSeeder extends Seeder
             $timestamp = mt_rand(1, time());
 
             Event::create([
-                'organizer_id'      => $faker->randomElement(Organizer::get()->pluck('id')->toArray()),
+                'profile_id'      => $faker->randomElement(Profile::account('organizer')->pluck('id')->toArray()),
                 // 'artist_id'       => $this->faker->randomElement(Artist::get()->pluck('id')->toArray()),
                 'event_type'        => $faker->randomElement(array_map('strtolower', \App\Models\EventType::get()->pluck('name')->toArray())),
                 'cover_photo'       => $faker->imageUrl(width: 424, height: 424),
