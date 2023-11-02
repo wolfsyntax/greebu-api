@@ -115,7 +115,6 @@ class EventResource extends JsonResource
             'artist'            => $this->when($data, $data),
             'is_cancelled'      => $this->deleted_at ? true : false,
             'reason'            => $this->reason,
-            'auth'              => $request->user(),
             'can_send'          => $this->when($artistId, $canSend),
         ];
         return parent::toArray($request);
