@@ -89,7 +89,7 @@ Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkE
 
 Route::post('/auth/{provider}/firebase', [NetworkController::class, 'firebaseProvider'])->where('provider', 'facebook|google');
 
-Route::post('/artist-filter', [ArtistController::class, 'index'])->name('artists.index-g');
+Route::get('/artist-filter', [ArtistController::class, 'index'])->name('artists.index-g');
 Route::get('artist/forms', [ArtistController::class, 'forms']);
 Route::get('/artists/trending', [ArtistController::class, 'trendingArtists']);
 
@@ -174,7 +174,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     });
 
     Route::post('/logout', [LoginController::class, 'logout']);
-    Route::post('/artists-filter', [ArtistController::class, 'index']);
+    Route::get('/artists-filter', [ArtistController::class, 'index']);
 
     Route::post('/artist-proposal/{proposal}/cancel', [ProposalController::class, 'cancelProposal']);
     Route::get('/artist-proposal/accepted', [ProposalController::class, 'acceptedProposal']);
