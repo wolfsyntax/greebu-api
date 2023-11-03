@@ -91,48 +91,62 @@ class ArtistController extends Controller
         $artists->with(['artistType', 'profile', 'genres', 'languages', 'reviews'])
             ->withCount('albums', 'albums', 'reviews');
 
-        $artists->whereHas('profile', function ($query) use ($search) {
-            return $query->where('business_name', 'LIKE', '%' . $search . '%');
+        $artists->when($search, function ($query, $search) {
+            return $query->whereHas('profile', function ($query) use ($search) {
+                return $query->where('business_name', 'LIKE', '%' . $search . '%');
+            });
         });
 
         if ($isGenreUuid) $genre = Genre::where('id', $genre)->first();
 
-        if ($usage === 'customers') {
-            $artists->where('accept_request', true);
-        }
 
-        if ($genre) {
+        $artists->when($usage === 'customers', function ($query) {
+            return $query->where('accept_request', true);
+        });
 
-            $artists->whereHas('genres', function ($query) use ($genre) {
+        $artists->when($genre, function ($query, $genre) {
+            return $query->whereHas('genres', function ($query) use ($genre) {
                 // return $query->where('genre_title', 'LIKE', '%' . $genre->title . '%');
                 return $query->where('genre_title', $genre);
             });
-        }
+        });
 
-        if ($artist_type)
-            $artists->whereHas('artistType', function ($query) use ($artist_type, $isArtistTypeUuid) {
+        $artists->when($artist_type, function ($query, $artist_type) use ($isArtistTypeUuid) {
+            $query->whereHas('artistType', function ($query) use ($artist_type, $isArtistTypeUuid) {
                 if ($isArtistTypeUuid) return $query->where('id', $artist_type);
                 return $query->where('title', 'LIKE', '%' . $artist_type . '%');
             });
+        });
 
-        if ($language) {
-            $artists->whereHas('languages', function ($query) use ($language) {
+        // $artists->when($artist_type, function ($query, $artist_type) use ($isArtistTypeUuid) {
+        //     $query->whereHas('artistType', function ($query) use ($artist_type, $isArtistTypeUuid) {
+        //         if ($isArtistTypeUuid) return $query->where('id', $artist_type);
+        //         return $query->where('title', 'LIKE', '%' . $artist_type . '%');
+        //     });
+        // });
+
+        $artists->when($language, function ($query, $language) {
+            return $query->whereHas('languages', function ($query) use ($language) {
                 return $query->where('id', $language);
             });
-        }
+        });
 
-        if ($province || $city) {
-            $artists->whereHas('profile', function ($query) use ($city, $province) {
+        $artists->when($province || $city, function ($query) use ($city, $province) {
+            return $query->whereHas('profile', function ($query) use ($city, $province) {
                 return $query->where('city', 'LIKE', "%$city")->orWhere('province', 'LIKE', "%$province");
             });
-        }
+        });
+        //     $artists->whereHas('profile', function ($query) use ($city, $province) {
+        //         return $query->where('city', 'LIKE', "%$city")->orWhere('province', 'LIKE', "%$province");
+        //     });
+        // }
 
         // Not belong to authenticated user
-        if ($user) {
-            $artists->whereHas('profile', function ($query) use ($user) {
+        $artists->when($user, function ($query, $user) {
+            return $query->whereHas('profile', function ($query) use ($user) {
                 return $query->where('user_id', '!=', $user->id);
             });
-        };
+        });
 
         $total = $artists->count();
 
