@@ -66,70 +66,70 @@ class ArtistController extends Controller
             'search'        => ['nullable', 'string',],
         ]);
 
-        $genre = strtolower($request->input('genre', ''));
-        $artist_type = strtolower($request->input('artist_type', ''));
-        $language = strtolower($request->input('language', ''));
-        $city = strtolower($request->input('city', ''));
-        $province = strtolower($request->input('province', ''));
-        $orderBy = $request->input('sortBy', 'ASC');
-        $filter = $request->input('filterBy', 'created_at');
-        $search = $request->input('search', '');
+        $genre = strtolower($request->query('genre', ''));
+        $artist_type = strtolower($request->query('artist_type', ''));
+        $language = strtolower($request->query('language', ''));
+        $city = strtolower($request->query('city', ''));
+        $province = strtolower($request->query('province', ''));
+        $orderBy = $request->query('sortBy', 'ASC');
+        $filter = $request->query('filterBy', 'created_at');
+        $search = $request->query('search', '');
 
 
-        $usage = $request->input('list_type', 'default');
+        $usage = $request->query('list_type', 'default');
 
         $isGenreUuid = Str::isUuid($genre);
         $isArtistTypeUuid = Str::isUuid($artist_type);
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
-        $perPage = intval($request->input('per_page', 9));
+        $perPage = intval($request->query('per_page', 9));
         $offset = ($page - 1) * $perPage;
 
         $artists = Artist::query();
 
-        $artists = $artists->with(['artistType', 'profile', 'genres', 'languages', 'reviews'])
+        $artists->with(['artistType', 'profile', 'genres', 'languages', 'reviews'])
             ->withCount('albums', 'albums', 'reviews');
 
-        $artists = $artists->whereHas('profile', function ($query) use ($search) {
+        $artists->whereHas('profile', function ($query) use ($search) {
             return $query->where('business_name', 'LIKE', '%' . $search . '%');
         });
 
         if ($isGenreUuid) $genre = Genre::where('id', $genre)->first();
 
         if ($usage === 'customers') {
-            $artists = $artists->where('accept_request', true);
+            $artists->where('accept_request', true);
         }
 
         if ($genre) {
 
-            $artists = $artists->whereHas('genres', function ($query) use ($genre) {
+            $artists->whereHas('genres', function ($query) use ($genre) {
                 // return $query->where('genre_title', 'LIKE', '%' . $genre->title . '%');
                 return $query->where('genre_title', $genre);
             });
         }
 
         if ($artist_type)
-            $artists = $artists->whereHas('artistType', function ($query) use ($artist_type, $isArtistTypeUuid) {
+            $artists->whereHas('artistType', function ($query) use ($artist_type, $isArtistTypeUuid) {
                 if ($isArtistTypeUuid) return $query->where('id', $artist_type);
                 return $query->where('title', 'LIKE', '%' . $artist_type . '%');
             });
 
         if ($language) {
-            $artists = $artists->whereHas('languages', function ($query) use ($language) {
+            $artists->whereHas('languages', function ($query) use ($language) {
                 return $query->where('id', $language);
             });
         }
 
         if ($province || $city) {
-            $artists = $artists->whereHas('profile', function ($query) use ($city, $province) {
+            $artists->whereHas('profile', function ($query) use ($city, $province) {
                 return $query->where('city', 'LIKE', "%$city")->orWhere('province', 'LIKE', "%$province");
             });
         }
 
         // Not belong to authenticated user
         if ($user) {
-            $artists = $artists->whereHas('profile', function ($query) use ($user) {
+            $artists->whereHas('profile', function ($query) use ($user) {
                 return $query->where('user_id', '!=', $user->id);
             });
         };
@@ -138,7 +138,7 @@ class ArtistController extends Controller
 
         // $artists = $artists->orderBy('created_at', 'ASC');
 
-        $artists = $artists->orderBy(Profile::select('business_name')->whereColumn('profiles.id', 'artists.profile_id'), $orderBy);
+        $artists->orderBy(Profile::select('business_name')->whereColumn('profiles.id', 'artists.profile_id'), $orderBy);
         //->skip($offset)
         // ->take($perPage)
         // ->get();
