@@ -46,6 +46,7 @@ use DB;
 
 use App\Events\UpdateProfile;
 use App\Events\TestNotification;
+use App\Rules\UniqueArtist;
 
 class ProfileController extends Controller
 {
@@ -106,7 +107,7 @@ class ProfileController extends Controller
                 'avatar'                => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),], //'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
 
                 'artist_type'           => ['required', 'exists:artist_types,title',],
-                'artist_name'           => ['required', 'string',],
+                'artist_name'           => ['required', 'string', new UniqueArtist,],
                 'genres'                => ['required', 'array',],
                 'youtube'               => ['nullable', 'string', 'max:255'],
                 'twitter'               => ['nullable', 'string', 'max:255'],

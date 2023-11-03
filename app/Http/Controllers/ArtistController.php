@@ -341,6 +341,24 @@ class ArtistController extends Controller
         ]);
     }
 
+    public function showByName(string $artist_name)
+    {
+
+        $profile = Profile::account('artists')->where('business_name', Str::headline($artist_name))->first();
+
+        if (!$profile) abort(404, 'Artist profile not found.');
+
+        $artist = Artist::where('profile_id', $profile->id)->first();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Artist Show Profile.',
+            'result' => [
+                'artist'    => new ArtistFullResource($artist),
+            ],
+        ]);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
