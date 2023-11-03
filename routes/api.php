@@ -184,7 +184,9 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::apiResource('artist-proposal', ProposalController::class);
 
-    Route::resource('artists', ArtistController::class)->except(['index']);
+    Route::get('artists/{artist_name}', [ArtistController::class, 'showByName']);
+
+    Route::resource('artists', ArtistController::class)->except(['index', 'show',]);
     Route::post('/artists/member', [ArtistController::class, 'members']);
     Route::get('/artists/{artist}/member/{member}', [ArtistController::class, 'memberInfo']);
 
