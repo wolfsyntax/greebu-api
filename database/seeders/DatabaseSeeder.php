@@ -50,7 +50,7 @@ class DatabaseSeeder extends Seeder
             DurationSeeder::class,
             TestSeeder::class,
             OrganizerSeeder::class,
-            EventSeeder::class,
+            // EventSeeder::class,
             ServiceProviderSeeder::class,
         ]);
 
