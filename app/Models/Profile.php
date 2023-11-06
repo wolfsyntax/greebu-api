@@ -33,6 +33,7 @@ class Profile extends Model
         'last_accessed', 'bucket',
         // social media profile
         'youtube', 'spotify', 'twitter', 'instagram', 'facebook', 'threads',
+        'personal_code',
     ];
 
     protected $appends = ['avatarUrl',];
@@ -78,6 +79,17 @@ class Profile extends Model
         'facebook'          => '',
         // 'country'           => 'Philippines',
     ];
+
+    /**
+     *  Setup model event hooks
+     */
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function ($model) {
+            $model->personal_code = uniqid();
+        });
+    }
 
     public function artist()
     {
