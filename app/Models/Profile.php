@@ -33,6 +33,7 @@ class Profile extends Model
         'last_accessed', 'bucket',
         // social media profile
         'youtube', 'spotify', 'twitter', 'instagram', 'facebook', 'threads',
+        'personal_code',
     ];
 
     protected $appends = ['avatarUrl',];
@@ -78,6 +79,11 @@ class Profile extends Model
         'facebook'          => '',
         // 'country'           => 'Philippines',
     ];
+
+    public function setPersonalCode(string $value): string
+    {
+        return $this->attributes['personal_code'] = Str::ulid();
+    }
 
     public function artist()
     {
