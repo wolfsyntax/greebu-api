@@ -80,9 +80,15 @@ class Profile extends Model
         // 'country'           => 'Philippines',
     ];
 
-    public function setPersonalCode(string $value): string
+    /**
+     *  Setup model event hooks
+     */
+    public static function boot()
     {
-        return $this->attributes['personal_code'] = Str::ulid();
+        parent::boot();
+        self::creating(function ($model) {
+            $model->personal_code = uniqid();
+        });
     }
 
     public function artist()

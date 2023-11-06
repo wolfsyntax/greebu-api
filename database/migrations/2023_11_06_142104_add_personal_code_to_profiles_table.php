@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('profiles', function (Blueprint $table) {
             //
-            $table->string('personal_code')->unique()->after('business_name')->comment('URL Link');
+            $table->string('personal_code')->/*unique()->*/after('business_name')->comment('URL Link');
         });
     }
 
