@@ -36,7 +36,7 @@ class Profile extends Model
         'personal_code',
     ];
 
-    protected $appends = ['avatarUrl',];
+    protected $appends = ['avatarUrl', 'bannerUrl',];
 
     /**
      * The attributes that should be cast.
@@ -170,5 +170,24 @@ class Profile extends Model
         }
 
         return $avatar;
+    }
+
+    /**
+     * Get Full name
+     * @return string
+     */
+    public function getBannerUrlAttribute(): string
+    {
+        $service = new AwsService();
+        $banner = $this->cover_photo ?? '';
+
+        if ($banner) {
+            $banner_host = parse_url($banner);
+            if (!array_key_exists('host', $banner_host)) {
+                $banner = $service->get_aws_object($banner);
+            }
+        }
+
+        return $banner;
     }
 }
