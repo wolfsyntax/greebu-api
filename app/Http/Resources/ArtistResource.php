@@ -36,8 +36,8 @@ class ArtistResource extends JsonResource
 
         $service = new AwsService();
 
-        $avatar = $this->profile->avatar;
-        $cover = $this->profile->cover_photo;
+        $avatar = $this->profile->avatarUrl;
+        $cover = $this->profile->bannerUrl;
         $audio = $this->song;
 
         // if ($this->profile->bucket && in_array($this->profile->bucket, ['s3', 's3priv',])) {
@@ -54,23 +54,23 @@ class ArtistResource extends JsonResource
         //     $audio = $service->get_aws_object($audio);
         // }
 
-        if (!$this->profile->avatar) {
-            $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        } else {
-            $avatar_host = parse_url($avatar);
-            if (!array_key_exists('host', $avatar_host)) {
-                $avatar = $service->get_aws_object($this->profile->avatar);
-            }
-        }
+        // if (!$this->profile->avatar) {
+        //     $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        // } else {
+        //     $avatar_host = parse_url($avatar);
+        //     if (!array_key_exists('host', $avatar_host)) {
+        //         $avatar = $service->get_aws_object($this->profile->avatar);
+        //     }
+        // }
 
-        if (!$this->profile->cover_photo) {
-            // $cover = 'https://ui-avatars.com/api/?name=' . substr($this->business_name,  0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        } else {
-            $cover_host = parse_url($cover);
-            if (!array_key_exists('host', $cover_host)) {
-                $cover = $service->get_aws_object($this->profile->cover_photo);
-            }
-        }
+        // if (!$this->profile->cover_photo) {
+        //     // $cover = 'https://ui-avatars.com/api/?name=' . substr($this->business_name,  0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        // } else {
+        //     $cover_host = parse_url($cover);
+        //     if (!array_key_exists('host', $cover_host)) {
+        //         $cover = $service->get_aws_object($this->profile->cover_photo);
+        //     }
+        // }
 
         if ($audio && !filter_var($audio, FILTER_VALIDATE_URL)) {
             $audio = $service->get_aws_object($audio);

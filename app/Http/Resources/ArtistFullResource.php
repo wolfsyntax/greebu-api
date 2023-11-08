@@ -43,18 +43,18 @@ class ArtistFullResource extends JsonResource
         $service = new AwsService();
         // $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : ($this->bucket === 's3' ? Storage::disk($this->bucket)->url($this->avatar) : ($this->avatar ? Storage::disk($this->bucket)->temporaryUrl($this->avatar, now()->addMinutes(60)) : ''));
 
-        $avatar = $this->profile->avatar;
-        $cover = $this->profile->cover_photo;
+        $avatar = $this->profile->avatarUrl;
+        $cover = $this->profile->bannerUrl;
         $audio = $this->song;
 
         if ($this->profile->bucket && in_array($this->profile->bucket, ['s3', 's3priv',])) {
-            if ($avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
-                $avatar = $service->get_aws_object($avatar, $this->profile->bucket === 's3priv');
-            }
+            // if ($avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
+            //     $avatar = $service->get_aws_object($avatar, $this->profile->bucket === 's3priv');
+            // }
 
-            if ($cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
-                $cover = $service->get_aws_object($cover, $this->profile->bucket === 's3priv');
-            }
+            // if ($cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
+            //     $cover = $service->get_aws_object($cover, $this->profile->bucket === 's3priv');
+            // }
         }
 
         if ($audio && !filter_var($audio, FILTER_VALIDATE_URL)) {

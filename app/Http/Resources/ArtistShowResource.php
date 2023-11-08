@@ -23,7 +23,7 @@ class ArtistShowResource extends JsonResource
             'following'     => $this->profile->following_count,
             'artist_name'   => $this->profile->business_name,
             'artist_type'   => (new ArtistTypeResource($this->artistType))->title,
-            'avatar'        => $this->profile->avatar,
+            'avatar'        => $this->profile->avatarUrl,
             'ratings'       => $this->avg_rating,
             'reviews'       => count($this->reviews),
             'bio'           => $this->profile->bio,

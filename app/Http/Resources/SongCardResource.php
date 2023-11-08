@@ -15,17 +15,17 @@ class SongCardResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $service = new AwsService();
-        $avatar = $this->creator->avatar;
+        // $service = new AwsService();
+        $avatar = $this->creator->avatarUrl;
 
-        if (!$avatar) {
-            $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->creator->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        } else {
-            $avatar_host = parse_url($avatar);
-            if (!array_key_exists('host', $avatar_host)) {
-                $avatar = $service->get_aws_object($avatar);
-            }
-        }
+        // if (!$avatar) {
+        //     $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->creator->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        // } else {
+        //     $avatar_host = parse_url($avatar);
+        //     if (!array_key_exists('host', $avatar_host)) {
+        //         $avatar = $service->get_aws_object($avatar);
+        //     }
+        // }
         return [
             'user_story'                => $this->user_story ?? '',
             'song_request_id'           => $this->id ?? '',

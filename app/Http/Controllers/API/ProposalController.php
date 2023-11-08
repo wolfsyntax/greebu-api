@@ -230,6 +230,7 @@ class ProposalController extends Controller
         $data['artist_id'] = $artist->id;
 
         $proposal = ArtistProposal::create($data);
+        $proposal->load('event.profile');
 
         $organizer_profile = $proposal->event->profile;
 
@@ -251,7 +252,8 @@ class ProposalController extends Controller
      */
     public function show(ArtistProposal $artist_proposal)
     {
-        $receiver = $artist_proposal->event->organizer->profile->user;
+
+        $receiver = $artist_proposal->event->profile->user;
         $sender = $artist_proposal->artist->profile->user;
 
         if (!($receiver->id === auth()->id() || $sender->id  === auth()->id())) return abort(403);

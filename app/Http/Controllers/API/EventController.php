@@ -324,7 +324,6 @@ class EventController extends Controller
 
     $profile = \App\Models\Profile::myAccount('organizer')->first();
 
-
     // $organizer = \App\Models\Organizer::where('profile_id', $profile->id)->firstOrFail();
 
     if (!$profile) {
@@ -354,9 +353,9 @@ class EventController extends Controller
       abort(403, 'Organizer is not the event creator.');
     }
 
-    if ($request->hasFile('cover_photo')) {
-      $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $profile->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
-    }
+    // if ($request->hasFile('cover_photo')) {
+    //   $event->cover_photo = $this->services->put_object_to_aws('organizer/event_' . $profile->id . '_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+    // }
 
     if ($request->hasFile('cover_photo')) {
 
