@@ -3,7 +3,7 @@
       {
           "name": "geebu-backend-dev",
           "image": "675146749892.dkr.ecr.ap-southeast-1.amazonaws.com/geebu-backend-dev:latest",
-          "cpu": 256,
+          "cpu": 512,
           "portMappings": [
               {
                   "containerPort": 80,
@@ -32,6 +32,6 @@
   "requiresCompatibilities": [
       "FARGATE"
   ],
-  "cpu": "256",
-  "memory": "512"
+  "cpu": "512",
+  "memory": "1024"
 }
