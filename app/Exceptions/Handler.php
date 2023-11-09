@@ -76,19 +76,19 @@ class Handler extends ExceptionHandler
             }
         });
 
-        $this->renderable(function (Throwable $e, $request) {
+        // $this->renderable(function (Throwable $e, $request) {
 
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'status'    => 500,
-                    'message'   => 'Server Error.',
-                    'result'    => [
-                        'errors' => $e->getMessage(),
-                        'request' => $request->all(),
-                    ],
-                ], 203);
-            }
-        });
+        //     if ($request->is('api/*')) {
+        //         return response()->json([
+        //             'status'    => 500,
+        //             'message'   => 'Server Error.',
+        //             'result'    => [
+        //                 'errors' => $e->getMessage(),
+        //                 'request' => $request->all(),
+        //             ],
+        //         ], 203);
+        //     }
+        // });
     }
 
     protected function unauthenticated($request, AuthenticationException $exception)
