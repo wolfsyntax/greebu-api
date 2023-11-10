@@ -110,30 +110,46 @@ trait UserTrait
         if ($request->hasFile('avatar')) {
             $image = $request->file('avatar');
 
-            $path = 'avatar/'.time().'_'.uniqid().'.jpg';
+            $path = '';
 
-            // Resize the image to a maximum width of 150 pixels, this is form Intervention Image library
-            $img = Image::make($image->getRealPath())/*->resize(960, 960, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })*/->encode('jpg', 75)->__toString();
+            if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
+                $service->delete_aws_object($profile->avatar);
+                $path = 'avatar/'.time().'_'.uniqid().'.jpg';
 
-            Storage::disk('s3')->put($path, $img);
+                // Resize the image to a maximum width of 150 pixels, this is form Intervention Image library
+                $img = Image::make($image->getRealPath())/*->resize(960, 960, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })*/->encode('jpg', 75)->__toString();
+                Storage::disk('s3')->put($path, $img);
+                // $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
+            }
 
-            $profile->avatar = $path;
+            $profile->bucket = 's3';
+            $profile->avatar = $path ?? 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            // $profile->avatar = $path;
 
         }
+
+        $path = '';
 
         if ($request->hasFile('cover_photo')) {
             if (
                 $profile->cover_photo && !filter_var($profile->cover_photo, FILTER_VALIDATE_URL)
             ) {
                 $service->delete_aws_object($profile->cover_photo);
+                $path = 'cover_photo/'.time().'_'.uniqid().'.jpg';
+
+                $img = Image::make($image->getRealPath())->encode('jpg', 75)->__toString();
+
+                Storage::disk('s3')->put($path, $img);
+
+                // $profile->cover_photo = $path;
                 $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
             }
 
             $profile->bucket = 's3';
-            $profile->cover_photo = $profile->cover_photo ?? 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $profile->cover_photo = $path ?? 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
 
             // $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
         }
