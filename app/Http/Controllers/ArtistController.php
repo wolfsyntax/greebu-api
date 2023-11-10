@@ -261,7 +261,7 @@ class ArtistController extends Controller
             'artist_name'       => ['required', 'string',],
             'genre'             => ['required', 'array',],
             'bio'               => ['sometimes', 'required', 'string',],
-            'avatar'            => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            'avatar'            => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
             'street'            => ['required', 'string',],
             'city'              => ['required', 'string',],
             'province'          => ['required', 'string',],
@@ -417,7 +417,7 @@ class ArtistController extends Controller
             'artist_name'       => ['required', 'string',],
             'genre'             => ['required', 'array',],
             'bio'               => ['sometimes', 'required', 'string',],
-            'avatar'            => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            'avatar'            => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
         ]);
 
         if ($validator->fails()) {
@@ -529,7 +529,7 @@ class ArtistController extends Controller
             'member_name'       => ['required', 'string',],
             'last_name'         => ['sometimes', 'required', 'string',],
             'role'              => ['required', 'string',],
-            'member_avatar'     => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp', 'dimensions:min_width=176,min_height=176,max_width=2048,max_height=2048',],
+            'member_avatar'     => ['nullable', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', 'dimensions:min_width=176,min_height=176,max_width=2048,max_height=2048',],
         ]);
 
         if ($validator->fails()) {
@@ -743,7 +743,7 @@ class ArtistController extends Controller
             'member_name'       => ['required', 'string',],
             'last_name'         => ['sometimes', 'required', 'string',],
             'role'              => ['required', 'string',],
-            'member_avatar'     => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            'member_avatar'     => ['nullable', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
         ]);
 
         if ($validator->fails()) {

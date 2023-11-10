@@ -75,7 +75,7 @@ class UserController extends Controller
             'first_name'        => ['required', 'string', 'max:255',],
             'last_name'         => ['required', 'string', 'max:255',],
             'username'          => ['required', 'string', 'min:8', 'max:255',],
-            'avatar'            => ['sometimes', 'required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            'avatar'            => ['sometimes', 'required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
             'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
             'phone'             => ['required', new PhoneCheck()],
             'current_password'  => ['sometimes', 'required', 'string', 'min:8', 'max:255', new MatchCurrentPassword],

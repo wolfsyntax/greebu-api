@@ -572,7 +572,7 @@ Route::post('image-type', function (Request $request) {
         'avatar' => $avatar &&  !filter_var($avatar, FILTER_VALIDATE_URL)
     ]);
     $request->validate([
-        'avatar'                => ['nullable', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+        'avatar'                => ['nullable', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
     ]);
 
     return response([

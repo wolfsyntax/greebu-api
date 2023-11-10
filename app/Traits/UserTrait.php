@@ -11,6 +11,8 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Lang;
 use App\Libraries\AwsService;
 
+use Intervention\Image\Facades\Image;
+
 trait UserTrait
 {
     public function updateUser(Request $request)
@@ -106,15 +108,20 @@ trait UserTrait
         // $profile->bucket = $profile->bucket ?? $disk;
 
         if ($request->hasFile('avatar')) {
-            if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
-                $service->delete_aws_object($profile->avatar);
-                $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
-            }
+            $image = $request->file('avatar');
 
-            $profile->bucket = 's3';
-            $profile->avatar = $profile->avatar ?? 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $path = 'avatar/'.time().'_'.uniqid().'.jpg';
 
-            // $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
+            // Resize the image to a maximum width of 150 pixels, this is form Intervention Image library
+            $img = Image::make($image->getRealPath())/*->resize(960, 960, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })*/->encode('jpg', 75)->__toString();
+
+            Storage::disk('s3')->put($path, $img);
+
+            $profile->avatar = $path;
+
         }
 
         if ($request->hasFile('cover_photo')) {

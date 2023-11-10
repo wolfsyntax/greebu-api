@@ -174,7 +174,7 @@ class EventController extends Controller
     }
 
     $request->validate([
-      'cover_photo'       => ['required', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
+    'cover_photo'       => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),*/],
       'event_type'        => ['required', 'string', new EventTypeRule(),], // comment exists if allowed to input custom event type
       'event_name'        => ['required', 'string', 'max:255',],
       'venue_name'        => ['required', 'string', 'max:255',],
@@ -294,7 +294,7 @@ class EventController extends Controller
 
     $request->validate([
       'mode'              => ['required', 'in:store,update',],
-      'cover_photo'       => ['required_if:mode,store', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
+    'cover_photo'       => ['required_if:mode,store', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),*/],
       'event_type'        => ['required', 'string', new EventTypeRule(),], // comment exists if allowed to input custom event type
       'event_name'        => ['required', 'string', 'max:255',],
       'venue_name'        => ['required', 'string', 'max:255',],
@@ -556,7 +556,7 @@ class EventController extends Controller
 
     $request->validate([
       'mode'              => ['required', 'in:store,update',],
-      'cover_photo'       => ['required_if:mode,store', 'image', Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),],
+    'cover_photo'       => ['required_if:mode,store', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),*/],
       'event_type'        => ['required', 'string', new EventTypeRule(),],
       'event_name'        => ['required', 'string', 'max:255',],
       // 'location'       => ['required', 'string', 'max:255',],
