@@ -529,7 +529,7 @@ class ArtistController extends Controller
             'member_name'       => ['required', 'string',],
             'last_name'         => ['sometimes', 'required', 'string',],
             'role'              => ['required', 'string',],
-            'member_avatar'     => ['nullable', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', 'dimensions:min_width=176,min_height=176,max_width=2048,max_height=2048',],
+        'member_avatar'     => ['nullable', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*'dimensions:min_width=176,min_height=176,max_width=2048,max_height=2048',*/],
         ]);
 
         if ($validator->fails()) {
