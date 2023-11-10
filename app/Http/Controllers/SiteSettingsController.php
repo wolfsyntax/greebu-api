@@ -57,7 +57,7 @@ class SiteSettingsController extends Controller
     public function fileUpload(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'image' => ['required', 'image', 'mimes:svg,webp,jpeg,jpg,png,bmp',],
+            'image' => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
             'filename' => ['sometimes', 'required', 'string',],
             'disk'      => ['sometimes', 'required', 'string', 'in:s3,s3priv',],
             'directory' => ['sometimes', 'required', 'string',],

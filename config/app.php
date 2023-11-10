@@ -172,6 +172,7 @@ return [
         Aws\Laravel\AwsServiceProvider::class,
         // Sendgrid Driver
         Sichikawa\LaravelSendgridDriver\SendgridTransportServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -188,6 +189,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
         'AWS' => Aws\Laravel\AwsFacade::class,
+        'Image' => Intervention\Image\Facades\Image::class,
     ])->toArray(),
 
 ];
