@@ -31,10 +31,12 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 
 use App\Libraries\AwsService;
+use App\Traits\EventsTrait;
 
 class EventController extends Controller
 {
   protected $services;
+  use EventsTrait;
 
   public function __construct()
   {
@@ -736,4 +738,86 @@ class EventController extends Controller
       ],
     ]);
   }
+
+    public function eventsList(Request $request) {
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+            'city'          => ['nullable', 'string', 'max:255',],
+            'cost'          => ['sometimes', 'in:free,paid,both',],
+            'event_type'    => ['nullable', 'string', /*'exists:event_types,id',*/],
+        ]);
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+        $city = $request->query('city', '');
+        $cost = $request->query('cost', '');
+        $event_type = $request->query('event_type', '');
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        // $events = Event::query();
+
+        // $events->when($event_type, function ($query, $event_type) {
+        //     return $query->where('event_type', 'LIKE', '%' . $event_type . '%');
+        // });
+
+        // $events->when($city, function ($query, $city) {
+        //     return $query->where('city', 'LIKE', '%' . $city . '%');
+        // });
+
+        // $events->when(in_array($cost, ['paid', 'free']), function ($query, $cost) {
+        //     return $query->where(
+        //         'is_free',
+        //         strtolower($cost) === 'free' ? true : false
+        //     );
+        // });
+
+        // $events->when($search !== '', function ($query, $search) {
+        //     return $query->where('event_name', 'LIKE', '%' . $search . '%')
+        //         ->orWhere('venue_name', 'LIKE', '%' . $search . '%')
+        //         ->orWhereHas('profile', function ($query) use ($search) {
+        //         return $query->where('business_name', 'LIKE', '%' . $search . '%');
+        //     });
+        // });
+
+        // $events->where('start_date', '>=', now()->addDays(1)->isoFormat('YYYY-MM-DD'));
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 16));
+        $offset = ($page - 1) * $perPage;
+
+        // $events = $events->orderBy('created_at', $orderBy);
+        $events = $this->fetchEvents($request, $offset, $perPage, '');
+        $ongoing = $this->fetchEvents($request, $offset, $perPage, 'ongoing');
+        $upcoming = $this->fetchEvents($request, $offset, $perPage, 'upcoming');
+        $past = $this->fetchEvents($request, $offset, $perPage, 'past');
+
+
+        $data = [
+        'events'        => EventResource::collection($events),
+        'ongoing'       => EventResource::collection($ongoing),
+        'past'          => EventResource::collection($past),
+        'upcoming'       => EventResource::collection($upcoming),
+        'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+        'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
+        'pagination'    => [
+            'total'     => $events->count(),
+            'last_page' => ceil($events->count() / $perPage),
+            'per_page'  => $perPage,
+            'offset'    => $offset,
+        ],
+        'query'         => [
+            $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+        ],
+        ];
+
+        return response()->json([
+            'status'            => 200,
+            'message'           => 'Events list successfully fetched.',
+            'result'            => $data,
+        ]);
+    }
 }

@@ -109,12 +109,15 @@ Route::get('organizer/forms', [OrganizerController::class, 'create']);
 Route::get('events/create', [EventController::class, 'create']);
 
 Route::controller(EventController::class)->group(function () {
-    Route::get('/events', 'index');
+    // Route::get('/events', 'index');
+    Route::get('/events', 'eventsList');
 });
 
-Route::get('events-list', [EventController::class, 'index']);
+Route::get('events-list', [EventController::class, 'eventsList']);
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
+
+    Route::post('/manage/user/{user}/remove', [ProfileController::class, 'remove']);
 
     Route::get('debug-pusher', function (Request $request) {
 
