@@ -117,6 +117,8 @@ Route::get('events-list', [EventController::class, 'eventsList']);
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
+    Route::post('/manage/user/{user}/remove', [ProfileController::class, 'remove']);
+
     Route::get('debug-pusher', function (Request $request) {
 
         $profile = \App\Models\Profile::myAccount($request->query('role', 'artists'))->first();
@@ -601,5 +603,3 @@ Route::post('image/compression', function (Request $request) {
         ]);
     }
 });
-
-Route::post('/manage/user/{user}/remove', [ProfileController::class, 'remove']);
