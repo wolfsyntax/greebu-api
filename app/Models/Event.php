@@ -34,6 +34,7 @@ class Event extends Model
         // What are you looking for?
         'look_for', /*'look_type',*/ 'requirement',
         'reason', 'deleted_at',
+        'total_participants',
     ];
 
     protected $appends = [
@@ -47,6 +48,7 @@ class Event extends Model
      */
     protected $casts = [
         'reason'            => 'string',
+        'total_participants'    => 'integer',
         // 'organizer_id'      => 'string',
         'profile_id'      => 'string',
         'event_type'        => 'string',
@@ -77,6 +79,7 @@ class Event extends Model
     ];
 
     protected $attributes = [
+        'total_participants'    => 0,
         'reason'            => '',
         // 'cover_photo'       => '',
         'event_name'        => '',

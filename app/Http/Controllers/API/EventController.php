@@ -197,6 +197,7 @@ class EventController extends Controller
       'is_free'           => ['nullable', 'in:true,false',],
       'status'            => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
       'review_status'     => ['nullable', 'in:pending,accepted,rejected',],
+      'total_participants'  => ['nullable', 'integer', ],
       'look_for'          => ['nullable', 'string', 'max:255', 'in:artist,service',],
       'look_types'        => $lookType,
       'requirement'       => ['nullable', 'string',],
@@ -216,6 +217,7 @@ class EventController extends Controller
       'profile_id'      => $profile->id,
       'cover_photo'       => '', //$request->input('cover_photo'),
       'event_type'        => $request->input('event_type'),
+      'total_participants'  => $request->input('total_participants', 0),
       'event_name'        => $request->input('event_name'),
       'venue_name'        => $request->input('venue_name'),
       // 'location'          => $request->input('location'),
@@ -317,6 +319,7 @@ class EventController extends Controller
       'is_free'           => ['nullable', 'in:true,false',],
       'status'            => ['nullable', 'in:draft,open,closed,ongoing,past,cancelled',],
       'review_status'     => ['nullable', 'in:pending,accepted,rejected',],
+      'total_participants'  => ['nullable', 'integer', ],
       'look_for'          => ['nullable', 'string', 'max:255', 'in:artist,service',],
       'look_types'        => $lookType,
       'requirement'       => ['nullable', 'string',],
@@ -373,6 +376,7 @@ class EventController extends Controller
 
     $event->lookTypes()->delete();
 
+    if ($request->has('total_participants')) $event->total_participants = $request->input('total_participants');
     if ($request->has('event_type')) $event->event_type = $request->input('event_type');
     if ($request->has('event_name')) $event->event_name = $request->input('event_name');
     if ($request->has('venue_name')) $event->venue_name = $request->input('venue_name');
