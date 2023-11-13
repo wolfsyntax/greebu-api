@@ -719,4 +719,103 @@ class ProfileController extends Controller
         ]);
         // $profile->update($request)
     }
+
+    public function remove(Request $request, User $user) {
+
+        $profiles = Profile::where('user_id', $user->id)->get();
+
+        $service = new AwsService();
+        // return response()->json(['prof' => $profiles, 'user' => $user]);
+        foreach($profiles as $profile) {
+            // $profile->load('roles');
+            $role = $profile->roles->first()?->name ?? 'customers';
+
+            if ($role === 'organizer') {
+
+                $events = $profile->events()->get();
+
+                foreach($events as $event){
+                    $event->lookTypes()->delete();
+                    $event->forceDelete();
+                }
+                // return response()->json([
+                //     'events' => $events,
+                // ]);
+                // $profile->events()->forceDelete();
+//
+            }
+
+            if ($role === 'artists') {
+
+                $artist = Artist::where('profile_id', $profile->id)->first();
+                $artist->genres()->delete();
+                $artist->songRequests()->detach();
+                $artist->members()->delete();
+                $artist->albums()->delete();
+                $artist->reviews()->delete();
+                $artist->proposals()->delete();
+
+                $artist->forceDelete();
+
+            } else if ($role === 'organizer') {
+
+                $organizer = Organizer::firstOrCreate([
+                    'profile_id' => $profile->id,
+                ]);
+
+                $organizer->eventTypes()->delete();
+                $organizer->staffs()->delete();
+                $organizer->forceDelete();
+
+            } else if ($role === 'service-provider') {
+                $data = [];
+            } else {
+
+                $customer = Customer::firstOrCreate([
+                    'profile_id' => $profile->id,
+                ])->first();
+
+                $songs = $customer->requests()->get();
+
+                foreach($songs as $song) {
+                    $song->artists()->detach();
+                    $song->delete();
+                }
+
+                $customer->delete();
+
+            }
+
+            $cover_host = parse_url($profile->cover_photo)['host'] ?? '';
+
+            if ($cover_host === '' && $profile->cover_photo) {
+                if ($service->check_aws_object($profile->cover_photo)) {
+                    $service->delete_aws_object($profile->cover_photo);
+                }
+            }
+
+            $avatar_host = parse_url($profile->avatar)['host'] ?? '';
+
+            if ($avatar_host === '' && $profile->avatar) {
+                if ($service->check_aws_object($profile->avatar)) {
+                    $service->delete_aws_object($profile->avatar);
+                }
+            }
+
+            $profile->roles()->detach();
+            $profile->forceDelete();
+
+        }
+
+        $user->forceDelete();
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => '',
+            'result'    => [
+                'user'  => $user,
+                'profile'   => $profiles,
+            ]
+        ]);
+    }
 }

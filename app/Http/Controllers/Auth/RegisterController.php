@@ -110,17 +110,6 @@ class RegisterController extends Controller
             'phone'         => $request->phone,
         ];
 
-        // if ($request->input('reg_type') === 'phone') {
-
-        //     $formData = [
-        //         'first_name'    => ucfirst($request->first_name),
-        //         'last_name'     => ucfirst($request->last_name),
-        //         'username'      => $request->username,
-        //         'phone'         => $request->phone,
-        //         'password'      => $request->password,
-        //     ];
-        // }
-
         // $this->sendCode()
         $user = User::create($formData);
         $account = $request->input('account_type', 'customers');

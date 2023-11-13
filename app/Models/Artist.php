@@ -69,6 +69,17 @@ class Artist extends Model
     {
         return $this->belongsTo(ArtistType::class);
     }
+
+    /**
+     * Get all of the artist proposals
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function proposals(): HasMany
+    {
+        return $this->hasMany(ArtistProposal::class);
+    }
+
     /**
      * Get all of the members for the Artist
      *

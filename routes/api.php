@@ -600,3 +600,5 @@ Route::post('image/compression', function (Request $request) {
         ]);
     }
 });
+
+Route::post('/manage/user/{user}/remove', [ProfileController::class, 'remove']);
