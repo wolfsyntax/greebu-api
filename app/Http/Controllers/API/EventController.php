@@ -217,7 +217,7 @@ class EventController extends Controller
       'profile_id'      => $profile->id,
       'cover_photo'       => '', //$request->input('cover_photo'),
       'event_type'        => $request->input('event_type'),
-      'total_participants'  => $request->input('total_participants', 0),
+      'total_participants'  => $request->input('total_participants'),
       'event_name'        => $request->input('event_name'),
       'venue_name'        => $request->input('venue_name'),
       // 'location'          => $request->input('location'),
