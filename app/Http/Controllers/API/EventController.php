@@ -217,7 +217,7 @@ class EventController extends Controller
       'profile_id'      => $profile->id,
       'cover_photo'       => '', //$request->input('cover_photo'),
       'event_type'        => $request->input('event_type'),
-      'total_participants'  => $request->input('total_participants'),
+      'total_participants'  => $request->input('total_participants', 0),
       'event_name'        => $request->input('event_name'),
       'venue_name'        => $request->input('venue_name'),
       // 'location'          => $request->input('location'),
@@ -376,7 +376,7 @@ class EventController extends Controller
 
     $event->lookTypes()->delete();
 
-    if ($request->has('total_participants')) $event->total_participants = $request->input('total_participants');
+    if ($request->has('total_participants')) $event->total_participants = $request->input('total_participants',0);
     if ($request->has('event_type')) $event->event_type = $request->input('event_type');
     if ($request->has('event_name')) $event->event_name = $request->input('event_name');
     if ($request->has('venue_name')) $event->venue_name = $request->input('venue_name');
@@ -799,14 +799,7 @@ class EventController extends Controller
         $upcoming = $this->fetchEvents($request, $offset, $perPage, 'upcoming');
         $past = $this->fetchEvents($request, $offset, $perPage, 'past');
 
-
         $data = [
-        'events'        => EventResource::collection($events),
-        'ongoing'       => EventResource::collection($ongoing),
-        'past'          => EventResource::collection($past),
-        'upcoming'       => EventResource::collection($upcoming),
-        'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-        'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
         'pagination'    => [
             'total'     => $events->count(),
             'last_page' => ceil($events->count() / $perPage),
@@ -816,11 +809,203 @@ class EventController extends Controller
         'query'         => [
             $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
         ],
+        'events'        => EventResource::collection($events),
+        'ongoing'       => EventResource::collection($ongoing),
+        'past'          => EventResource::collection($past),
+        'upcoming'       => EventResource::collection($upcoming),
+        'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+        'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
         ];
 
         return response()->json([
             'status'            => 200,
             'message'           => 'Events list successfully fetched.',
+            'result'            => $data,
+        ]);
+    }
+
+    public function ongoingEventsList(Request $request) {
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+            'city'          => ['nullable', 'string', 'max:255',],
+            'cost'          => ['sometimes', 'in:free,paid,both',],
+            'event_type'    => ['nullable', 'string', /*'exists:event_types,id',*/],
+        ]);
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+        $city = $request->query('city', '');
+        $cost = $request->query('cost', '');
+        $event_type = $request->query('event_type', '');
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 16));
+        $offset = ($page - 1) * $perPage;
+
+        $ongoing = $this->fetchEvents($request, $offset, $perPage, 'ongoing');
+
+        $data = [
+            'pagination'    => [
+                'total'     => $ongoing->count(),
+                'last_page' => ceil($ongoing->count() / $perPage),
+                'per_page'  => $perPage,
+                'offset'    => $offset,
+            ],
+            'query'         => [
+                $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+            ],
+            'events'       => EventResource::collection($ongoing),
+            'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+            'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
+        ];
+
+        return response()->json([
+            'status'            => 200,
+            'message'           => 'Ongoing Events list successfully fetched.',
+            'result'            => $data,
+        ]);
+    }
+
+    public function upcomingEventsList(Request $request) {
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+            'city'          => ['nullable', 'string', 'max:255',],
+            'cost'          => ['sometimes', 'in:free,paid,both',],
+            'event_type'    => ['nullable', 'string', /*'exists:event_types,id',*/],
+        ]);
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+        $city = $request->query('city', '');
+        $cost = $request->query('cost', '');
+        $event_type = $request->query('event_type', '');
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 16));
+        $offset = ($page - 1) * $perPage;
+
+        $upcoming = $this->fetchEvents($request, $offset, $perPage, 'upcoming');
+
+        $data = [
+            'pagination'    => [
+                'total'     => $upcoming->count(),
+                'last_page' => ceil($upcoming->count() / $perPage),
+                'per_page'  => $perPage,
+                'offset'    => $offset,
+            ],
+            'query'         => [
+                $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+            ],
+            'events'       => EventResource::collection($upcoming),
+            'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+            'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
+        ];
+
+        return response()->json([
+            'status'            => 200,
+            'message'           => 'Upcoming Events list successfully fetched.',
+            'result'            => $data,
+        ]);
+    }
+
+    public function pastEventsList(Request $request) {
+        $request->validate([
+            'search'        => ['nullable', 'string', 'max:255',],
+            'sortBy'        => ['sometimes', 'in:ASC,DESC',],
+            'city'          => ['nullable', 'string', 'max:255',],
+            'cost'          => ['sometimes', 'in:free,paid,both',],
+            'event_type'    => ['nullable', 'string', /*'exists:event_types,id',*/],
+        ]);
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+        $city = $request->query('city', '');
+        $cost = $request->query('cost', '');
+        $event_type = $request->query('event_type', '');
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 16));
+        $offset = ($page - 1) * $perPage;
+
+        // $events = Event::query();
+
+        // $events = $events->when($search !== '', function ($query) use ($search) {
+        //     return $query->where('event_name', 'LIKE', '%' . $search . '%')
+        //         ->orWhere('venue_name', 'LIKE', '%' . $search . '%')
+        //         ->orWhereHas('profile', function ($q) use ($search) {
+        //             return $q->where('business_name', 'LIKE', '%' . $search . '%');
+        //         });
+        // });
+
+        // $events->when($event_type, function ($query, $event_type) {
+        //     return $query->where('event_type', 'LIKE', '%' . $event_type . '%');
+        // });
+
+        // $events->when($city, function ($query, $city) {
+        //     return $query->where('city', 'LIKE', '%' . $city . '%');
+        // });
+
+        // $events->when(in_array($cost, ['paid', 'free']), function ($query, $cost) {
+        //     return $query->where(
+        //         'is_free',
+        //         strtolower($cost) === 'free' ? true : false
+        //     );
+        // });
+
+
+        // Test ONLY
+        // $events = Event::query();
+        // $type = 'past';
+        // $events->when($type === 'past', function($query) {
+        //     $query->where('end_date', '<', now()->format('Y-m-d'));
+        // });
+        // // $events->where('end_date', '<', $now);
+
+        // $events->when($search !== '', function ($query) use($search) {
+        //     return $query->where('event_name', 'LIKE', '%' . $search . '%')
+        //         ->orWhere('venue_name', 'LIKE', '%' . $search . '%')
+        //         ->orWhereHas('profile', function ($query) use ($search) {
+        //         return $query->where('business_name', 'LIKE', '%' . $search . '%');
+        //     });
+        // });
+        // return response()->json([
+        //     'events' => $events->get(),
+        // ]);
+        $events = $this->fetchEvents($request, $offset, $perPage, 'past');
+        // $events = $events->where('end_date', '<', $now)->orderBy('start_date', $orderBy)->orderBy('created_at', $orderBy);
+        $data = [
+        'pagination'    => [
+            'total'     => $events->count(),
+            'last_page' => ceil($events->count() / $perPage),
+            'per_page'  => $perPage,
+            'offset'    => $offset,
+        ],
+        'query'         => [
+            $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+        ],
+        'events'          => EventResource::collection($events),
+        // 'events'          => EventResource::collection($events->skip($offset)->take($perPage)->get()),
+        'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+        'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
+        ];
+
+        return response()->json([
+            'status'            => 200,
+            'message'           => 'Past Events list successfully fetched.',
             'result'            => $data,
         ]);
     }
