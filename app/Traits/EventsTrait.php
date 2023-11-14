@@ -80,8 +80,12 @@ trait EventsTrait
             $events = $events->orderBy('created_at', $orderBy);
         }
 
+        $total = $events->count();
         $events = $events->skip($offset)->take($perPage)->get();
         // return $events->skip($offset)->take($perPage)->get();
-        return $events;
+        return [
+            'total'     => $total,
+            'data'    => $events,
+        ];
     }
 }
