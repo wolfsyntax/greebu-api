@@ -7,6 +7,16 @@ FROM public.ecr.aws/e2o1q4v9/php-8.1-apache-buster as production
 ENV APP_ENV=production
 ENV APP_DEBUG=false
 
+RUN apt-get update && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    ffmpeg
+
+RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+    && docker-php-ext-install -j$(nproc) gd \
+    && docker-php-ext-enable gd
+
 RUN docker-php-ext-configure opcache --enable-opcache && \
     docker-php-ext-install pdo pdo_mysql
 COPY docker/php/conf.d/* /usr/local/etc/php/conf.d/
