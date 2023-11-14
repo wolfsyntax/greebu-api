@@ -117,7 +117,7 @@ class EventResource extends JsonResource
             'reason'                => $this->reason,
             'can_send'              => $this->when($artistId, $canSend),
             'total_participants'    => $this->total_participants ?? 0,
-            'is_visible'            => ($this->total_participants > count($data)),
+            'is_visible'            => (count($data) >= $this->total_participants),
         ];
         return parent::toArray($request);
     }
