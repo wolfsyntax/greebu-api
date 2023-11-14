@@ -111,6 +111,9 @@ Route::get('events/create', [EventController::class, 'create']);
 Route::controller(EventController::class)->group(function () {
     // Route::get('/events', 'index');
     Route::get('/events', 'eventsList');
+    Route::get('/events-past', 'pastEventsList');
+    Route::get('/events-ongoing', 'ongoingEventsList');
+    Route::get('/events-upcoming', 'upcomingEventsList');
 });
 
 Route::get('events-list', [EventController::class, 'eventsList']);

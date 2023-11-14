@@ -45,7 +45,24 @@ trait EventsTrait
             );
         });
 
-        $events->when($search !== '', function ($query, $search) {
+        $events->when($type == 'past', function($query) use ($now, $orderBy) {
+            return $query->where('end_date', '<', $now);//->orderBy('start_date', $orderBy)->orderBy('created_at', $orderBy);
+        });
+
+        $events->when($type == 'ongoing', function ($query) use($now, $endOfWeek, $orderBy) {
+            return $query->whereBetween('start_date', [$now, $endOfWeek]);
+            // ->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+        });
+
+        $events->when($type == 'upcoming', function ($query) use ($orderBy, $endOfWeek) {
+            return $query->where('start_date', '>', $endOfWeek);//->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+        });
+
+        $events->when(!in_array($type, ['upcoming', 'past', 'ongoing',]), function ($query) {
+            return $query->where('start_date', '>=', now()->addDays(1)->isoFormat('YYYY-MM-DD'));
+        });
+
+        $events->when($search !== '', function ($query) use ($search) {
             return $query->where('event_name', 'LIKE', '%' . $search . '%')
                 ->orWhere('venue_name', 'LIKE', '%' . $search . '%')
                 ->orWhereHas('profile', function ($query) use ($search) {
@@ -53,19 +70,18 @@ trait EventsTrait
             });
         });
 
-        $events->where('start_date', '>=', now()->addDays(1)->isoFormat('YYYY-MM-DD'));
-
         if ($type === 'ongoing') {
-            $events->whereBetween('start_date', [$now, $endOfWeek])
-            ->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+            $events = $events->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
         } else if ($type === 'upcoming') {
-            $events->where('start_date', '>', $endOfWeek)->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+            $events = $events->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
         } else if ($type === 'past') {
-            $events->where('end_date', '<', $now)->orderBy('start_date', $orderBy)->orderBy('created_at', $orderBy);
+            $events = $events->orderBy('start_date', $orderBy)->orderBy('created_at', $orderBy);
         } else {
-            $events->orderBy('created_at', $orderBy);
+            $events = $events->orderBy('created_at', $orderBy);
         }
 
-        return $events->skip($offset)->take($perPage)->get();
+        $events = $events->skip($offset)->take($perPage)->get();
+        // return $events->skip($offset)->take($perPage)->get();
+        return $events;
     }
 }
