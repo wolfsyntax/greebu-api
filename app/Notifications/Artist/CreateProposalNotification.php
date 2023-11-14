@@ -55,7 +55,7 @@ class CreateProposalNotification extends Notification implements ShouldQueue
             'event'     => $this->proposal->event,
             'proposal' => $this->proposal->id,
             'artist' => $this->proposal->artist->profile->business_name,
-            'organizer' => $this->proposal->event->organizer->profile->id,
+            'organizer' => $this->proposal->event->profile->id,
         ];
     }
 
