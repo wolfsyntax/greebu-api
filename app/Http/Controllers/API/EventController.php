@@ -810,9 +810,9 @@ class EventController extends Controller
             $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
         ],
         'events'        => EventResource::collection($events['data']),
-        'ongoing'       => EventResource::collection($ongoing),
-        'past'          => EventResource::collection($past),
-        'upcoming'       => EventResource::collection($upcoming),
+        'ongoing'       => EventResource::collection($ongoing['data']),
+        'past'          => EventResource::collection($past['data']),
+        'upcoming'       => EventResource::collection($upcoming['data']),
         'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
         'city'          => City::select('name')->distinct('name')->orderBy('name')->get()->map->name,
         ];
