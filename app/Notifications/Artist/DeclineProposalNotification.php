@@ -58,7 +58,7 @@ class DeclineProposalNotification extends Notification
     {
 
         $event = $this->proposal->event;
-        $organizer_profile = $event->organizer->profile;
+        $organizer_profile = $event->profile;
         $avatar = $organizer_profile->avatar;
 
         if (!$avatar) {
