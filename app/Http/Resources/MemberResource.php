@@ -20,7 +20,7 @@ class MemberResource extends JsonResource
 
         $avatar = $this->avatar;
         if (!$this->avatar) {
-            $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->first_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->first_name, '', 0) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
         } else {
             $avatar_host = parse_url($avatar);
             if (!array_key_exists('host', $avatar_host)) {
