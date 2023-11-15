@@ -64,7 +64,7 @@ class CancelProposalNotification extends Notification implements ShouldQueue
         $avatar = $organizer_profile->avatar;
 
         if (!$avatar) {
-            $avatar = 'https://ui-avatars.com/api/?name=' . substr($organizer_profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $avatar = 'https://ui-avatars.com/api/?name=' . substr($organizer_profile->business_name, 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
         } else {
             $service = new AwsService();
             $avatar_host = parse_url($avatar);

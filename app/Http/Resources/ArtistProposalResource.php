@@ -51,7 +51,7 @@ class ArtistProposalResource extends JsonResource
         // }
 
         if (!$cover_photo) {
-            $cover_photo = 'https://ui-avatars.com/api/?name=' . substr($event->event_name, '', 0, 1) . '&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $cover_photo = 'https://ui-avatars.com/api/?name=' . substr($event->event_name, 0, 1) . '&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
         } else {
             $cover_host = parse_url($cover_photo);
             if (!array_key_exists('host', $cover_host)) {
