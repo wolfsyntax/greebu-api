@@ -344,7 +344,7 @@ class ArtistController extends Controller
     public function showByName(string $artist_name)
     {
 
-        $profile = Profile::account('artists')->where('business_name', Str::headline($artist_name))->first();
+        $profile = Profile::account('artists')->where('personal_code', $artist_name)->first();
 
         if (!$profile) abort(404, 'Artist profile not found.');
 
