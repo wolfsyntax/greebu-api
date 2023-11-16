@@ -116,9 +116,18 @@ Route::controller(EventController::class)->group(function () {
     Route::get('/events-upcoming', 'upcomingEventsList');
 });
 
+Route::get('artists/{artist_name}/details', [ArtistController::class, 'showByName']);
+
 Route::get('events-list', [EventController::class, 'eventsList']);
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
+
+    Route::controller(EventController::class)->group(function () {
+        // Route::get('/events', 'index');
+        Route::get('/events-past/auth', 'pastEventsList');
+        Route::get('/events-ongoing/auth', 'ongoingEventsList');
+        Route::get('/events-upcoming/auth', 'upcomingEventsList');
+    });
 
     Route::post('/manage/user/{user}/remove', [ProfileController::class, 'remove']);
 
@@ -189,8 +198,6 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::get('/artist-proposal/accepted/past', [ProposalController::class, 'acceptedPastProposal']);
 
     Route::apiResource('artist-proposal', ProposalController::class);
-
-    Route::get('artists/{artist_name}/slug', [ArtistController::class, 'showByName']);
 
     Route::resource('artists', ArtistController::class)->except(['index', 'show',]);
     Route::post('/artists/member', [ArtistController::class, 'members']);

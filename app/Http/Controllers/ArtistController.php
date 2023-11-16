@@ -337,6 +337,7 @@ class ArtistController extends Controller
             'message' => 'Artist Show Profile.',
             'result' => [
                 'artist'    => new ArtistShowResource($artist),
+                'members'   => new MemberCollection(Member::where('artist_id', $artist->id)->get()),
             ],
         ]);
     }
@@ -355,6 +356,8 @@ class ArtistController extends Controller
             'message' => 'Artist Show Profile.',
             'result' => [
                 'artist'    => new ArtistFullResource($artist),
+                'events'    => $artist->proposals()->event()->get(),
+                'members'   => new MemberCollection(Member::where('artist_id', $artist->id)->get()),
             ],
         ]);
     }

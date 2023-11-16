@@ -49,7 +49,7 @@ class EventResource extends JsonResource
         $profile = null;
         $canSend = false;
 
-        if (auth()->user()) {
+        if (auth()->check()) {
 
             $profile = Profile::myAccount('artists')->first();
 
@@ -59,7 +59,6 @@ class EventResource extends JsonResource
             }
             // if ($profile) $accept_proposal = true;
         }
-
 
         $proposals = ArtistProposal::with('artist.profile')->where('event_id', $this->id)->where('status', 'accepted')->whereNot('accepted_at', null)->get()->unique(['artist_id', 'event_id',]);
 
@@ -111,10 +110,11 @@ class EventResource extends JsonResource
             'look_types'            => $seeking,
             'requirement'           => $this->requirement,
             'created_at'            => $this->created_at,
-            'accept_proposal'       => $this->when($this->profile->organizer->accept_proposal, $this->profile->organizer->accept_proposal),
+            'accept_proposal'       => $this->profile->organizer->accept_proposal ?? false,
             'artist'                => $this->when($data, $data),
             'is_cancelled'          => $this->deleted_at ? true : false,
             'reason'                => $this->reason,
+            // 'cs'                    => ArtistProposal::where('event_id', $this->id)->where('artist_id', $artistId)->whereNot('status', 'declined')->get(),
             'can_send'              => $this->when($artistId, $canSend),
             'total_participants'    => $this->total_participants ?? 0,
             'is_visible'            => (count($data) >= $this->total_participants),
