@@ -86,8 +86,14 @@ class Profile extends Model
     public static function boot()
     {
         parent::boot();
-        self::creating(function ($model) {
-            $model->personal_code = uniqid();
+        // self::creating(function ($model) {
+        //     $model->personal_code = Str::slug($model->business_name);
+        //     $model->business_name = Str::title($model->business_name);
+        // });
+
+        static::saving(function ($query) {
+            $query->personal_code = Str::slug($query->business_name);
+            $query->business_name = Str::title($query->business_name);
         });
     }
 

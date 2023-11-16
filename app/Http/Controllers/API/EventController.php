@@ -790,7 +790,7 @@ class EventController extends Controller
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
-        $perPage = intval($request->input('per_page', 16));
+        $perPage = intval($request->input('per_page', 6));
         $offset = ($page - 1) * $perPage;
 
         // $events = $events->orderBy('created_at', $orderBy);
@@ -844,7 +844,7 @@ class EventController extends Controller
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
-        $perPage = intval($request->input('per_page', 16));
+        $perPage = intval($request->input('per_page', 6));
         $offset = ($page - 1) * $perPage;
 
         $events = $this->fetchEvents($request, $offset, $perPage, 'ongoing');
@@ -855,6 +855,7 @@ class EventController extends Controller
                 'last_page' => ceil($events['total'] / $perPage),
                 'per_page'  => $perPage,
                 'offset'    => $offset,
+                'page'      => $page,
             ],
             'query'         => [
                 $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
@@ -902,6 +903,7 @@ class EventController extends Controller
                 'last_page' => ceil($events['total'] / $perPage),
                 'per_page'  => $perPage,
                 'offset'    => $offset,
+                'page'      => $page,
             ],
             'query'         => [
                 $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
@@ -949,6 +951,7 @@ class EventController extends Controller
                 'last_page' => ceil($events['total'] / $perPage),
                 'per_page'  => $perPage,
                 'offset'    => $offset,
+                'page'      => $page,
             ],
             'query'         => [
                 $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
