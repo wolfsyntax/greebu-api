@@ -101,6 +101,11 @@ class ProfileController extends Controller
             ]);
 
             $data['account']    = $account;
+
+            $data['form'] = $request->only([
+                'street_address', 'city', 'province', 'bio', 'avatar',
+            ]);
+
         } else if ($role === 'artists') {
 
             $request->validate([
@@ -218,12 +223,22 @@ class ProfileController extends Controller
             $data['members'] = new MemberCollection(Member::where('artist_id', $account->id)->get());
 
             $data['account']    = new ArtistFullResource($account);
+
+            $data['form'] = $request->only([
+                'artist_type', 'artist_name', 'genres',
+                'avatar', 'song', 'song_title',
+                'street_address', 'city', 'province',
+                'youtube', 'twitter', 'instagram', 'spotify',
+                'accept_proposal', 'accept_booking', 'accept_request',
+                'bio',
+            ]);
+
         } else if ($role === 'organizer') {
 
             $request->validate([
                 'organizer_name'        => ['required', 'string',],
                 'company_name'          => ['required', 'string',],
-            'avatar'                => ['sometimes', 'required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),*/],
+                'avatar'                => ['sometimes', 'required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),*/],
                 'event_types'           => ['required', 'array',],
                 // social links
                 'facebook'              => ['nullable', 'string', 'max:255',],
@@ -271,6 +286,19 @@ class ProfileController extends Controller
                 ]);
             }
 
+            $data['form'] = $request->only([
+                'avatar',
+                'organizer_name', 'company_name', 'event_types',
+                'facebook', 'twitter', 'instagram', 'threads',
+                // social links
+                'facebook', 'twitter', 'instagram', 'threads',
+                // Address
+                'street_address', 'city', 'province',
+                'bio',
+                // Options
+                'send_proposal', 'accept_proposal',
+            ]);
+
             $data['account']    = new OrganizerResource($account);
             $data['members'] = new StaffCollection(OrganizerStaff::where('organizer_id', $account->id)->get());
         } else {
@@ -291,6 +319,11 @@ class ProfileController extends Controller
             ]);
 
             $data['account']    = $account;
+
+            $data['form'] = $request->only([
+                'street_address', 'city', 'province', 'bio', 'avatar',
+            ]);
+
         }
 
         $data['user']       = $user;
