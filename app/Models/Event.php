@@ -129,6 +129,11 @@ class Event extends Model
         return $this->hasMany(ArtistProposal::class);
     }
 
+    public function artistProposals()
+    {
+        return $this->hasMany(ArtistProposal::class)->accepted();
+    }
+
     public function lookTypes()
     {
         return $this->hasMany(LookType::class);

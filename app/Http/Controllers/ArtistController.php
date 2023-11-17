@@ -7,6 +7,7 @@ use App\Models\ArtistType;
 use App\Models\Genre;
 use App\Models\Profile;
 use App\Models\Member;
+use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +16,8 @@ use Spatie\Activitylog\Models\Activity;
 // use Illuminate\Support\Collection;
 // use App\Libraries\Service;
 use App\Traits\UserTrait;
+
+use App\Http\Resources\EventResource;
 use App\Http\Resources\ArtistShowResource;
 use App\Http\Resources\ArtistFullResource;
 use App\Http\Resources\ProfileResource;
@@ -337,7 +340,7 @@ class ArtistController extends Controller
             'message' => 'Artist Show Profile.',
             'result' => [
                 'artist'    => new ArtistShowResource($artist),
-                'members'   => new MemberCollection(Member::where('artist_id', $artist->id)->get()),
+                'members'               => new MemberCollection(Member::where('artist_id', $artist->id)->get()),
             ],
         ]);
     }
@@ -355,13 +358,161 @@ class ArtistController extends Controller
             'status' => 200,
             'message' => 'Artist Show Profile.',
             'result' => [
-                'artist'    => new ArtistFullResource($artist),
-                'events'    => $artist->proposals()->event()->get(),
-                'members'   => new MemberCollection(Member::where('artist_id', $artist->id)->get()),
+                'artist'                => new ArtistFullResource($artist),
+                'members'               => new MemberCollection(Member::where('artist_id', $artist->id)->get()),
             ],
         ]);
     }
 
+    public function showById(Artist $artist)
+    {
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Artist Show Profile.',
+            'result' => [
+                'artist'                => new ArtistFullResource($artist),
+                'members'               => new MemberCollection(Member::where('artist_id', $artist->id)->get()),
+            ],
+        ]);
+    }
+    /**
+     * Artist Profile - Events Tab - Past Events
+     *
+    */
+    public function artistPastEvents(Request $request, Artist $artist)
+    {
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+        $city = $request->query('city', '');
+        $cost = $request->query('cost', '');
+        $event_type = $request->query('event_type', '');
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 6));
+        $offset = ($page - 1) * $perPage;
+
+        $proposals = $artist->proposals()->accepted()->get()->map->event_id;
+
+        $events = Event::withTrashed()->whereIn('id', $proposals)->where('end_date', '<', $now)
+            ->orderBy('start_date', $orderBy)
+            ->orderBy('created_at', $orderBy);
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Artist Past Events',
+            'result'    => [
+                'pagination'        => [
+                    'total'         => $events->count(),
+                    'last_page'     => ceil($events->count() / $perPage),
+                    'per_page'      => $perPage,
+                    'offset'        => $offset,
+                    'page'          => $page,
+                ],
+                'query'             => [
+                    $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+                ],
+                'events'            => EventResource::collection($events->skip($offset)
+            ->take($perPage)
+            ->get()),
+            ]
+        ]);
+    }
+
+    /**
+     * Artist Profile - Events Tab - Upcoming Events
+     *
+    */
+    public function artistUpcomingEvents(Request $request, Artist $artist)
+    {
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+        $city = $request->query('city', '');
+        $cost = $request->query('cost', '');
+        $event_type = $request->query('event_type', '');
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 6));
+        $offset = ($page - 1) * $perPage;
+
+        $proposals = $artist->proposals()->accepted()->get()->map->event_id;
+
+        $events = Event::withTrashed()->whereIn('id', $proposals)->where('start_date', '>', $endOfWeek)
+            ->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Artist Upcoming Events',
+            'result'    => [
+                'pagination'        => [
+                    'total'         => $events->count(),
+                    'last_page'     => ceil($events->count() / $perPage),
+                    'per_page'      => $perPage,
+                    'offset'        => $offset,
+                    'page'          => $page,
+                ],
+                'query'             => [
+                    $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+                ],
+                'events'            => EventResource::collection($events->skip($offset)
+            ->take($perPage)
+            ->get()),
+            ]
+        ]);
+    }
+
+    public function artistOngoingEvents(Request $request, Artist $artist)
+    {
+
+        $search = $request->query('search', '');
+        $orderBy = $request->query('sortBy', 'DESC');
+        $city = $request->query('city', '');
+        $cost = $request->query('cost', '');
+        $event_type = $request->query('event_type', '');
+
+        $endOfWeek = now()->endOfWeek()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
+
+        $perPage = intval($request->input('per_page', 6));
+        $offset = ($page - 1) * $perPage;
+
+        $proposals = $artist->proposals()->accepted()->get()->map->event_id;
+
+        $events = Event::withTrashed()->whereBetween('start_date', [$now, $endOfWeek])
+            ->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+
+        return response()->json([
+            'status'    => 200,
+            'message'   => 'Artist Upcoming Events',
+            'result'    => [
+                'pagination'        => [
+                    'total'         => $events->count(),
+                    'last_page'     => ceil($events->count() / $perPage),
+                    'per_page'      => $perPage,
+                    'offset'        => $offset,
+                    'page'          => $page,
+                ],
+                'query'             => [
+                    $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
+                ],
+                'events'            => EventResource::collection($events->skip($offset)
+            ->take($perPage)
+            ->get()),
+            ]
+        ]);
+    }
     /**
      * Show the form for editing the specified resource.
      */
