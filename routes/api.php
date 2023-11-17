@@ -117,6 +117,11 @@ Route::controller(EventController::class)->group(function () {
 });
 
 Route::get('artists/{artist_name}/details', [ArtistController::class, 'showByName']);
+Route::get('artists/{artist}/ongoing-events', [ArtistController::class, 'artistOngoingEvents']);
+// Route::get('artists/{artist}', [ArtistController::class, 'show']);
+Route::get('artists/{artist}/info', [ArtistController::class, 'showById']);
+Route::get('artists/{artist}/upcoming-events', [ArtistController::class, 'artistUpcomingEvents']);
+Route::get('artists/{artist}/past-events', [ArtistController::class, 'artistPastEvents']);
 
 Route::get('events-list', [EventController::class, 'eventsList']);
 // Routes that required authentication
