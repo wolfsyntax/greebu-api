@@ -91,7 +91,7 @@ class ArtistFullResource extends JsonResource
             'genres'                 => $genres,
             // 'genres2'                 => $this->genres,
             'song'                  => $audio, // ?? 'https://res.cloudinary.com/daorvtlls/video/upload/v1687411869/merrow-rock-skyline-pigeon-elton-john_h0chm4.mp3',
-            'song_title'            => $this->song_title,
+            'song_title'            => $this->song_title ?? '',
             'follower'              => $this->profile->followers_count ?? 0,
             'following'             => $this->profile->following_count ?? 0,
             'spotify'               => $this->profile->spotify,

@@ -102,9 +102,9 @@ class ProfileController extends Controller
 
             $data['account']    = $account;
 
-            $data['form'] = $request->only([
-                'street_address', 'city', 'province', 'bio', 'avatar',
-            ]);
+            // $data['form'] = $request->only([
+            //     'street_address', 'city', 'province', 'bio',
+            // ]);
 
         } else if ($role === 'artists') {
 
@@ -224,14 +224,14 @@ class ProfileController extends Controller
 
             $data['account']    = new ArtistFullResource($account);
 
-            $data['form'] = $request->only([
-                'artist_type', 'artist_name', 'genres',
-                'avatar', 'song', 'song_title',
-                'street_address', 'city', 'province',
-                'youtube', 'twitter', 'instagram', 'spotify',
-                'accept_proposal', 'accept_booking', 'accept_request',
-                'bio',
-            ]);
+            // $data['form'] = $request->only([
+            //     'artist_type', 'artist_name', 'genres',
+            //     'song', 'song_title',
+            //     'street_address', 'city', 'province',
+            //     'youtube', 'twitter', 'instagram', 'spotify',
+            //     'accept_proposal', 'accept_booking', 'accept_request',
+            //     'bio',
+            // ]);
 
         } else if ($role === 'organizer') {
 
@@ -286,18 +286,18 @@ class ProfileController extends Controller
                 ]);
             }
 
-            $data['form'] = $request->only([
-                'avatar',
-                'organizer_name', 'company_name', 'event_types',
-                'facebook', 'twitter', 'instagram', 'threads',
-                // social links
-                'facebook', 'twitter', 'instagram', 'threads',
-                // Address
-                'street_address', 'city', 'province',
-                'bio',
-                // Options
-                'send_proposal', 'accept_proposal',
-            ]);
+            // $data['form'] = $request->only([
+            //     'avatar',
+            //     'organizer_name', 'company_name', 'event_types',
+            //     'facebook', 'twitter', 'instagram', 'threads',
+            //     // social links
+            //     'facebook', 'twitter', 'instagram', 'threads',
+            //     // Address
+            //     'street_address', 'city', 'province',
+            //     'bio',
+            //     // Options
+            //     'send_proposal', 'accept_proposal',
+            // ]);
 
             $data['account']    = new OrganizerResource($account);
             $data['members'] = new StaffCollection(OrganizerStaff::where('organizer_id', $account->id)->get());
@@ -320,9 +320,9 @@ class ProfileController extends Controller
 
             $data['account']    = $account;
 
-            $data['form'] = $request->only([
-                'street_address', 'city', 'province', 'bio', 'avatar',
-            ]);
+            // $data['form'] = $request->only([
+            //     'street_address', 'city', 'province', 'bio',
+            // ]);
 
         }
 
@@ -333,6 +333,7 @@ class ProfileController extends Controller
         // $account->save();
 
         if (!app()->isProduction()) broadcast(new UpdateProfile($data));
+
 
         return response()->json([
             'status'    => 200,
