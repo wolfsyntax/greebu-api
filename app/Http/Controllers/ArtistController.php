@@ -490,7 +490,7 @@ class ArtistController extends Controller
 
         $proposals = $artist->proposals()->accepted()->get()->map->event_id;
 
-        $events = Event::withTrashed()->whereBetween('start_date', [$now, $endOfWeek])
+        $events = Event::withTrashed()->whereBetween('start_date', [$now, $endOfWeek])->whereIn('id', $proposals)
             ->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
 
         return response()->json([
