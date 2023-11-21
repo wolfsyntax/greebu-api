@@ -347,7 +347,7 @@ class ProfileController extends Controller
         // Old - if exists
         // New - if unique
         $request->validate([
-            // 'current_phone'     => ['required', new MatchCurrentPhone(), new PhoneCheck()],
+            'current_phone'     => ['required', new MatchCurrentPhone(), new PhoneCheck()],
             'phone'             => ['required', 'unique:users,phone,' . $request->user()->id, /*new PhoneCheck()*/],
         ]);
 
@@ -359,8 +359,8 @@ class ProfileController extends Controller
             $user->phone_verified_at = null;
 
             // Disable sending OTP -- August 24, 2023
-            // $user->sendCode();
-            $user->phone_verified_at = now();
+            $user->sendCode();
+            // $user->phone_verified_at = now();
             $user->save();
         }
 
@@ -669,7 +669,7 @@ class ProfileController extends Controller
     {
         // MatchCurrentPhone
         $request->validate([
-            'current_phone'         => ['required', new MatchCurrentPhone(), /*new PhoneCheck()*/],
+            'current_phone'         => ['required', new MatchCurrentPhone(), new PhoneCheck()],
         ]);
 
         $user = User::where('phone', $request->input('current_phone'))->first();

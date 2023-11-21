@@ -179,8 +179,8 @@ class RegisterController extends Controller
         $user->last_login = now();
 
         if ($user->phone) {
-            $user->phone_verified_at = now();
-            // $user->sendCode();
+            // $user->phone_verified_at = now();
+            $user->sendCode();
         }
 
         $user->save();

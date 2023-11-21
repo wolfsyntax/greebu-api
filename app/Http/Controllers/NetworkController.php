@@ -140,7 +140,8 @@ class NetworkController extends Controller
                     $user->username     = $request->input('username', uniqid());
 
                     // Temporarily phone verified status
-                    $user->phone_verified_at = now();
+                    // $user->phone_verified_at = now();
+                    $user->phone_verified_at = null;
 
                     if ($provider === 'facebook') $user->facebook_id = $request->input('provider_id');
                     if ($provider === 'google') $user->google_id = $request->input('provider_id');
