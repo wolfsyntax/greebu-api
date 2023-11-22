@@ -96,6 +96,8 @@ class TwilioController extends Controller
                 return $query->getRoleNames()->first();
             });
 
+            if (!$profile) abort(403, 'Profile does not exists.');
+
             $data = [
                 'user'      => $user,
                 'profile'   => new ProfileResource($profile, 's3'),
