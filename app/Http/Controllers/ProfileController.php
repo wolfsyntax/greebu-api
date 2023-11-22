@@ -126,13 +126,13 @@ class ProfileController extends Controller
                 'accept_booking'        => ['nullable', 'in:true,false'],
                 'accept_proposal'       => ['nullable', 'in:true,false'],
                 // sample songs max(kilobytes) 10mb ~ 10000
-                'song'                  => ['sometimes', 'file', File::types(['mp3', 'mp4'])->max(10000), /*'mimes:mp3', 'max:65536',*/], // Max 64MB ~ 65536
+                'song'                  => ['sometimes', 'file', File::types(['mp3', 'mp4', 'wav'])->max(10000), /*'mimes:mp3', 'max:65536',*/], // Max 64MB ~ 65536
                 'song_title'            => ['required_if:song,!=,null', 'string', 'max:255',],
             ], [
                 'required'              => ':Attribute is required.',
                 'artist_type.exists'    => ':Attribute is a invalid option.',
                 'in'                    => ':Attribute is invalid.',
-                'song.mimes'            => 'The :Attribute should be in a mp3 format.',
+                // 'song.mimes'            => 'The :Attribute should be in a mp3 format.',
                 'song.max'              => ":Attribute maximum file size to upload is 64MB (65536 KB). Try to compress it to make it under 64MB.",
                 'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
             ]);
