@@ -52,8 +52,8 @@ class TwilioController extends Controller
         $user->phone = $request->input('phone');
 
         // Disable sending OTP: August 24, 2023
-        // if ($user->sendCode()) $user->phone_verified_at = null;
-        $user->phone_verified_at = now();
+        if ($user->sendCode()) $user->phone_verified_at = null;
+        // $user->phone_verified_at = now();
 
         $user->save();
 
@@ -134,13 +134,13 @@ class TwilioController extends Controller
 
     public function twilio(Request $request, User $user)
     {
-        // $flag = false;
-        $flag = true;
+        $flag = false;
+        // $flag = true;
 
         // Disable sending otp: August 24, 2023
-        // if ($user->phone) {
-        //     $flag = $user->sendCode();
-        // }
+        if ($user->phone) {
+            $flag = $user->sendCode();
+        }
 
         return response()->json([
             'status' => $flag ? 200 : 203,
