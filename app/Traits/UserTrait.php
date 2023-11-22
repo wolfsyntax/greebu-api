@@ -27,9 +27,9 @@ trait UserTrait
 
             $user->phone = $request->phone;
             // Disable sending otp: August 24, 2023
-            // $user->phone_verified_at = null;
-            // $user->sendCode();
-            $user->phone_verified_at = now();
+            $user->phone_verified_at = null;
+            $user->sendCode();
+            // $user->phone_verified_at = now();
         }
 
         if ($request->input('password')) {

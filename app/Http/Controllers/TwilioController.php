@@ -134,8 +134,8 @@ class TwilioController extends Controller
 
     public function twilio(Request $request, User $user)
     {
-        // $flag = false;
-        $flag = true;
+        $flag = false;
+        // $flag = true;
 
         // Disable sending otp: August 24, 2023
         if ($user->phone) {
