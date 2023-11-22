@@ -142,6 +142,7 @@ class NetworkController extends Controller
                     // Temporarily phone verified status
                     // $user->phone_verified_at = now();
                     $user->phone_verified_at = null;
+                    $user->sendCode();
 
                     if ($provider === 'facebook') $user->facebook_id = $request->input('provider_id');
                     if ($provider === 'google') $user->google_id = $request->input('provider_id');
@@ -290,6 +291,8 @@ class NetworkController extends Controller
                 $user->last_name   = $request->last_name;
                 $user->email        = $request->input('email');
                 $user->username     = $request->input('username', uniqid());
+
+                $user->sendCode();
 
                 if ($provider === 'facebook') $user->facebook_id = $request->input('provider_id');
                 if ($provider === 'google') $user->google_id = $request->input('provider_id');
