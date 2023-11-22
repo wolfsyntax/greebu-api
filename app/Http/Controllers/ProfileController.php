@@ -783,12 +783,12 @@ class ProfileController extends Controller
 
                 $artist = Artist::where('profile_id', $profile->id)->first();
 
-                $artist->genres()?->delete();
-                $artist->songRequests()?->detach();
-                $artist->members()?->delete();
-                $artist->albums()?->delete();
-                $artist->reviews()?->delete();
-                $artist->proposals()?->delete();
+                if ($artist->genres()) $artist->genres()->delete();
+                if ($artist->songRequests()) $artist->songRequests()->detach();
+                if ($artist->members()) $artist->members()->delete();
+                if ($artist->albums()) $artist->albums()->delete();
+                if ($artist->reviews()) $artist->reviews()->delete();
+                if ($artist->proposals()) $artist->proposals()?->delete();
 
                 $artist->forceDelete();
 
