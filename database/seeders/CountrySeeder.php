@@ -38,7 +38,7 @@ class CountrySeeder extends Seeder
             ],
             [
                 'name' => 'American Samoa',
-                'iso2' => '1-684',
+                'iso2' => '1684',
                 'iso3' => 'AS',
                 'currency' => '',
                 'symbol' => '',
@@ -59,21 +59,21 @@ class CountrySeeder extends Seeder
             ],
             [
                 'name' => 'Anguilla',
-                'iso2' => '1-264',
+                'iso2' => '1264',
                 'iso3' => 'AI',
                 'currency' => '',
                 'symbol' => '',
             ],
             [
                 'name' => 'Antarctica',
-                'iso2' => '672',
-                'iso3' => 'AQ',
+                'iso2' => '672', // not found
+                'iso3' => 'AQ', // ATA
                 'currency' => '',
                 'symbol' => '',
             ],
             [
                 'name' => 'Antigua and Barbuda',
-                'iso2' => '1-268',
+                'iso2' => '1268',
                 'iso3' => 'AG',
                 'currency' => '',
                 'symbol' => '',
@@ -122,7 +122,7 @@ class CountrySeeder extends Seeder
             ],
             [
                 'name' => 'Bahamas',
-                'iso2' => '1-242',
+                'iso2' => '1242',
                 'iso3' => 'BS',
                 'currency' => '',
                 'symbol' => '',
@@ -143,7 +143,7 @@ class CountrySeeder extends Seeder
             ],
             [
                 'name' => 'Barbados',
-                'iso2' => '1-246',
+                'iso2' => '1246',
                 'iso3' => 'BB',
                 'currency' => '',
                 'symbol' => '',
@@ -178,7 +178,7 @@ class CountrySeeder extends Seeder
             ],
             [
                 'name' => 'Bermuda',
-                'iso2' => '1-441',
+                'iso2' => '1441',
                 'iso3' => 'BM',
                 'currency' => '',
                 'symbol' => '',
@@ -227,7 +227,7 @@ class CountrySeeder extends Seeder
             ],
             [
                 'name' => 'British Virgin Islands',
-                'iso2' => '1-284',
+                'iso2' => '1284',
                 'iso3' => 'VG',
                 'currency' => '',
                 'symbol' => '',
@@ -277,7 +277,7 @@ class CountrySeeder extends Seeder
             [
                 'name' => 'Canada',
                 'iso2' => '1',
-                'iso3' => 'CA',
+                'iso3' => 'CA', // not found
                 'currency' => '',
                 'symbol' => '',
             ],
@@ -290,7 +290,7 @@ class CountrySeeder extends Seeder
             ],
             [
                 'name' => 'Cayman Islands',
-                'iso2' => '1-345',
+                'iso2' => '1345',
                 'iso3' => 'KY',
                 'currency' => '',
                 'symbol' => '',
@@ -319,20 +319,21 @@ class CountrySeeder extends Seeder
             [
                 'name' => 'China',
                 'iso2' => '86',
-                'iso3' => 'CN',
+                'iso3' => 'CN', // not found
                 'currency' => '',
                 'symbol' => '',
             ],
             [
                 'name' => 'Christmas Island',
                 'iso2' => '61',
-                'iso3' => 'CX', 'currency' => '',
+                'iso3' => 'CX', // not found
+                'currency' => '',
                 'symbol' => '',
             ],
             [
                 'name' => 'Cocos Islands',
                 'iso2' => '61',
-                'iso3' => 'CC',
+                'iso3' => 'CC', // not found
                 'currency' => '',
                 'symbol' => '',
             ],
@@ -381,7 +382,7 @@ class CountrySeeder extends Seeder
             [
                 'name' => 'Curacao',
                 'iso2' => '599',
-                'iso3' => 'CW',
+                'iso3' => 'CW', // not found
                 'currency' => '',
                 'symbol' => '',
             ],
@@ -422,14 +423,14 @@ class CountrySeeder extends Seeder
             ],
             [
                 'name' => 'Dominica',
-                'iso2' => '1-767',
+                'iso2' => '1767',
                 'iso3' => 'DM',
                 'currency' => '',
                 'symbol' => '',
             ],
             [
                 'name' => 'Dominican Republic',
-                'iso2' => '1-809, 1-829, 1-849',
+                'iso2' => '1809, 1829, 1849',
                 'iso3' => 'DO',
                 'currency' => '',
                 'symbol' => '',
@@ -590,14 +591,14 @@ class CountrySeeder extends Seeder
             ],
             [
                 'name' => 'Grenada',
-                'iso2' => '1-473',
+                'iso2' => '1473',
                 'iso3' => 'GD',
                 'currency' => '',
                 'symbol' => '',
             ],
             [
                 'name' => 'Guam',
-                'iso2' => '1-671',
+                'iso2' => '1671',
                 'iso3' => 'GU',
                 'currency' => '',
                 'symbol' => '',
@@ -612,7 +613,7 @@ class CountrySeeder extends Seeder
             [
                 'name' => 'Guernsey',
                 'iso2' => '44-1481',
-                'iso3' => 'GG',
+                'iso3' => 'GG', // not found
                 'currency' => '',
                 'symbol' => '',
             ],

@@ -45,6 +45,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
 
+use App\Traits\TwilioTrait;
 
 use App\Http\Resources\ProfileResource;
 
@@ -618,3 +619,6 @@ Route::post('image/compression', function (Request $request) {
         ]);
     }
 });
+
+
+Route::get('twilio', [TwilioController::class, 'getCountryCode']);

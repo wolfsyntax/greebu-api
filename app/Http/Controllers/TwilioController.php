@@ -173,4 +173,22 @@ class TwilioController extends Controller
             ],
         ]);
     }
+
+    public function getCountryCode(Request $request) {
+
+        $countries = \App\Models\Country::get();
+
+        // $countries->map(function ($query) {
+        //     $query['code'] = $this->fetchDialingCode($query->iso3);
+        //     return $query;
+        // });
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Fetch Dialing Code',
+            'result'    => [
+                'code'  => $this->fetchDialingCode($request->query('iso3','us')),
+            ]
+        ]);
+    }
 }
