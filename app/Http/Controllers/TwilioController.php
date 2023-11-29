@@ -40,7 +40,7 @@ class TwilioController extends Controller
         $this->middleware('throttle:5,1')->only('verify');
     }
 
-    public function sendOTP(Request $request, User $user)
+    public function sendOTPCode(Request $request, User $user)
     {
 
         $request->validate([
@@ -149,6 +149,21 @@ class TwilioController extends Controller
         ], $flag ? 200 : 203);
     }
 
+    public function twilioV2(Request $request)
+    {
+        $request->validate([
+            'phone'         => ['required', 'unique:users',],
+        ]);
+
+        $flag = $this->sendOTP($request->input('phone'));
+
+        return response()->json([
+            'status' => $flag ? 200 : 203,
+            'message' => 'Resend Verification Code',
+            'result'    => []
+        ], $flag ? 200 : 203);
+    }
+
     public function test(Request $request)
     {
         $request->validate([
@@ -174,6 +189,19 @@ class TwilioController extends Controller
         ]);
     }
 
+    public function testOtp(Request $request) {
+        return response()->json([
+            'status' => 200,
+            'message'   => 'Test OTP Verification',
+            'result'    => [
+                'isSuccess' => $this->verifyOTP($request->input('phone'),$request->input('code')),
+                'data' => [
+                    'phone' => $request->input('phone'),
+                    'code'  => $request->input('code'),
+                ]
+            ]
+        ]);
+    }
     public function getCountryCode(Request $request) {
 
         $countries = \App\Models\Country::get();

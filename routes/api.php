@@ -86,6 +86,15 @@ Route::post('/password/confirm', [ConfirmPasswordController::class, 'confirm']);
 Route::post('/password/email', [ForgotPasswordController::class, 'confirm']);
 Route::post('/password/reset', [ResetPasswordController::class, 'reset']);
 Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/validate-info', [RegisterController::class, 'validateInfo']);
+
+Route::prefix('v2')->group(function () {
+    Route::post('/register', [ProfileController::class, 'registration']);
+    Route::post('/twilio-auth/resend-otp', [TwilioController::class, 'twilioV2']);
+    Route::post('/twilio-auth/test', [TwilioController::class, 'testOtp']);
+
+});
+
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 
 Route::post('/auth/{provider}/firebase', [NetworkController::class, 'firebaseProvider'])->where('provider', 'facebook|google');
@@ -98,7 +107,7 @@ Route::get('/country', [AdminCountryController::class, 'index']);
 Route::get('subscriptions/plan/{plan}', [SubscriptionController::class, 'pricings'])->where('plan', 'artists|organizer|service-provider');
 Route::get('subscriptions/{user}', [SubscriptionController::class, 'upgradeAccount']);
 
-Route::post('/user/{user}/send-otp', [TwilioController::class, 'sendOTP']);
+Route::post('/user/{user}/send-otp', [TwilioController::class, 'sendOTPCode']);
 Route::post('/user/{user}/verify', [TwilioController::class, 'verify']);
 Route::get('/user/{user}/resend-otp', [TwilioController::class, 'twilio']);
 
