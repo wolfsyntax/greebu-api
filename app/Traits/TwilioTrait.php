@@ -9,6 +9,12 @@ use Twilio\Exceptions\TwilioException;
 trait TwilioTrait
 {
 
+    public function fetchDialingCode($country_code = 'PH') {
+        $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+        $country = $twilio->voice->v1->dialingPermissions->countries($country_code)->fetch();
+        return $country->toArray();
+    }
+
     public function sendMessage($recipient, $message)
     {
         try {
