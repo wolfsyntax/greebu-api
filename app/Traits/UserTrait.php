@@ -91,18 +91,6 @@ trait UserTrait
     public function updateProfileV2($request, $profile, $disk = 's3', $directory = 'avatar')
     {
 
-        // if ($request->hasFile('avatar')) {
-        //     if (!filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
-        //         if (Storage::disk($disk)->exists($profile->avatar)) {
-        //             Storage::disk($disk)->delete($profile->avatar);
-        //             $profile->avatar = '';
-        //         }
-        //     }
-
-        //     $path = Storage::disk($disk)->putFileAs($directory, $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
-        //     $profile->bucket = $disk;
-        //     $profile->avatar = parse_url($path)['path'];
-        // }
         $service = new AwsService();
 
         // $profile->bucket = $profile->bucket ?? $disk;
@@ -114,13 +102,13 @@ trait UserTrait
 
             if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
                 $service->delete_aws_object($profile->avatar);
-                $path = 'avatar/'.time().'_'.uniqid().'.jpg';
+                $path = 'avatar/'.time().'_'.uniqid().'.webp';
 
                 // Resize the image to a maximum width of 150 pixels, this is form Intervention Image library
                 $img = Image::make($image->getRealPath())/*->resize(960, 960, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
-                })*/->encode('jpg', 75)->__toString();
+                })*/->encode('webp', 75)->__toString();
                 Storage::disk('s3')->put($path, $img);
                 // $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
             }

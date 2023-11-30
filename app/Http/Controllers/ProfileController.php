@@ -494,13 +494,13 @@ class ProfileController extends Controller
                     }
                 }
 
-                $path = 'avatar/'.time().'_'.uniqid().'.jpg';
+                $path = 'avatar/'.time().'_'.uniqid().'.webp';
 
                 //
                 $img = Image::make($request->file('avatar')->getRealPath())/*->resize(960, 960, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
-                })*/->encode('jpg', 75)->__toString();
+                })*/->encode('webp', 75)->__toString();
 
                 Storage::disk('s3')->put($path, $img);
 
@@ -635,21 +635,45 @@ class ProfileController extends Controller
             'cover_photo'    => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),*/], //'dimensions:min_width=400,min_height=150,max_width=851,max_height=315',],
             ]);
 
+            // if ($request->hasFile('cover_photo')) {
+
+            //     $cover_host = parse_url($profile->cover_photo)['host'] ?? '';
+            //     if ($cover_host === '' && $profile->cover_photo) {
+
+            //         if ($service->check_aws_object($profile->cover_photo)) {
+            //             $service->delete_aws_object($profile->cover_photo);
+            //         }
+            //     }
+
+            //     $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+
+            //     // $path = Storage::disk('s3')->putFileAs('cover_photo', $request->file('cover_photo'), 'img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension());
+            //     // $profile->bucket = 's3';
+            //     // $profile->cover_photo = parse_url($path)['path'];
+            //     $profile->save();
+            // }
+            $path = '';
             if ($request->hasFile('cover_photo')) {
 
                 $cover_host = parse_url($profile->cover_photo)['host'] ?? '';
-                if ($cover_host === '' && $profile->cover_photo) {
+                if ($cover_host === '') {
 
-                    if ($service->check_aws_object($profile->cover_photo)) {
-                        $service->delete_aws_object($profile->cover_photo);
+                    if ($service->check_aws_object($profile->cover_photo, $profile->bucket)) {
+                        $service->delete_aws_object($profile->cover_photo, $profile->bucket);
+                        $profile->cover_photo = '';
                     }
                 }
 
-                $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
+                $path = 'cover_photo/'.time().'_'.uniqid().'.webp';
 
-                // $path = Storage::disk('s3')->putFileAs('cover_photo', $request->file('cover_photo'), 'img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension());
-                // $profile->bucket = 's3';
-                // $profile->cover_photo = parse_url($path)['path'];
+                //
+                $img = Image::make($request->file('cover_photo')->getRealPath())->encode('webp', 75)->__toString();
+
+                Storage::disk('s3')->put($path, $img);
+
+                $profile->bucket = 's3';
+                $profile->cover_photo = $path;
+
                 $profile->save();
             }
 
