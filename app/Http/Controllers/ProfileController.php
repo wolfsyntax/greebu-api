@@ -494,9 +494,19 @@ class ProfileController extends Controller
                     }
                 }
 
-                $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
-                //$path = Storage::disk('s3')->put('avatar', $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension());
+                $path = 'avatar/'.time().'_'.uniqid().'.jpg';
+
+                //
+                $img = Image::make($request->file('avatar')->getRealPath())/*->resize(960, 960, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })*/->encode('jpg', 75)->__toString();
+
+                Storage::disk('s3')->put($path, $img);
+
+                // $profile->avatar = $service->put_object_to_aws('avatar/img_x' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
                 $profile->bucket = 's3';
+                $profile->avatar = $path;
 
                 // $profile->avatar = parse_url($path)['path'];
                 $profile->save();
