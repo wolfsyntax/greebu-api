@@ -11,9 +11,10 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
-    ffmpeg
+    ffmpeg \
+    libwebp-dev
 
-RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ --with-webp \
     && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-enable gd
 
