@@ -60,7 +60,7 @@ class EventResource extends JsonResource
             // if ($profile) $accept_proposal = true;
         }
 
-        $proposals = ArtistProposal::with('artist.profile')->where('event_id', $this->id)->where('status', 'accepted')->whereNot('accepted_at', null)->get()->unique(['artist_id', 'event_id',]);
+        $proposals = ArtistProposal::with('artist.profile')->where('event_id', $this->id)->where('status', 'accepted')->whereNot('accepted_at', null)->get()->unique(['artist_id', ]);
 
         $data = [];
 
