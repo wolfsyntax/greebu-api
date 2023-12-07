@@ -7,6 +7,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Validator;
 // use Laravel\Socialite\Facades\Socialite;
+use Laravel\Passport\Passport;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -84,6 +85,10 @@ class LoginController extends Controller
         if ($user) {
 
             $profile = Profile::with(['followers', 'following', 'roles'])->where('user_id', $user->id)->first();
+
+            if ($request->input('remember_me', false)) {
+                Passport::personalAccessTokensExpireIn(now()->addMonth());
+            }
 
             auth()->login($user, $request->input('remember_me', false));
 

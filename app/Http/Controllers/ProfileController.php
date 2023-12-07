@@ -29,6 +29,7 @@ use App\Rules\DimensionRule;
 use App\Rules\VerifySMSCode;
 
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules;
 use Illuminate\Validation\Rules\File;
 
 use App\Notifications\EmailVerification;
