@@ -35,12 +35,17 @@ trait TwilioTrait
     public function sendOTP($recipient)
     {
         try {
+            if ($recipient) {
 
-            $client = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
-            $twilio = $client->verify->v2->services(env('TWILIO_SERVICE_ID'))
-                ->verifications->create($recipient, "sms");
+                $client = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
+                $twilio = $client->verify->v2->services(env('TWILIO_SERVICE_ID'))
+                    ->verifications->create($recipient, "sms");
 
-            return $twilio->status === 'pending';
+                return $twilio->status === 'pending';
+            }
+
+            return false;
+
         } catch (TwilioException $th) {
             //throw $th;
             return false;
