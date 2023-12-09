@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Passport\Passport;
 // use Laravel\Socialite\Facades\Socialite;
 use App\Http\Resources\ProfileResource;
 use App\Models\User;
@@ -113,34 +114,21 @@ class NetworkController extends Controller
 
         $auth_type = $request->input('auth_type', 'register');
 
-        if ($auth_type === 'login') {
-            $user = User::where('email', $request->input('email'))->first();
+        $user = User::where('email', $request->input('email'))->first();
+
+        if ($auth_type === 'register') {
 
             if ($user) {
 
                 $user->last_login = now();
                 $user->save();
 
-                $profile = Profile::with('roles')->where('user_id', $user->id)->first();
+                // $profile = Profile::with('roles')->where('user_id', $user->id)->first();
+                $profile = Profile::account($request->input('account_type'))->where('user_id', $user->id)->first();
 
-                if (!$profile) {
+                if ($profile) {
 
-                    $profile = new Profile;
-                    $profile->user_id = $user->id;
-                    $profile->business_email = $user->email;
-                    $profile->business_name = $user->fullname;
-                    $profile->avatar = $request->input('avatar', 'https://via.placeholder.com/424x424.png/006644?text=' . substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1));
-
-                    if ($auth_type === 'register' && $request->input('account_type') === 'customers') {
-                        $profile->is_freeloader = true;
-                    }
-
-                    $profile->save();
-                    $profile->assignRole($request->input('account_type'));
-
-                } else {
-
-                    $profile->business_email = $profile->business_email ? $profile->email : $request->input('email');
+                    $profile->business_email = $profile->business_email ? $profile->business_email : $user->email;
                     $profile->business_name = $profile->business_name ? $profile->business_name : $user->fullname;
                     $profile->business_name = $profile->business_name;
 
@@ -149,54 +137,109 @@ class NetworkController extends Controller
                         $profile->bucket = '';
                     }
 
-
                     $profile->save();
-                }
 
-                auth()->login($user, $request->input('remember_me', false));
+                    auth()->login($user, $request->input('remember_me', false));
 
-                $userProfiles = Profile::with('roles')->where('user_id', $user->id)->get();
-                $userRoles = collect($userProfiles)->map(function ($query) {
-                    return $query->getRoleNames()->first();
-                });
+                    $userProfiles = Profile::with('roles')->where('user_id', $user->id)->get();
+                    $userRoles = collect($userProfiles)->map(function ($query) {
+                        return $query->getRoleNames()->first();
+                    });
 
-                $data = [
-                    'user_id'   => $user->id,
-                    'user'      => $user,
-                    'profile'   => new ProfileResource($profile, ''),
-                    'roles'     => $userRoles,
-                    'token'     => $user->createToken("user_auth")->accessToken,
+                    $data = [
+                        'user_id'   => $user->id,
+                        'user'      => $user,
+                        'profile'   => new ProfileResource($profile, ''),
+                        'roles'     => $userRoles,
+                        'token'     => $user->createToken("user_auth")->accessToken,
+                    ];
 
-                ];
+                    $account = null;
 
-                $account = null;
-                if ($auth_type === 'register') {
-                    $role = $request->input('account_type');
-                } else {
-                    $role = $profile->roles->first()->name;
-                }
+                    $role = $request->input('account_type', 'customers');
 
-                if ($role === 'customers') {
-                    $account = \App\Models\Customer::where('profile_id', $profile->id)->first();
-                } else if ($role === 'organizer') {
-                    $account = \App\Models\Organizer::where('profile_id', $profile->id)->first();
-                } else if ($role === 'artists') {
-                    $account = \App\Models\Artist::with(['profile', 'artistType', 'genres', 'members'])->firstOrCreate([
-                        'profile_id' => $profile->id
+                    if ($role === 'customers') {
+                        $account = \App\Models\Customer::where('profile_id', $profile->id)->first();
+                    } else if ($role === 'organizer') {
+                        $account = \App\Models\Organizer::where('profile_id', $profile->id)->first();
+                    } else if ($role === 'artists') {
+                        $account = \App\Models\Artist::with(['profile', 'artistType', 'genres', 'members'])->firstOrCreate([
+                            'profile_id' => $profile->id
+                        ]);
+
+                        if ($account) $account = new ArtistFullResource($account);
+                    } else {
+                        $account = \App\Models\ServiceProvider::where('profile_id', $profile->id)->first();
+                    }
+
+                    $data['account'] = $account;
+
+                    return response()->json([
+                        'status'        => 200,
+                        'message'       => 'Successfully Authenticated via '.$provider,
+                        'result'        => $data,
                     ]);
 
-                    if ($account) $account = new ArtistFullResource($account);
-                } else {
-                    $account = \App\Models\ServiceProvider::where('profile_id', $profile->id)->first();
+
                 }
 
-                $data['account'] = $account;
+            }
 
-                return response()->json([
-                    'status'        => 200,
-                    'message'       => 'Successfully Authenticated via '.$provider,
-                    'result'        => $data,
-                ]);
+        } else {
+
+            if ($user) {
+
+                $profile = Profile::where('user_id', $user->id)->first();
+
+                if ($profile) {
+                    $user->last_login = now();
+                    $user->save();
+
+                    // if ($request->input('remember_me', false)) {
+                    //     Passport::personalAccessTokensExpireIn(now()->addMonth());
+                    // }
+
+                    // auth()->login($user, $request->input('remember_me', false));
+
+                    $userProfiles = Profile::with('roles')->where('user_id', $user->id)->get();
+                    $userRoles = collect($userProfiles)->map(function ($query) {
+                        return $query->getRoleNames()->first();
+                    });
+
+                    $data = [
+                        'user_id'   => $user->id,
+                        'user'      => $user,
+                        'profile'   => new ProfileResource($profile, ''),
+                        'roles'     => $userRoles,
+                        'token'     => $user->createToken("user_auth")->accessToken,
+                    ];
+
+                    $account = null;
+                    $role = $profile->roles->first()->name;
+
+                    if ($role === 'customers') {
+                        $account = \App\Models\Customer::where('profile_id', $profile->id)->first();
+                    } else if ($role === 'organizer') {
+                        $account = \App\Models\Organizer::where('profile_id', $profile->id)->first();
+                    } else if ($role === 'artists') {
+                        $account = \App\Models\Artist::with(['profile', 'artistType', 'genres', 'members'])->firstOrCreate([
+                            'profile_id' => $profile->id
+                        ]);
+
+                        if ($account) $account = new ArtistFullResource($account);
+                    } else {
+                        $account = \App\Models\ServiceProvider::where('profile_id', $profile->id)->first();
+                    }
+
+                    $data['account'] = $account;
+
+                    return response()->json([
+                        'status'        => 200,
+                        'message'       => 'Successfully Authenticated via '.$provider,
+                        'result'        => $data,
+                    ]);
+
+                }
 
             } else {
 
@@ -206,6 +249,7 @@ class NetworkController extends Controller
                     'result'        => [],
                 ], 203);
             }
+
         }
 
         return response()->json([
