@@ -21,6 +21,7 @@ use App\Traits\TwilioTrait;
 use Twilio\Rest\Client;
 use Twilio\Exceptions\TwilioException;
 
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Validator;
 
@@ -160,7 +161,9 @@ class TwilioController extends Controller
         return response()->json([
             'status' => $flag ? 200 : 203,
             'message' => 'Resend Verification Code',
-            'result'    => []
+            'result'    => [
+                'mask'  => Str::of($request->input('phone'))->mask('*', (Str::startsWith($request->input('phone'), '+') ? 4 : 3), -4)
+            ]
         ], $flag ? 200 : 203);
     }
 

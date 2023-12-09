@@ -97,7 +97,9 @@ Route::prefix('v2')->group(function () {
 
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 
-Route::post('/auth/{provider}/firebase', [NetworkController::class, 'firebaseProvider'])->where('provider', 'facebook|google');
+// Route::post('/auth/{provider}/firebase', [NetworkController::class, 'firebaseProvider'])->where('provider', 'facebook|google');
+Route::post('/auth/{provider}/firebase', [NetworkController::class, 'verifyProvider'])->where('provider', 'facebook|google');
+Route::post('/auth/{provider}/store', [NetworkController::class, 'storeProvider'])->where('provider', 'facebook|google');
 
 Route::get('/artist-filter', [ArtistController::class, 'index'])->name('artists.index-g');
 Route::get('artist/forms', [ArtistController::class, 'forms']);
