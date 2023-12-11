@@ -898,6 +898,12 @@ class EventController extends Controller
         $events = $this->fetchEvents($request, $offset, $perPage, 'upcoming');
 
         $data = [
+            'ordering' => [
+                'now'   => now()->format('Y-m-d'),
+                'endOfMonth' => now()->endOfMonth()->format('Y-m-d'),
+                'nextMonth' => now()->addMonth()->format('Y-m-d'),
+                'nextEndMonth' => now()->addMonth()->endOfMonth()->format('Y-m-d'),
+            ],
             'pagination'    => [
                 'total'     => $events['total'],
                 'last_page' => ceil($events['total'] / $perPage),

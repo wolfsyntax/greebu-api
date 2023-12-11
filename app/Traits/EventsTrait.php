@@ -28,6 +28,12 @@ trait EventsTrait
         $endOfWeek = now()->endOfWeek()->format('Y-m-d');
         $now = now()->format('Y-m-d');
 
+        $endOfMonth = now()->endOfMonth()->format('Y-m-d');
+        $now = now()->format('Y-m-d');
+
+        $nextMonth = now()->addMonth()->startOfMonth()->format('Y-m-d');
+        $nextEndMonth = now()->addMonth()->endOfMonth()->format('Y-m-d');
+
         $events = Event::query();
 
         $events->when($event_type, function ($query, $event_type) {
@@ -49,13 +55,14 @@ trait EventsTrait
             return $query->where('end_date', '<', $now);//->orderBy('start_date', $orderBy)->orderBy('created_at', $orderBy);
         });
 
-        $events->when($type == 'ongoing', function ($query) use($now, $endOfWeek, $orderBy) {
-            return $query->whereBetween('start_date', [$now, $endOfWeek]);
-            // ->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+        $events->when($type == 'ongoing', function ($query) use($now, $endOfMonth, $orderBy) {
+            return $query->whereBetween('start_date', [$now, $endOfMonth]);
         });
 
-        $events->when($type == 'upcoming', function ($query) use ($orderBy, $endOfWeek) {
-            return $query->where('start_date', '>', $endOfWeek);//->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
+        $events->when($type == 'upcoming', function ($query) use ($orderBy, $nextMonth, $nextEndMonth) {
+            // return $query->where('start_date', '>=', $endOfWeek);
+            return $query->whereBetween('start_date', [$nextMonth, $nextEndMonth]);
+            //->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
         });
 
         $events->when(!in_array($type, ['upcoming', 'past', 'ongoing',]), function ($query) {
