@@ -143,6 +143,16 @@ class Profile extends Model
         return $this->hasMany(Event::class);
     }
 
+    /**
+     * Get all of the posts created
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class, 'creator_id');
+    }
+
     public function scopeAccount($query, string $role)
     {
         return $query->whereHas('roles', function ($query) use ($role) {
@@ -195,5 +205,22 @@ class Profile extends Model
         }
 
         return $banner;
+    }
+
+    public function delete() {
+
+        // // $this->artist()->delete();
+        // // $this->customer()->delete();
+        // // $this->organizer()->delete();
+        // $this->providers()->delete();
+        // $this->followers()->delete();
+        // $this->following()->delete();
+        // $this->events()->delete();
+
+        foreach($this->posts()->get() as $post) {
+            $post->delete();
+        }
+
+        return parent::delete();
     }
 }

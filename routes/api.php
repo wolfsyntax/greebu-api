@@ -633,3 +633,17 @@ Route::post('image/compression', function (Request $request) {
 
 
 Route::get('twilio', [TwilioController::class, 'getCountryCode']);
+
+// Route::get('manage/user-posts/{profile}/remove', function (Request $request, \App\Models\Profile $profile) {
+
+//     $posts = \App\Models\Post::where('creator_id', $profile->id)->get();
+
+//     foreach($posts as $post) {
+//         $post->delete();
+//     }
+
+//     return response()->json([
+//         'post' => $posts,
+//     ]);
+
+// });

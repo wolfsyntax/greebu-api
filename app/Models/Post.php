@@ -42,4 +42,25 @@ class Post extends Model
     {
         return $this->belongsTo(Profile::class, 'creator_id');
     }
+
+    public function comments() {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function likes() {
+        return $this->hasMany(PostLike::class);
+    }
+
+    public function delete() {
+
+        foreach($this->comments()->get() as $comment) {
+            $comment->delete();
+        }
+
+        foreach($this->likes()->get() as $like) {
+            $like->delete();
+        }
+
+        return parent::delete();
+    }
 }
