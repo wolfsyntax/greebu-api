@@ -32,7 +32,7 @@ trait EventsTrait
         $now = now()->format('Y-m-d');
 
         $nextMonth = now()->addMonth()->startOfMonth()->format('Y-m-d');
-        $nextEndMonth = now()->addMonth()->endOfMonth()->format('Y-m-d');
+        $nextSixMonth = now()->addMonths(6)->endOfMonth()->format('Y-m-d');
 
         $events = Event::query();
 
@@ -59,9 +59,9 @@ trait EventsTrait
             return $query->whereBetween('start_date', [$now, $endOfMonth]);
         });
 
-        $events->when($type == 'upcoming', function ($query) use ($orderBy, $nextMonth, $nextEndMonth) {
-            // return $query->where('start_date', '>=', $endOfWeek);
-            return $query->whereBetween('start_date', [$nextMonth, $nextEndMonth]);
+        $events->when($type == 'upcoming', function ($query) use ($orderBy, $nextMonth, $nextSixMonth) {
+            // return $query->where('start_date', '>=', $nextMonth);
+            return $query->whereBetween('start_date', [$nextMonth, $nextSixMonth]);
             //->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
         });
 
