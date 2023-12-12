@@ -4,17 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Laravel\Passport\Passport;
 // use Laravel\Socialite\Facades\Socialite;
 use App\Http\Resources\ProfileResource;
+use App\Http\Resources\ArtistFullResource;
+
 use App\Models\User;
 use App\Models\Profile;
 use App\Rules\PhoneCheck;
 use Illuminate\Validation\Rule;
 use App\Rules\VerifySMSCode;
 
-use App\Http\Resources\ArtistFullResource;
 use Auth;
+use DB;
 
 class NetworkController extends Controller
 {
@@ -688,5 +691,56 @@ class NetworkController extends Controller
                 ]
             ]);
         }
+    }
+
+    public function fetchEmailByToken(Request $request, $token) {
+
+        $password_reset = DB::table('password_resets')->select('email')->where('token', $token);
+        $reset = $password_reset->orderBy('created_at', 'DESC')->first();
+
+        if ($reset) {
+
+            if ($password_reset->where('created_at', '>=', now()->subHours(24)->format('Y-m-d H:i:s'))->orderBy('created_at', 'ASC')->first()) {
+
+                return response()->json([
+                    'status'    => 200,
+                    'message'   => 'Password reset email address',
+                    'result'    => [
+                        'mask'  => Str::of($reset->email)->mask('*', 3, -5),
+                    ],
+                ]);
+
+            }
+
+            return response()->json([
+                'status'    => 203,
+                'message'   => 'Password reset token already expired',
+                'result'    => [
+                    'mask'  => Str::of($reset->email)->mask('*', 3, -5),
+                    // 'tokens'    => $password_reset->get(),
+                ],
+                ]);
+
+        }
+
+        return response()->json([
+            'status'    => 203,
+            'message'   => 'Password reset token is invalid',
+            'result'    => [
+                'mask'  => '',
+            ],
+        ]);
+        // $r =  DB::table('password_resets')->where('token', $token)->where('created_at', '>=', now()->subHours(24)->format('Y-m-d H:i:s'))->orderBy('created_at', 'ASC')->get();
+
+        // $r = [];
+
+        return response()->json([
+            'status' => $reset ? 200 : 404,
+            'message'   => 'Fetch Email via Token',
+            'result'    => [
+                'p'     => $r,
+                'mask'  => Str::of($reset->email)->mask('*', 3, -5),
+            ],
+        ]);
     }
 }

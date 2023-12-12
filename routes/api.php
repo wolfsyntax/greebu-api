@@ -95,6 +95,8 @@ Route::prefix('v2')->group(function () {
 
 });
 
+Route::post('/email-token/{token}', [NetworkController::class, 'fetchEmailByToken']);
+
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 
 // Route::post('/auth/{provider}/firebase', [NetworkController::class, 'firebaseProvider'])->where('provider', 'facebook|google');
