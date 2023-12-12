@@ -45,8 +45,8 @@ class ResetPasswordController extends Controller
     public function reset(Request $request)
     {
         $request->validate([
-            'token' => 'required',
-            'email' => 'required|email|exists:users',
+            'token' => 'required|exists:password_resets',
+            // 'email' => 'required|email|exists:users',
             'password' => !app()->isProduction() ? ['required', 'confirmed',] : [
                 'required', 'confirmed', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
                     ->letters()
@@ -59,13 +59,14 @@ class ResetPasswordController extends Controller
         $error = new MessageBag;
 
         $passReset = DB::table('password_resets')->where([
-            'email' => $request->input('email'),
+            // 'email' => $request->input('email'),
             'token' => $request->input('token'),
-        ])->first();
+        ])->orderBy('created_at', 'DESC')->first();
 
         if ($passReset) {
 
-            $user = User::where('email', $request->input('email'))->first();
+            // $user = User::where('email', $request->input('email'))->first();
+            $user = User::where('email', $passReset->email)->first();
 
             $user->update([
                 'password'       => $request->input('password'),
@@ -79,8 +80,18 @@ class ResetPasswordController extends Controller
                 ],
             ]);
         } else {
-            if (!User::where('email', $request->input('email'))->exists()) $error->add('email', 'Email is invalid.');
-            else $error->add('token', 'Token is invalid or not matched.');
+            // if (!User::where('email', $request->input('email'))->exists()) $error->add('email', 'Email is invalid.');
+            // else $error->add('token', 'Token is invalid or not matched.');
+
+            $error->add('token', 'Token is invalid or not matched.');
+
+            return response()->json([
+                'status'        => 422,
+                'message'       => 'Unprocessible Entity.',
+                'result'        => [
+                    'request'   => $error,
+                ],
+            ]);
         }
 
         $status = Password::reset(
