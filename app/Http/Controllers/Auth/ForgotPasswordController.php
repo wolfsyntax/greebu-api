@@ -64,6 +64,8 @@ class ForgotPasswordController extends Controller
                 'result'        => [
                     'token'     => $token,
                     'user'         => $user,
+                    // $request->input('email')
+                    'mask'      => Str::of($request->input('email'))->mask('*', 3, -5)
                 ],
             ]);
         } else {
