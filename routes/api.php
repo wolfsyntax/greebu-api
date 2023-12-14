@@ -636,6 +636,11 @@ Route::post('image/compression', function (Request $request) {
 
 Route::get('twilio', [TwilioController::class, 'getCountryCode']);
 
+Route::get('get-param/{role}', function (Request $request, $role = 'artists') {
+    return response()->json([
+        'role' => $request->route()->parameter('role'),
+    ]);
+});
 // Route::get('manage/user-posts/{profile}/remove', function (Request $request, \App\Models\Profile $profile) {
 
 //     $posts = \App\Models\Post::where('creator_id', $profile->id)->get();
@@ -649,3 +654,7 @@ Route::get('twilio', [TwilioController::class, 'getCountryCode']);
 //     ]);
 
 // });
+
+Route::middleware(['auth:api', 'restrictRequest'])->group(function () {
+
+});
