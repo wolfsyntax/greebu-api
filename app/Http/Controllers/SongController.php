@@ -22,10 +22,14 @@ class SongController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['role:customers'])->only([
-            'create', 'store',
-            'edit', 'update',
-            'updateApprovalStatus',
+        // $this->middleware(['restrictRequest'])->only([
+        //     'create', 'store',
+        //     'edit', 'update',
+        //     'updateApprovalStatus',
+        // ]);
+
+        $this->middleware(['restrictRequest'])->only([
+            'store',
         ]);
 
         $this->middleware(['role:artists'])->only([

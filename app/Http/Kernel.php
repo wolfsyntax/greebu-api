@@ -73,5 +73,6 @@ class Kernel extends HttpKernel
 
         'phoneVerified' => \App\Http\Middleware\EnsurePhoneIsVerified::class,
         'restrictEdit'  => \App\Http\Middleware\RestrictRequestEditor::class,
+        'restrictRequest' => \App\Http\Middleware\RestrictSongRequestor::class,
     ];
 }
