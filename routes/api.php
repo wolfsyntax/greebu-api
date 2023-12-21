@@ -36,6 +36,7 @@ use App\Http\Controllers\SongController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrganizerController;
 use App\Http\Controllers\SiteSettingsController;
+use App\Http\Controllers\BillingController;
 
 use App\Http\Controllers\TwilioController;
 
@@ -140,6 +141,10 @@ Route::get('artists/{artist}/past-events', [ArtistController::class, 'artistPast
 Route::get('events-list', [EventController::class, 'eventsList']);
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
+
+    Route::post('payee/{user}/billing', [BillingController::class, 'store']);
+
+    Route::get('payee/payment-method', [BillingController::class, 'paymentMethod']);
 
     Route::controller(EventController::class)->group(function () {
         // Route::get('/events', 'index');
