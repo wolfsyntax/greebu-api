@@ -143,8 +143,16 @@ Route::get('events-list', [EventController::class, 'eventsList']);
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
     Route::post('payee/{user}/billing', [BillingController::class, 'store']);
+    Route::post('payee/{user}/checkout', [BillingController::class, 'checkout']);
+    Route::get('payee/{user}/checkout/{session}', [BillingController::class, 'checkoutSuccess']);
+
+    Route::post('payment/{user}/payment-intent', [BillingController::class, 'stepOne']);
 
     Route::get('payee/payment-method', [BillingController::class, 'paymentMethod']);
+
+    // Checkout
+    Route::post('payee/{user}/checkout', [BillingController::class, 'checkout']);
+    Route::get('payee/{user}/checkout/{session}', [BillingController::class, 'checkoutSuccess']);
 
     Route::controller(EventController::class)->group(function () {
         // Route::get('/events', 'index');
