@@ -29,6 +29,7 @@ use App\Models\Subscription;
 use App\Http\Controllers\Admin\CountryController as AdminCountryController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\NotificationController;
+use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\ProposalController;
 // use App\Http\Controllers\EventsController;
 use App\Http\Controllers\NetworkController;
@@ -140,6 +141,8 @@ Route::get('artists/{artist}/past-events', [ArtistController::class, 'artistPast
 Route::get('events-list', [EventController::class, 'eventsList']);
 // Routes that required authentication
 Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
+
+    Route::post('payment/{user}/payment-intent', [PaymentController::class, 'stepOne']);
 
     Route::controller(EventController::class)->group(function () {
         // Route::get('/events', 'index');
