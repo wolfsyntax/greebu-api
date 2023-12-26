@@ -25,9 +25,6 @@ class PaymentController extends Controller
      * "gcash",
      * "grab_pay"
     */
-    public function __construct() {
-        $this->client = new \GuzzleHttp\Client();
-    }
 
     /**
      * 1. Create A Payment Intent from the server-side
@@ -70,7 +67,7 @@ class PaymentController extends Controller
             ->asJson()
             ->post();
 
-        return $response;
+        return $response->data->id;
 
     }
 
@@ -109,6 +106,7 @@ class PaymentController extends Controller
             ]
         ];
 
+
         $response = Curl::to('https://api.paymongo.com/v1/payment_intents')
             ->withHeader('accept: application/json')
             ->withHeader('authorization: Basic '.base64_encode(env('PAYMONGO_SECRET_KEY')))
@@ -117,6 +115,6 @@ class PaymentController extends Controller
             ->asJson()
             ->post();
 
-        return $response;
+        return $response->data->id;
     }
 }
