@@ -70,6 +70,16 @@ class OrganizerController extends Controller
     public function show(Organizer $organizer)
     {
         //
+        // $profile = Profile::withCount('followers', 'following')->where('id', $organizer->profile_id)->first();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Organizer Show Profile.',
+            'result' => [
+                'organizer'     => new OrganizerResource($organizer),
+                'members'       => new StaffCollection(OrganizerStaff::where('organizer_id', $organizer->id)->get()),
+            ],
+        ]);
     }
 
     /**
