@@ -72,6 +72,8 @@ class EventResource extends JsonResource
                 'name'          => $artist->profile->business_name ?? '',
                 'avatar'        => $artist->profile->avatar_url ?? '',
                 'artist_type'   => $artist->artistType->title ?? '',
+                'cover_photo'   => $artist->profile->banner_url ?? '',
+                'bio'           => $artist->profile->bio ?? ''
             ];
 
             // if ($canSend && $artist->id === $artistId) $canSend = false;

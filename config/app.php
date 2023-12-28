@@ -173,6 +173,7 @@ return [
         // Sendgrid Driver
         Sichikawa\LaravelSendgridDriver\SendgridTransportServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        Ixudra\Curl\CurlServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -190,6 +191,7 @@ return [
         // 'Example' => App\Facades\Example::class,
         'AWS' => Aws\Laravel\AwsFacade::class,
         'Image' => Intervention\Image\Facades\Image::class,
+        'Curl' => Ixudra\Curl\Facades\Curl::class,
     ])->toArray(),
 
 ];
