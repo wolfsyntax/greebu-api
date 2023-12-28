@@ -18,7 +18,7 @@ class ArtistType extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'title',
+        'title', 'category_id',
     ];
 
     protected $appends = [];
@@ -30,5 +30,6 @@ class ArtistType extends Model
      */
     protected $casts = [
         'title' => 'string',
+        'category_id' => 'string',
     ];
 }
