@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
-            $table->string('phone')->unique(false)->nullable()->change();
+            $table->dropUnique('users_phone_unique');
         });
     }
 
