@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
-            $table->dropUnique(['phone']);
+            $table->dropUnique('phone');
         });
     }
 
@@ -22,9 +22,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-            $table->unique(['phone']);
-        });
+        // Schema::table('users', function (Blueprint $table) {
+        //     //
+        //     $table->unique(['phone']);
+        // });
+        Schema::dropIfExists('users');
     }
 };
