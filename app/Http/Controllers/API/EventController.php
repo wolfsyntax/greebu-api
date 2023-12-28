@@ -974,4 +974,24 @@ class EventController extends Controller
             'result'            => $data,
         ]);
     }
+
+    public function setEventsDate(Request $request, Event $event) {
+
+        $request->validate([
+            'start_date'    => ['required', 'after_or_equal:'.now()->subDays(12)->format('Y-m-d'), ],
+            'end_date'    => ['required', 'after_or_equal:start_date', ],
+        ]);
+
+        // $event->update([
+        //     'start_date' => now()->subDays($request->query('days', 5)),
+        // ]);
+
+        return response()->json(
+            'status' => 200,
+            'message'   => 'Set Event date',
+            'result'    => [
+                'event' => $event,
+            ]
+        );
+    }
 }
