@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Artist;
 use App\Models\ArtistType;
+use App\Models\ArtistCategory;
 use App\Models\Genre;
 use App\Models\Profile;
 use App\Models\Member;
@@ -649,7 +650,8 @@ class ArtistController extends Controller
             'status'    => 200,
             'message'   => 'Artist form options successfully fetched.',
             'result'    => [
-                'artist_types'      => ArtistType::select('id', 'title')->get(),
+                'artist_types'      => ArtistType::whereNot('category_id','')->select('id', 'title', 'category_id')->get(),
+                'artist_categories' => ArtistCategory::select('id', 'title')->get(),
                 'genres'            => Genre::select('id', 'title')->where('title', '!=', 'Others')->get(),
             ],
         ], 200);
