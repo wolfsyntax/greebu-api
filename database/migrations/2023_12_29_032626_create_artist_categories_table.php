@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-            $table->dropUnique('users_phone_unique');
+        Schema::create('artist_categories', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('title');
+            $table->softDeletes();
+            $table->timestamps();
         });
     }
 
@@ -22,10 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Schema::table('users', function (Blueprint $table) {
-        //     //
-        //     $table->unique(['phone']);
-        // });
-        // Schema::dropIfExists('users');
+        Schema::dropIfExists('artist_categories');
     }
 };
