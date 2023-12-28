@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-class ArtistType extends Model
+class ArtistCategory extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
 
@@ -18,7 +18,7 @@ class ArtistType extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'title', 'category_id',
+        'title',
     ];
 
     protected $appends = [];
@@ -30,6 +30,6 @@ class ArtistType extends Model
      */
     protected $casts = [
         'title' => 'string',
-        'category_id' => 'string',
     ];
+
 }
