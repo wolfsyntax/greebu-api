@@ -24,7 +24,8 @@ return new class extends Migration
     {
         Schema::table('artist_types', function (Blueprint $table) {
             //
-            $table->$table->dropForeign('category_id');
+            $table->$table->dropForeign(['category_id']);
+            $table->$table->dropColumn('category_id');
         });
     }
 };
