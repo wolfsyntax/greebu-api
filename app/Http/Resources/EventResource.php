@@ -84,7 +84,7 @@ class EventResource extends JsonResource
             'organizer_avatar'      => $avatar,
             'organizer_name'        => $this->profile->business_name ?? '',
             'organizer_company'     => $this->company_name ?? '',
-            'organizer_id'          => $this->profile_id,
+            'organizer_id'          => $this->profile->organizer->id,
             'event_type'            => $this->event_type,
             'cover_photo'           => $cover,
             'event_name'            => $this->event_name,

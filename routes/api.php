@@ -298,6 +298,7 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('/organizer/{proposal}/accept-proposal', [ProposalController::class, 'organizerAccept']);
     Route::post('/organizer/{proposal}/decline-proposal', [ProposalController::class, 'organizerDecline']);
 
+    Route::get('/organizer/{organizer}', [OrganizerController::class, 'show']);
     Route::get('/organizer/staff', [OrganizerController::class, 'staff']);
     Route::post('/organizer/staff', [OrganizerController::class, 'addStaff']);
     Route::post('/organizer/staff/{staff}/edit', [OrganizerController::class, 'editStaff']);
