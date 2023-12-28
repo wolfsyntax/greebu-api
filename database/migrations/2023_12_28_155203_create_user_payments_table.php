@@ -19,7 +19,7 @@ return new class extends Migration
 
             $table->string('payment_intent')->comment('Payment Intent ID');
             $table->string('amount')->nullable()->default('0');
-            $table->string('status', ['pending', 'success', 'failed',])->nullable()->default('pending');
+            $table->enum('status', ['pending', 'success', 'failed',])->nullable()->default('pending');
             $table->boolean('is_save')->default(false);
 
             $table->timestamps();
