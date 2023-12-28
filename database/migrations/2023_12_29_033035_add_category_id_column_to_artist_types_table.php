@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('artist_types', function (Blueprint $table) {
             //
-            $table->dropUnique('users_phone_unique');
+            $table->foreignUuid('category_id')->nullable()->constrained(table: 'artist_categories', column: 'id')->after('id');
         });
     }
 
@@ -22,10 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Schema::table('users', function (Blueprint $table) {
-        //     //
-        //     $table->unique(['phone']);
-        // });
-        // Schema::dropIfExists('users');
+        Schema::table('artist_types', function (Blueprint $table) {
+            //
+            $table->dropForeign('category_id');
+        });
     }
 };
