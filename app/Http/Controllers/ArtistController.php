@@ -9,6 +9,7 @@ use App\Models\Genre;
 use App\Models\Profile;
 use App\Models\Member;
 use App\Models\Event;
+use App\Models\ArtistCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
