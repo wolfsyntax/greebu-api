@@ -550,7 +550,7 @@ class ProfileController extends Controller
             'first_name'    => ['required', 'string', 'max:255'],
             'last_name'     => ['required', 'string', 'max:255'],
             'email'         => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'],
-            'phone'         => ['required', /*new UniquePhone()*/ 'unique:users', new PhoneCheck(),],
+            'phone'         => ['required', new UniquePhone(), new PhoneCheck(),],
             'username'      => ['required', 'string',  'max:255', 'unique:users'],
             'password'      => !app()->isProduction() ? ['required', 'confirmed', 'min:8',] : [
                 'required', 'confirmed', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
