@@ -18,8 +18,7 @@ class ArtistType extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'title',
-        'category_id',
+        'title', 'category_id',
     ];
 
     protected $appends = [];

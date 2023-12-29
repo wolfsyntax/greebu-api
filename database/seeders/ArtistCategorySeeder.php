@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 use App\Models\ArtistCategory;
+use App\Models\ArtistType;
 
 class ArtistCategorySeeder extends Seeder
 {

@@ -31,4 +31,8 @@ class ArtistCategory extends Model
     protected $casts = [
         'title' => 'string',
     ];
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev
 }
