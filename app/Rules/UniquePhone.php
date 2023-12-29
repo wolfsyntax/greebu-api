@@ -21,9 +21,8 @@ class UniquePhone implements ValidationRule
 
             $user = User::whereNotIn('phone', ['+639955189602', '+639184592272',])->where('phone', $value)->first();
 
-            if ($user) $fail("The $val has already been taken.");
-
-        } catch (Throwable $e) {
+            if ($user) $fail("The :attribute has already been taken.");
+        } catch (\Throwable $e) {
             $fail('The :attribute is invalid.');
         }
     }

@@ -481,7 +481,7 @@ class ProfileController extends Controller
         if ($profile->where('user_id', $request->user()->id)->first()) {
 
             $request->validate([
-            'avatar'    => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),*/],
+                'avatar'    => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),*/],
             ]);
 
             $path = '';
@@ -496,7 +496,7 @@ class ProfileController extends Controller
                     }
                 }
 
-                $path = 'avatar/'.time().'_'.uniqid().'.webp';
+                $path = 'avatar/' . time() . '_' . uniqid() . '.webp';
 
                 //
                 $img = Image::make($request->file('avatar')->getRealPath())/*->resize(960, 960, null, function ($constraint) {
@@ -543,13 +543,14 @@ class ProfileController extends Controller
         }
     }
 
-    public function registration(Request $request) {
+    public function registration(Request $request)
+    {
 
         $request->validate([
             'first_name'    => ['required', 'string', 'max:255'],
             'last_name'     => ['required', 'string', 'max:255'],
             'email'         => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'],
-            'phone'         => ['required', new UniquePhone(), new PhoneCheck(),],
+            'phone'         => ['required', /*new UniquePhone()*/ 'unique:users', new PhoneCheck(),],
             'username'      => ['required', 'string',  'max:255', 'unique:users'],
             'password'      => !app()->isProduction() ? ['required', 'confirmed', 'min:8',] : [
                 'required', 'confirmed', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
@@ -635,7 +636,6 @@ class ProfileController extends Controller
             'message'           => 'Account successfully registered.',
             'result'            => $data,
         ], 201);
-
     }
 
     public function bannerImage(Request $request, Profile $profile)
@@ -644,7 +644,7 @@ class ProfileController extends Controller
             $service = new AwsService();
 
             $request->validate([
-            'cover_photo'    => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),*/], //'dimensions:min_width=400,min_height=150,max_width=851,max_height=315',],
+                'cover_photo'    => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(400)->minHeight(150)->maxWidth(1958)->maxHeight(745),*/], //'dimensions:min_width=400,min_height=150,max_width=851,max_height=315',],
             ]);
 
             // if ($request->hasFile('cover_photo')) {
@@ -679,7 +679,7 @@ class ProfileController extends Controller
                     }
                 }
 
-                $path = 'cover_photo/'.time().'_'.uniqid().'.webp';
+                $path = 'cover_photo/' . time() . '_' . uniqid() . '.webp';
 
                 //
                 $img = Image::make($request->file('cover_photo')->getRealPath())->encode('webp', 75)->__toString();
@@ -900,13 +900,14 @@ class ProfileController extends Controller
         // $profile->update($request)
     }
 
-    public function remove(Request $request, User $user) {
+    public function remove(Request $request, User $user)
+    {
 
         $profiles = Profile::where('user_id', $user->id)->get();
 
         $service = new AwsService();
         // return response()->json(['prof' => $profiles, 'user' => $user]);
-        foreach($profiles as $profile) {
+        foreach ($profiles as $profile) {
             // $profile->load('roles');
             $role = $profile->roles->first()?->name ?? 'customers';
 
@@ -914,7 +915,7 @@ class ProfileController extends Controller
 
                 $events = $profile->events()->get();
 
-                foreach($events as $event){
+                foreach ($events as $event) {
                     $event->lookTypes()->delete();
                     $event->forceDelete();
                 }
@@ -922,7 +923,7 @@ class ProfileController extends Controller
                 //     'events' => $events,
                 // ]);
                 // $profile->events()->forceDelete();
-//
+                //
             }
 
             if ($role === 'artists') {
@@ -938,9 +939,7 @@ class ProfileController extends Controller
                     $artist->proposals()?->delete();
 
                     $artist->forceDelete();
-
                 }
-
             } else if ($role === 'organizer') {
 
                 $organizer = Organizer::firstOrCreate([
@@ -950,7 +949,6 @@ class ProfileController extends Controller
                 $organizer->eventTypes()->delete();
                 $organizer->staffs()->delete();
                 $organizer->forceDelete();
-
             } else if ($role === 'service-provider') {
                 $data = [];
             } else {
@@ -961,13 +959,12 @@ class ProfileController extends Controller
 
                 $songs = $customer->requests()->get();
 
-                foreach($songs as $song) {
+                foreach ($songs as $song) {
                     $song->artists()->detach();
                     $song->delete();
                 }
 
                 $customer->delete();
-
             }
 
             $cover_host = parse_url($profile->cover_photo)['host'] ?? '';
@@ -988,7 +985,6 @@ class ProfileController extends Controller
 
             $profile->roles()->detach();
             $profile->forceDelete();
-
         }
 
         $user->forceDelete();

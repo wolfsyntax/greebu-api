@@ -209,12 +209,13 @@ class RegisterController extends Controller
         return redirect()->to('/login');
     }
 
-    public function validateInfo(Request $request) {
+    public function validateInfo(Request $request)
+    {
         $request->validate([
             'first_name'    => ['required', 'string', 'max:255'],
             'last_name'     => ['required', 'string', 'max:255'],
             'email'         => !app()->isProduction() ? ['required', 'string', 'email', 'max:255', 'unique:users'] : ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users'],
-            'phone'         => ['required', new UniquePhone(), /*new PhoneCheck()*/],
+            'phone'         => ['required', /*new UniquePhone()*/ 'unique:users', /*new PhoneCheck()*/],
             'username'      => ['required', 'string',  'max:255', 'unique:users'],
             'password'      => !app()->isProduction() ? ['required', 'confirmed', 'min:8',] : [
                 'required', 'confirmed', Rules\Password::defaults(), Rules\Password::min(8)->mixedCase()
@@ -234,16 +235,12 @@ class RegisterController extends Controller
                     'phone' => Str::of($request->input('phone'))->mask('*', (Str::startsWith($request->input('phone'), '+') ? 4 : 3), -4)
                 ],
             ], 200);
-
         } else {
             return response()->json([
                 'status'            => 400,
                 'message'           => 'Unable to send otp.',
                 'result'            => [],
             ], 203);
-
         }
-
-
     }
 }
