@@ -15,9 +15,9 @@ class ArtistCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $visualArtists = ArtistCategory::firstOrCreate(['title' => 'Visual Artists', ]);
-        $performingArtists = ArtistCategory::firstOrCreate(['title' => 'Performing Artists', ]);
-        $literaryArtists = ArtistCategory::firstOrCreate(['title' => 'Literary Artists', ]);
-        $digitalArtists = ArtistCategory::firstOrCreate(['title' => 'Digital Artists', ]);
+        $visualArtists = ArtistCategory::firstOrCreate(['title' => 'Visual Artists',]);
+        $performingArtists = ArtistCategory::firstOrCreate(['title' => 'Performing Artists',]);
+        $literaryArtists = ArtistCategory::firstOrCreate(['title' => 'Literary Artists',]);
+        $digitalArtists = ArtistCategory::firstOrCreate(['title' => 'Digital Artists',]);
     }
 }

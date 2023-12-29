@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('artist_types', function (Blueprint $table) {
-            //
             $table->foreignUuid('category_id')->nullable()->constrained(table: 'artist_categories', column: 'id')->after('id');
         });
     }
@@ -23,7 +22,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('artist_types', function (Blueprint $table) {
-            //
             $table->$table->dropForeign(['category_id']);
             $table->$table->dropColumn('category_id');
         });
