@@ -26,28 +26,28 @@ class ArtistTypesCategorySeeder extends Seeder
         $digitalArtists = ArtistCategory::where('title', 'Digital Artists')->first();
 
         foreach ($visual_arts as $value) {
-            ArtistType::create([
+            ArtistType::firstOrCreate([
                 'title'         => $value,
                 'category_id'   => $visualArtists->id,
             ]);
         }
 
         foreach ($literary_arts as $value) {
-            ArtistType::create([
+            ArtistType::firstOrCreate([
                 'title'         => $value,
                 'category_id'   => $literaryArtists->id,
             ]);
         }
 
         foreach ($performing_arts as $value) {
-            ArtistType::create([
+            ArtistType::firstOrCreate([
                 'title'         => $value,
                 'category_id'   => $performingArtists->id,
             ]);
         }
 
         foreach ($digital_arts as $value) {
-            ArtistType::create([
+            ArtistType::firstOrCreate([
                 'title'         => $value,
                 'category_id'   => $digitalArtists->id,
             ]);
