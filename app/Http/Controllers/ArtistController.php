@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Artist;
 use App\Models\ArtistType;
-use App\Models\ArtistCategory;
 use App\Models\Genre;
 use App\Models\Profile;
 use App\Models\Member;
@@ -266,7 +265,7 @@ class ArtistController extends Controller
             'artist_name'       => ['required', 'string',],
             'genre'             => ['required', 'array',],
             'bio'               => ['sometimes', 'required', 'string',],
-            'avatar'            => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
+            'avatar'            => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic',],
             'street'            => ['required', 'string',],
             'city'              => ['required', 'string',],
             'province'          => ['required', 'string',],
@@ -381,7 +380,7 @@ class ArtistController extends Controller
     /**
      * Artist Profile - Events Tab - Past Events
      *
-    */
+     */
     public function artistPastEvents(Request $request, Artist $artist)
     {
 
@@ -420,8 +419,8 @@ class ArtistController extends Controller
                     $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
                 ],
                 'events'            => EventResource::collection($events->skip($offset)
-            ->take($perPage)
-            ->get()),
+                    ->take($perPage)
+                    ->get()),
             ]
         ]);
     }
@@ -429,7 +428,7 @@ class ArtistController extends Controller
     /**
      * Artist Profile - Events Tab - Upcoming Events
      *
-    */
+     */
     public function artistUpcomingEvents(Request $request, Artist $artist)
     {
 
@@ -467,8 +466,8 @@ class ArtistController extends Controller
                     $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
                 ],
                 'events'            => EventResource::collection($events->skip($offset)
-            ->take($perPage)
-            ->get()),
+                    ->take($perPage)
+                    ->get()),
             ]
         ]);
     }
@@ -510,8 +509,8 @@ class ArtistController extends Controller
                     $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
                 ],
                 'events'            => EventResource::collection($events->skip($offset)
-            ->take($perPage)
-            ->get()),
+                    ->take($perPage)
+                    ->get()),
             ]
         ]);
     }
@@ -573,7 +572,7 @@ class ArtistController extends Controller
             'artist_name'       => ['required', 'string',],
             'genre'             => ['required', 'array',],
             'bio'               => ['sometimes', 'required', 'string',],
-            'avatar'            => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
+            'avatar'            => ['required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic',],
         ]);
 
         if ($validator->fails()) {
@@ -651,7 +650,7 @@ class ArtistController extends Controller
             'status'    => 200,
             'message'   => 'Artist form options successfully fetched.',
             'result'    => [
-                'artist_types'      => ArtistType::whereNot('category_id','')->select('id', 'title', 'category_id')->get(),
+                'artist_types'      => ArtistType::whereNot('category_id', '')->select('id', 'title', 'category_id')->get(),
                 'artist_categories' => ArtistCategory::select('id', 'title')->get(),
                 'genres'            => Genre::select('id', 'title')->where('title', '!=', 'Others')->get(),
             ],
@@ -686,7 +685,7 @@ class ArtistController extends Controller
             'member_name'       => ['required', 'string',],
             'last_name'         => ['sometimes', 'required', 'string',],
             'role'              => ['required', 'string',],
-        'member_avatar'     => ['nullable', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*'dimensions:min_width=176,min_height=176,max_width=2048,max_height=2048',*/],
+            'member_avatar'     => ['nullable', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*'dimensions:min_width=176,min_height=176,max_width=2048,max_height=2048',*/],
         ]);
 
         if ($validator->fails()) {
@@ -900,7 +899,7 @@ class ArtistController extends Controller
             'member_name'       => ['required', 'string',],
             'last_name'         => ['sometimes', 'required', 'string',],
             'role'              => ['required', 'string',],
-            'member_avatar'     => ['nullable', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
+            'member_avatar'     => ['nullable', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic',],
         ]);
 
         if ($validator->fails()) {
