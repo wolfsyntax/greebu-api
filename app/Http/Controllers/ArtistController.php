@@ -65,7 +65,8 @@ class ArtistController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'artist_type'   => ['nullable', 'string',],
+            'artist_type'   => ['nullable', 'uuid',],
+            'artist_category'   => ['nullable', 'uuid',],
             'genre'         => ['nullable', 'string',],
             'search'        => ['nullable', 'string',],
         ]);
@@ -84,6 +85,12 @@ class ArtistController extends Controller
 
         $isGenreUuid = Str::isUuid($genre);
         $isArtistTypeUuid = Str::isUuid($artist_type);
+
+        $types = [];
+
+        if ($request->has('artist_category') && $request->artist_category) {
+            $types = ArtistType::where('category_id', $request->artist_category)->get()->pluck('id');
+        }
 
         $page = LengthAwarePaginator::resolveCurrentPage() ?? 1;
 
@@ -115,19 +122,16 @@ class ArtistController extends Controller
             });
         });
 
-        $artists->when($artist_type, function ($query, $artist_type) use ($isArtistTypeUuid) {
-            $query->whereHas('artistType', function ($query) use ($artist_type, $isArtistTypeUuid) {
-                if ($isArtistTypeUuid) return $query->where('id', $artist_type);
-                return $query->where('title', 'LIKE', '%' . $artist_type . '%');
+        if ($artist_type === '')
+            $artists = $artists->when($types, function ($query, $types) {
+                $query->whereHas('artistType', function ($query) use ($types) {
+                    return $query->whereIn('id', $types);
+                });
             });
-        });
 
-        // $artists->when($artist_type, function ($query, $artist_type) use ($isArtistTypeUuid) {
-        //     $query->whereHas('artistType', function ($query) use ($artist_type, $isArtistTypeUuid) {
-        //         if ($isArtistTypeUuid) return $query->where('id', $artist_type);
-        //         return $query->where('title', 'LIKE', '%' . $artist_type . '%');
-        //     });
-        // });
+        $artists->when($artist_type, function ($query, $artist_type) {
+            $query->where('artist_type_id', $artist_type);
+        });
 
         $artists->when($language, function ($query, $language) {
             return $query->whereHas('languages', function ($query) use ($language) {
