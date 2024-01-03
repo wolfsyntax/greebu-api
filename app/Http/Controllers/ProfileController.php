@@ -909,8 +909,10 @@ class ProfileController extends Controller
         // return response()->json(['prof' => $profiles, 'user' => $user]);
         foreach ($profiles as $profile) {
             // $profile->load('roles');
-            $role = $profile->roles->first()?->name ?? 'customers';
-
+            $role = $profile->roles->first()?->name ?? '';
+            // return response()->json([
+            //     'role' => $role,
+            // ]);
             if ($role === 'organizer') {
 
                 $events = $profile->events()->get();
@@ -929,13 +931,17 @@ class ProfileController extends Controller
             if ($role === 'artists') {
 
                 $artist = Artist::with(['genres', 'songRequests', 'members', 'albums', 'reviews',])->where('profile_id', $profile->id)->first();
+                // return response()->json([
+                //     'role' => $role,
+                //     'artist' => $artist,
+                // ]);
                 if ($artist) {
 
-                    $artist->genres()->delete();
-                    $artist->songRequests()->detach();
-                    $artist->members()->delete();
-                    $artist->albums()->delete();
-                    $artist->reviews()->delete();
+                    $artist->genres()?->delete();
+                    $artist->songRequests()?->detach();
+                    $artist->members()?->delete();
+                    $artist->albums()?->delete();
+                    $artist->reviews()?->delete();
                     $artist->proposals()?->delete();
 
                     $artist->forceDelete();
@@ -951,7 +957,7 @@ class ProfileController extends Controller
                 $organizer->forceDelete();
             } else if ($role === 'service-provider') {
                 $data = [];
-            } else {
+            } else if ($role === 'customers') {
 
                 $customer = Customer::firstOrCreate([
                     'profile_id' => $profile->id,
@@ -983,7 +989,7 @@ class ProfileController extends Controller
                 }
             }
 
-            $profile->roles()->detach();
+            if ($role) $profile->roles()->detach();
             $profile->forceDelete();
         }
 

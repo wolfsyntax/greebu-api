@@ -207,7 +207,8 @@ class Profile extends Model
         return $banner;
     }
 
-    public function delete() {
+    public function delete()
+    {
 
         // // $this->artist()->delete();
         // // $this->customer()->delete();
@@ -217,7 +218,9 @@ class Profile extends Model
         // $this->following()->delete();
         // $this->events()->delete();
 
-        foreach($this->posts()->get() as $post) {
+        $role = $this->roles->first()?->name;
+
+        foreach ($this->posts()->get() as $post) {
             $post->delete();
         }
 
