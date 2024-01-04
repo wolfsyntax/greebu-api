@@ -657,6 +657,7 @@ class ArtistController extends Controller
                 'artist_types'      => ArtistType::whereNot('category_id', '')->select('id', 'title', 'category_id')->get(),
                 'artist_categories' => ArtistCategory::select('id', 'title')->get(),
                 'genres'            => Genre::select('id', 'title')->where('title', '!=', 'Others')->get(),
+                'cities'            => Profile::account('artists')->distinct()->get(['city'])->map->city,
             ],
         ], 200);
     }

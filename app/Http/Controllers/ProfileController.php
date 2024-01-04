@@ -117,12 +117,12 @@ class ProfileController extends Controller
                 'street_address'        => ['required', 'string', 'max:255',],
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
-                'bio'                   => ['required', 'string', 'max:500',],
+                'bio'                   => ['nullable', 'string', 'max:500',],
                 'avatar'                => ['sometimes', 'required', 'mimes:xbm,svg,webp,jpeg,jpg,png,bmp,tif,jfif,ico,tiff,gif,svgz,pjp,apng,pjpeg,avif', /*Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(500)->maxHeight(500),*/], //'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
 
                 'artist_type'           => ['required', 'exists:artist_types,title',],
                 'artist_name'           => ['required', 'string', new UniqueArtist,],
-                'genres'                => ['required', 'array',],
+                'genres'                => ['nullable', 'array',],
                 'youtube'               => ['nullable', 'string', 'max:255'],
                 'twitter'               => ['nullable', 'string', 'max:255'],
                 'instagram'             => ['nullable', 'string', 'max:255'],
@@ -177,67 +177,20 @@ class ProfileController extends Controller
 
             $account->load(['artistType', 'profile', 'genres', 'languages', 'reviews', 'avgRating']);
 
-            // $genres = $request->input('genres');
-
-
-            // // $genre = Genre::whereIn('title', $genres)->get();
-            // $genres = Genre::whereIn('title', $genres)->where('title', '!=', 'Others')->get();
-
-            // // Remove existing artist_genres
-            // $account->genres()->detach();
-
-            // foreach ($genres as $genre) {
-            //     $account->genres()->attach($genre, ['genre_title' => $genre->title]);
-            //     # code...
-            // }
-
-            // // Other Genre
-            // $genre = Genre::where('title', 'Others')->first();
-
-            // $customGenre = collect($request->input('genres'))->diff($genres->pluck('title'));
-
-            // foreach ($customGenre as $cus) {
-            //     if ($cus != 'Others') {
-            //         $account->genres()->attach($genre, ['genre_title' => $cus]);
-            //     }
-            // }
-
             $account->genres()->delete();
 
-            foreach ($request->input('genres') as $value) {
-                $account->genres()->create([
-                    'genre_title' => ucwords($value),
-                ]);
+            if ($request->has('genres')) {
+                foreach ($request->input('genres') as $value) {
+                    $account->genres()->create([
+                        'genre_title' => ucwords($value),
+                    ]);
+                }
+
+                $data['genres'] = ArtistGenres::where('artist_id', $account->id)->get();
             }
 
-            // $genres = $account->genres()->get();
-
-            // $otherGenre = DB::table('artist_genres')->select('genre_title')
-            //     ->where('artist_id', $account->id)
-            //     ->whereNotIn('genre_title', $genres->pluck('genre_title'))
-            //     ->get();
-
-            // $data['custom_genre'] = implode(" ", $otherGenre->pluck('title')->toArray());
-
-            $data['genres'] = ArtistGenres::where('artist_id', $account->id)->get(); //$genres;
-
-            // $account->genres()->sync($genre);
-            // $data['x'] = $customGenre;
-            // $data['genres'] = $account->genres()->get();
-
             $data['members'] = new MemberCollection(Member::where('artist_id', $account->id)->get());
-
             $data['account']    = new ArtistFullResource($account);
-
-            // $data['form'] = $request->only([
-            //     'artist_type', 'artist_name', 'genres',
-            //     'song', 'song_title',
-            //     'street_address', 'city', 'province',
-            //     'youtube', 'twitter', 'instagram', 'spotify',
-            //     'accept_proposal', 'accept_booking', 'accept_request',
-            //     'bio',
-            // ]);
-
         } else if ($role === 'organizer') {
 
             $request->validate([
