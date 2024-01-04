@@ -34,6 +34,7 @@ class Profile extends Model
         // social media profile
         'youtube', 'spotify', 'twitter', 'instagram', 'facebook', 'threads',
         'personal_code',
+        'lat', 'long',
     ];
 
     protected $appends = ['avatarUrl', 'bannerUrl',];
@@ -62,6 +63,8 @@ class Profile extends Model
         'instagram'         => 'string',
         'facebook'          => 'string',
         'threads'          => 'string',
+        'lat'               => 'string',
+        'long'              => 'string',
     ];
 
     protected $attributes = [
@@ -78,6 +81,8 @@ class Profile extends Model
         'instagram'         => '',
         'facebook'          => '',
         // 'country'           => 'Philippines',
+        'lat'               => '',
+        'long'              => '',
     ];
 
     /**

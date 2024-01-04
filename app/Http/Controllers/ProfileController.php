@@ -95,8 +95,12 @@ class ProfileController extends Controller
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:500',],
+                'lat'                   => ['required', 'string', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/',],
+                'long'                  => ['required', 'string', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/',],
                 'avatar'                => ['sometimes', 'required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048)->ratio(1 / 1),*/],
             ], [
+                'lat.required'         => 'Latitude is required.',
+                'long.required'         => 'Longitude is required.',
                 'required'              => ':Attribute is required.',
                 'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
             ]);
@@ -119,7 +123,8 @@ class ProfileController extends Controller
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['nullable', 'string', 'max:500',],
                 'avatar'                => ['sometimes', 'required', 'mimes:xbm,svg,webp,jpeg,jpg,png,bmp,tif,jfif,ico,tiff,gif,svgz,pjp,apng,pjpeg,avif', /*Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(500)->maxHeight(500),*/], //'dimensions:min_width=176,min_height=176,max_width=320,max_height=320',],
-
+                'lat'                   => ['required', 'string', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/',],
+                'long'                  => ['required', 'string', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/',],
                 'artist_type'           => ['required', 'exists:artist_types,title',],
                 'artist_name'           => ['required', 'string', new UniqueArtist,],
                 'genres'                => ['nullable', 'array',],
@@ -134,6 +139,8 @@ class ProfileController extends Controller
                 'song'                  => ['sometimes', 'file', File::types(['mp3', 'mp4', 'wav'])->max(10000), /*'mimes:mp3', 'max:65536',*/], // Max 64MB ~ 65536
                 'song_title'            => ['required_if:song,!=,null', 'string', 'max:255',],
             ], [
+                'lat.required'         => 'Latitude is required.',
+                'long.required'         => 'Longitude is required.',
                 'required'              => ':Attribute is required.',
                 'artist_type.exists'    => ':Attribute is a invalid option.',
                 'in'                    => ':Attribute is invalid.',
@@ -147,6 +154,8 @@ class ProfileController extends Controller
                 'spotify'   => $request->input('spotify'),
                 'twitter'   => $request->input('twitter'),
                 'instagram' => $request->input('instagram'),
+                'lat'       => $request->lat,
+                'long'       => $request->long,
             ]);
 
             $account = Artist::firstOrCreate([
@@ -211,7 +220,11 @@ class ProfileController extends Controller
                 // Options
                 'send_proposal'         => ['nullable', 'in:true,false',],
                 'accept_proposal'       => ['nullable', 'in:true,false',],
+                'lat'                   => ['required', 'string', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/',],
+                'long'                  => ['required', 'string', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/',],
             ], [
+                'lat.required'         => 'Latitude is required.',
+                'long.required'         => 'Longitude is required.',
                 'required'              => ':Attribute is required.',
                 'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
             ]);
@@ -221,7 +234,9 @@ class ProfileController extends Controller
                 'facebook'      => $request->input('facebook'),
                 'twitter'       => $request->input('twitter'),
                 'instagram'     => $request->input('instagram'),
-                'threads'     => $request->input('threads'),
+                'threads'       => $request->input('threads'),
+                'lat'           => $request->lat,
+                'long'          => $request->long,
             ]);
 
             $profile = $this->updateProfileV2($request, $profile, $request->hasFile('avatar') ? 's3' : '');
@@ -264,10 +279,14 @@ class ProfileController extends Controller
             $request->validate([
                 'street_address'        => ['required', 'string', 'max:255',],
                 'city'                  => ['required', 'string', 'max:255',],
+                'lat'                   => ['required', 'string', 'regex:/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/',],
+                'long'                  => ['required', 'string', 'regex:/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['required', 'string', 'max:500',],
                 'avatar'                => ['sometimes', 'required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', /*Rule::dimensions()->minWidth(176)->minHeight(176)->maxWidth(2048)->maxHeight(2048),*/],
             ], [
+                'lat.required'         => 'Latitude is required.',
+                'long.required'         => 'Longitude is required.',
                 'required'              => ':Attribute is required.',
                 'avatar.dimensions'     => ":Attribute dimension must be within :min_widthpx x :min_heightpx and :max_widthpx x :max_heightpx.",
             ]);
