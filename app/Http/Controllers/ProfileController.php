@@ -114,7 +114,7 @@ class ProfileController extends Controller
         } else if ($role === 'artists') {
 
             $request->validate([
-                'street_address'        => ['required', 'string', 'max:255',],
+                'street_address'        => ['nullable', 'string', 'max:255',],
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
                 'bio'                   => ['nullable', 'string', 'max:500',],
@@ -204,10 +204,10 @@ class ProfileController extends Controller
                 'instagram'             => ['nullable', 'string', 'max:255',],
                 'threads'               => ['nullable', 'string', 'max:255',],
                 // Address
-                'street_address'        => ['required', 'string', 'max:255',],
+                'street_address'        => ['nullable', 'string', 'max:255',],
                 'city'                  => ['required', 'string', 'max:255',],
                 'province'              => ['required', 'string', 'max:255',],
-                'bio'                   => ['required', 'string', 'max:500',],
+                'bio'                   => ['nullable', 'string', 'max:500',],
                 // Options
                 'send_proposal'         => ['nullable', 'in:true,false',],
                 'accept_proposal'       => ['nullable', 'in:true,false',],
