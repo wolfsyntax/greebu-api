@@ -87,6 +87,8 @@ class ProfileResource extends JsonResource
             'facebook'              => $this->facebook,
             'instagram'             => $this->instagram,
             'threads'               => $this->threads,
+            'lat'                   => $this->lat,
+            'long'                  => $this->long,
         ];
         return parent::toArray($request);
     }
