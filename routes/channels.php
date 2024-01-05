@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Broadcast;
+use App\Models\Profile;
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +21,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('profile.{id}', function ($user, $id) {
-    $profile = \App\Models\Profile::find($id);
+    $profile = Profile::find($id);
 
     if (!$profile) return false;
 
@@ -28,7 +30,7 @@ Broadcast::channel('profile.{id}', function ($user, $id) {
 
 Broadcast::channel('user-info.{id}', function ($user, $id) {
 
-    $data = \App\Models\User::find($id);
+    $data = User::find($id);
 
     if (!$data) return false;
 

@@ -15,6 +15,9 @@ use Intervention\Image\Facades\Image;
 
 trait UserTrait
 {
+    /**
+     * @return \App\Models\User
+     */
     public function updateUser(Request $request)
     {
         $user = User::find($request->user()->id);
@@ -102,7 +105,7 @@ trait UserTrait
 
             if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
                 $service->delete_aws_object($profile->avatar);
-                $path = 'avatar/'.time().'_'.uniqid().'.webp';
+                $path = 'avatar/' . time() . '_' . uniqid() . '.webp';
 
                 // Resize the image to a maximum width of 150 pixels, this is form Intervention Image library
                 $img = Image::make($image->getRealPath())/*->resize(960, 960, null, function ($constraint) {
@@ -126,7 +129,7 @@ trait UserTrait
                 $profile->cover_photo && !filter_var($profile->cover_photo, FILTER_VALIDATE_URL)
             ) {
                 $service->delete_aws_object($profile->cover_photo);
-                $path = 'cover_photo/'.time().'_'.uniqid().'.jpg';
+                $path = 'cover_photo/' . time() . '_' . uniqid() . '.jpg';
 
                 $img = Image::make($image->getRealPath())->encode('jpg', 75)->__toString();
 

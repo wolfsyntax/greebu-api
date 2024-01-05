@@ -12,6 +12,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Libraries\AwsService;
 
+/**
+ * @property string $bucket
+ * @property string $cover_photo
+ * @property string $avatar
+ */
 class Profile extends Model
 {
     use HasFactory, HasRoles, SoftDeletes, HasUuids, Notifiable;

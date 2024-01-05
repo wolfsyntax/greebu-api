@@ -27,7 +27,9 @@ parameters:
 
         - '#Access to property \$[a-zA-Z0-9\\_]+ on an unknown class [a-zA-Z0-9\\_]+.#'
         - '#Call to an undefined method [a-zA-Z0-9\\_|<>]+::[a-zA-Z0-9\\_]+\(\).#'
+        - '#Call to an undefined static method [a-zA-Z0-9\\_|<>]+::[a-zA-Z0-9\\_]+\(\).#'
         - '#Cannot access property \$[a-zA-Z0-9\\_]+ on App\\Eloquent\\[a-zA-Z0-9\\_|]+.#'
+        - '#Access to an undefined property Illuminate\\Http\\Request::\$[a-zA-Z0-9\\_]+.#'
 
     parallel:
         maximumNumberOfProcesses: 4
