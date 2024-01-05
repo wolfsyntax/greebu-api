@@ -1,0 +1,38 @@
+
+parameters:
+    paths:
+        - app
+        - config
+        - database
+        - routes
+    level: 6
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        - '#PHPDoc tag @var#'
+        -
+            message: '#Undefined variable: \$this#'
+            path: routes\console.php
+        -
+            message: '#Call to an undefined method Illuminate\\Database\\Eloquent\\Model::assignRole\(\)#'
+            path: database\seeders\DatabaseSeeder.php
+
+        -
+            message: '#Property App\\Providers\\AuthServiceProvider::\$policies \(array\<class-string, class-string\>\) does not accept default value of type array\<string, string\>#'
+            path: app\Providers\AuthServiceProvider.php
+
+        -
+            message: '#Call to an undefined method Faker\\Generator::username\(\)#'
+            path: database\factories\UserFactory.php
+
+        - '#Access to property \$[a-zA-Z0-9\\_]+ on an unknown class [a-zA-Z0-9\\_]+.#'
+        - '#Call to an undefined method [a-zA-Z0-9\\_|<>]+::[a-zA-Z0-9\\_]+\(\).#'
+        - '#Cannot access property \$[a-zA-Z0-9\\_]+ on App\\Eloquent\\[a-zA-Z0-9\\_|]+.#'
+
+    parallel:
+        maximumNumberOfProcesses: 4
+
+    reportUnmatchedIgnoredErrors: false
+    checkMissingIterableValueType: false
+    excludePaths:
+        - */tests/*
+        - */database/*
