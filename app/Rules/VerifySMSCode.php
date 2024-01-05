@@ -10,9 +10,10 @@ class VerifySMSCode implements ValidationRule
 {
     use TwilioTrait;
 
-    protected $phone;
+    protected string $phone;
 
-    public function __construct($phone) {
+    public function __construct(string $phone)
+    {
         $this->phone = $phone;
     }
     /**
@@ -26,7 +27,7 @@ class VerifySMSCode implements ValidationRule
         try {
             if (!$this->phone) $fail("The :attribute required a phone number.");
             if (!$this->verifyOTP($this->phone, $value)) $fail("The :attribute is invalid code.");
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $fail('The :attribute is invalid.');
         }
     }

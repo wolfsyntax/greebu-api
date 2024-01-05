@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $song_title
+ * @property string $song
+ */
 class Artist extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;

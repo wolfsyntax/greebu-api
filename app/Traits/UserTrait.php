@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Lang;
 use App\Libraries\AwsService;
 
 use Intervention\Image\Facades\Image;
+use Auth;
 
 trait UserTrait
 {
@@ -44,9 +45,13 @@ trait UserTrait
         return $user;
     }
 
-    public function updateProfile($request, User $user, $role = 'customers', $disk = 's3', $directory = 'avatar')
+    /**
+     * @return \App\Models\Profile
+     */
+    public function updateProfile(Request $request, User $user, string $role = 'customers', string $disk = 's3')
     {
-        $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
+        $id = auth()->user()->id;
+        $profile = Profile::with('roles')->where('user_id', $id)->whereHas('roles', function ($query) use ($role) {
             $query->where('name', $role);
         })->first();
 
@@ -91,7 +96,10 @@ trait UserTrait
         return $profile;
     }
 
-    public function updateProfileV2($request, $profile, $disk = 's3', $directory = 'avatar')
+    /**
+     * @return \App\Models\Profile
+     */
+    public function updateProfileV2(Request $request, \App\Models\Profile $profile, string $disk = 's3', string $directory = 'avatar')
     {
 
         $service = new AwsService();
@@ -117,7 +125,7 @@ trait UserTrait
             }
 
             $profile->bucket = 's3';
-            $profile->avatar = $path ?? 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $profile->avatar = $path ?: 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
             // $profile->avatar = $path;
 
         }
@@ -128,9 +136,9 @@ trait UserTrait
             if (
                 $profile->cover_photo && !filter_var($profile->cover_photo, FILTER_VALIDATE_URL)
             ) {
+                $image = $request->file('cover_photo');
                 $service->delete_aws_object($profile->cover_photo);
                 $path = 'cover_photo/' . time() . '_' . uniqid() . '.jpg';
-
                 $img = Image::make($image->getRealPath())->encode('jpg', 75)->__toString();
 
                 Storage::disk('s3')->put($path, $img);
@@ -140,7 +148,7 @@ trait UserTrait
             }
 
             $profile->bucket = 's3';
-            $profile->cover_photo = $path ?? 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $profile->cover_photo = $path ?: 'https://ui-avatars.com/api/?name=' . $profile->business_name . '&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
 
             // $profile->cover_photo = $service->put_object_to_aws('cover_photo/img_' . time() . '.' . $request->file('cover_photo')->getClientOriginalExtension(), $request->file('cover_photo'));
         }
@@ -155,7 +163,10 @@ trait UserTrait
         return $profile;
     }
 
-    public function updateAddress($request, $role = 'customers')
+    /**
+     * @return \App\Models\Profile
+     */
+    public function updateAddress(Request $request, string $role = 'customers')
     {
         $profile = Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
             $query->where('name', $role);
@@ -189,28 +200,26 @@ trait UserTrait
         return $profile;
     }
 
-    public function fileUpload(Request $request, $field = 'avatar', $disk = 's3', $directory = 'avatar', $expiration = 60)
+    /**
+     * @return mixed
+     */
+    public function fileUpload(Request $request, string $field = 'avatar', string $disk = 's3', string $directory = 'avatar')
     {
         $service = new AwsService();
 
         $path = $service->put_object_to_aws($directory . '/img_' . time() . '.' . $request->file($field)->getClientOriginalExtension(), $request->file($field), $disk === 's3priv');
-        // $path = Storage::disk($disk)->putFileAs($directory, $request->file($field), 'img_' . time() . '.' . $request->file($field)->getClientOriginalExtension());
-        // $relative_path = parse_url($path)['path'];
         $relative_path = $path;
 
         return [
             'filename'      => $relative_path,
             'path'          => $path,
-            // 'signed_path'   => Storage::disk($disk)->temporaryUrl($relative_path, now()->addMinutes($expiration)),
         ];
     }
 
-    public function getSignedFile($path, $disk = 's3', $expiration = 60)
-    {
-        // return Storage::disk($disk)->temporaryUrl($path, now()->addMinutes($expiration));
-    }
-
-    public function checkRoles($role)
+    /**
+     * @return \App\Models\Profile
+     */
+    public function checkRoles(string $role)
     {
         return Profile::with('roles')->where('user_id', auth()->user()->id)->whereHas('roles', function ($query) use ($role) {
             $query->where('name', $role);

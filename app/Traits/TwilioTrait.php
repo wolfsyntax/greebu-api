@@ -8,14 +8,20 @@ use Twilio\Exceptions\TwilioException;
 
 trait TwilioTrait
 {
-
-    public function fetchDialingCode($country_code = 'PH') {
+    /**
+     * @return array<string,mixed>
+     */
+    public function fetchDialingCode(string $country_code = 'PH')
+    {
         $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
         $country = $twilio->voice->v1->dialingPermissions->countries($country_code)->fetch();
         return $country->toArray();
     }
 
-    public function sendMessage($recipient, $message)
+    /**
+     * @return bool
+     */
+    public function sendMessage(string $recipient, string $message)
     {
         try {
 
@@ -32,7 +38,10 @@ trait TwilioTrait
         }
     }
 
-    public function sendOTP($recipient)
+    /**
+     * @return bool
+     */
+    public function sendOTP(string $recipient)
     {
         try {
             if ($recipient) {
@@ -45,14 +54,16 @@ trait TwilioTrait
             }
 
             return false;
-
         } catch (TwilioException $th) {
             //throw $th;
             return false;
         }
     }
 
-    public function verifyOTP($recipient, $otp)
+    /**
+     * @return bool
+     */
+    public function verifyOTP(string $recipient, string $otp)
     {
         try {
 

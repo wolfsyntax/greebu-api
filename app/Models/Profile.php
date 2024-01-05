@@ -16,6 +16,16 @@ use App\Libraries\AwsService;
  * @property string $bucket
  * @property string $cover_photo
  * @property string $avatar
+ * @property string $business_name
+ * @property string $business_email
+ * @property string $user_id
+ * @property string $phone
+ * @property string $street_address
+ * @property string $city
+ * @property string $zip_code
+ * @property string $province
+ * @property string $country
+ * @property string $bio
  */
 class Profile extends Model
 {

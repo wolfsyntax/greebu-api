@@ -30,6 +30,8 @@ parameters:
         - '#Call to an undefined static method [a-zA-Z0-9\\_|<>]+::[a-zA-Z0-9\\_]+\(\).#'
         - '#Cannot access property \$[a-zA-Z0-9\\_]+ on App\\Eloquent\\[a-zA-Z0-9\\_|]+.#'
         - '#Access to an undefined property Illuminate\\Http\\Request::\$[a-zA-Z0-9\\_]+.#'
+        - '#Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable::\$[a-zA-Z0-9\\_]+.#'
+        - '#Trait App\\Traits\\[a-zA-Z0-9\\_]+ is used zero times and is not analysed.#'
 
     parallel:
         maximumNumberOfProcesses: 4

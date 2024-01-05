@@ -15,13 +15,20 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Traits\TwilioTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+/**
+ * @property string $email
+ * @property string $fullname
+ * @property string $phone
+ * @property string $first_name
+ * @property string $last_name
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasUuids, TwilioTrait;
 
     // public $incrementing = false;
     // protected $keyType = 'string';
-    protected $guard_name = 'api';
+    protected string $guard_name = 'api';
 
     /**
      * The attributes that are mass assignable.
@@ -56,11 +63,17 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
+    /**
+     * @return bool
+     */
     public function sendCode()
     {
         return $this->sendOTP($this->phone);
     }
 
+    /**
+     * @return bool
+     */
     public function verifyCode($code)
     {
         return $this->verifyOTP($this->phone, $code);
@@ -111,6 +124,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->attributes['password'] = hash('sha256', $value, false);
     }
 
+    /**
+     * @return \App\Models\Profile
+     */
     public function profiles()
     {
         return $this->hasMany(Profile::class);
