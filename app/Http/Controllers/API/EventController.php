@@ -109,7 +109,7 @@ class EventController extends Controller
         $data = [
             'events'        => EventResource::collection($events->skip($offset)->take($perPage)->get()),
             'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-            'city'          => Event::distinct('city')->orderBy('city')->get()->map->city,
+            'city'          => Event::select('city')->distinct()->orderBy('city')->get()->map->city,
             'pagination'    => [
                 'total'     => $events->count(),
                 'last_page' => ceil($events->count() / $perPage),
@@ -148,7 +148,8 @@ class EventController extends Controller
             'status' => 200,
             'message' => 'Create Event',
             'result'    => [
-                'city'                  => Event::distinct('city')->orderBy('city')->get()->map->city,
+                'city'                  => Event::distinct()->orderBy('city')->get(['city'])->map->city,
+                // 'cities'                => $cities->orderBy('name', 'asc')->limit(10)->get(),
                 // 'event_artist_type'     => ArtistType::orderBy('title', 'ASC')->get(),
                 'event_artist_type'     => array_map('strtolower', $artist_types->orderBy('title', 'ASC')->get()->map->title->toArray()),
                 'event_service_type'    => array_map('strtolower', $service_types->orderBy('name', 'ASC')->get()->map->name->toArray()),
@@ -815,7 +816,7 @@ class EventController extends Controller
             'past'          => EventResource::collection($past['data']),
             'upcoming'       => EventResource::collection($upcoming['data']),
             'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-            'city'          => Event::distinct()->orderBy('city')->get()->map->city,
+            'city'          => Event::select('city')->distinct()->orderBy('city')->get()->map->city,
         ];
 
         return response()->json([
@@ -863,8 +864,8 @@ class EventController extends Controller
                 $request->only(['search', 'sortBy', 'location', 'cost', 'event_type',]),
             ],
             'events'          => EventResource::collection($events['data']),
-            'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-            'city'          => Event::distinct('city')->orderBy('city')->get()->map->city,
+            // 'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+            // 'city'          => Event::select('city')->distinct()->orderBy('city')->get()->map->city,
         ];
 
         return response()->json([
@@ -919,7 +920,7 @@ class EventController extends Controller
             ],
             'events'          => EventResource::collection($events['data']),
             'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-            'city'          => Event::distinct('city')->orderBy('city')->get()->map->city,
+            'city'          => Event::select('city')->distinct()->orderBy('city')->get()->map->city,
         ];
 
         return response()->json([
@@ -968,8 +969,8 @@ class EventController extends Controller
             ],
             'events'          => EventResource::collection($events['data']),
             // 'events'          => EventResource::collection($events->skip($offset)->take($perPage)->get()),
-            'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
-            'city'          => Event::distinct('city')->orderBy('city')->get()->map->city,
+            // 'event_types'   => EventType::select('id', 'name')->orderBy('name', 'ASC')->get(),
+            // 'city'          => Event::select('city')->distinct()->orderBy('city')->get()->map->city->toArray(),
         ];
 
         return response()->json([
