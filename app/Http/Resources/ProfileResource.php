@@ -8,6 +8,34 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Libraries\AwsService;
 
+/**
+ * @property string $avatar
+ * @property string $cover_photo
+ * @property string $id
+ * @property string $user_id
+ * @property string $business_email
+ * @property string $business_name
+ * @property string $avatarUrl
+ * @property string $bannerUrl
+ * @property string $phone
+ * @property string $street_address
+ * @property string $city
+ * @property string $zip_code
+ * @property string $province
+ * @property string $country
+ * @property string $bio
+ * @property string $lat
+ * @property string $long
+ * @property string $threads
+ * @property string $instagram
+ * @property string $facebook
+ * @property string $twitter
+ * @property string $youtube
+ * @property string $spotify
+ * @property string $bucket
+ * @property bool $is_freeloader
+ * @property float $credit_balance
+ */
 class ProfileResource extends JsonResource
 {
     /**
@@ -18,47 +46,9 @@ class ProfileResource extends JsonResource
     public function toArray(Request $request): array
     {
         $service = new AwsService();
-        // $avatar = filter_var($this->avatar, FILTER_VALIDATE_URL) ? $this->avatar : ($this->bucket === 's3' ? Storage::disk($this->bucket)->url($this->avatar) : ($this->avatar ? Storage::disk($this->bucket)->temporaryUrl($this->avatar, now()->addMinutes(60)) : ''));
 
         $avatar = $this->avatar;
         $cover = $this->cover_photo;
-
-        // $avatar_host = parse_url($avatar)['host'] ?? '';
-        // $cover_host = parse_url($cover)['host'] ?? '';
-
-        // if ($avatar) {
-
-        //     if ($avatar_host) {
-        //     } else {
-        //         $avatar = $service->get_aws_object($avatar, false);
-        //     }
-        // }
-
-        // if ($cover) {
-
-        //     if ($cover_host) {
-        //     } else {
-        //         $cover = $service->get_aws_object($cover, false);
-        //     }
-        // }
-
-        // if (!$this->avatar) {
-        //     $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        // } else {
-        //     $avatar_host = parse_url($avatar);
-        //     if (!array_key_exists('host', $avatar_host)) {
-        //         $avatar = $service->get_aws_object($this->avatar);
-        //     }
-        // }
-
-        // if (!$this->cover_photo) {
-        //     // $cover = 'https://ui-avatars.com/api/?name=' . substr($this->business_name,  0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        // } else {
-        //     $cover_host = parse_url($cover);
-        //     if (!array_key_exists('host', $cover_host)) {
-        //         $cover = $service->get_aws_object($this->cover_photo);
-        //     }
-        // }
 
         $roles = $this->roles ? $this->roles->first()->name : '';
 

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Track extends Model
 {
@@ -22,6 +23,7 @@ class Track extends Model
         'title', 'duration', 'is_playable', 'file_path',
     ];
 
+    /** @var array<int, string> */
     protected $appends = [];
 
     /**
@@ -39,7 +41,10 @@ class Track extends Model
         'file_path'     => 'string',
     ];
 
-    public function album()
+    /**
+     * @returns Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function album(): BelongsToMany
     {
         return $this->belongsToMany(Album::class)->withTimestamps();
     }

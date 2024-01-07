@@ -23,6 +23,9 @@ class EventPricing extends Model
         'currency_code', 'price',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

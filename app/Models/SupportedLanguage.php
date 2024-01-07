@@ -21,6 +21,9 @@ class SupportedLanguage extends Model
         'name', 'description', 'iso_code',
     ];
 
+    /**
+     * @var array<int, string>
+     */
     protected $appends = [];
 
     /**

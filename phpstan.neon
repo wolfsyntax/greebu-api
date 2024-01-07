@@ -1,6 +1,7 @@
 includes:
 	- phar://phpstan.phar/conf/bleedingEdge.neon
 parameters:
+    editorUrl: 'vscode://file/%%file%%:%%line%%'
     paths:
         - app
         - config

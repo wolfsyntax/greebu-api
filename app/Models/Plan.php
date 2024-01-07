@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Plan extends Model
 {
@@ -16,6 +17,9 @@ class Plan extends Model
         'account_type',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**
@@ -33,7 +37,10 @@ class Plan extends Model
         'account_type'  => 'string',
     ];
 
-    public function inclusions()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function inclusions(): HasMany
     {
         return $this->hasMany(PlansInclusion::class);
     }

@@ -16,6 +16,9 @@ class PostLike extends Model
      */
     protected $fillable = [];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

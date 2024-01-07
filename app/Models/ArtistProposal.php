@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ArtistProposal extends Model
 {
@@ -19,14 +20,23 @@ class ArtistProposal extends Model
         'event_id', 'artist_id', 'total_member', 'cover_letter', 'accepted_at', 'declined_at', 'cancelled_at', 'cancel_reason',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
-    public function event()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class)->withTrashed();
     }
 
-    public function artist()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function artist(): BelongsTo
     {
         return $this->belongsTo(Artist::class);
     }

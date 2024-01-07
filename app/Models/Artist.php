@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -31,6 +32,9 @@ class Artist extends Model
         'accept_request', 'accept_booking', 'accept_proposal',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [
         // 'avgRating'
     ];
@@ -59,17 +63,26 @@ class Artist extends Model
         // 'genres'                => 'array'
     ];
 
-    public function profile()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function profile(): BelongsTo
     {
         return $this->belongsTo(Profile::class);
     }
 
-    public function followers()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function followers(): BelongsTo
     {
         return $this->belongsTo(Profile::class)->with('followers');
     }
 
-    public function artistType()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function artistType(): BelongsTo
     {
         return $this->belongsTo(ArtistType::class);
     }
@@ -94,16 +107,25 @@ class Artist extends Model
         return $this->hasMany(Member::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function albums(): HasMany
     {
         return $this->hasMany(Album::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function reviews(): HasMany
     {
         return $this->hasMany(ArtistReview::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function songRequests(): BelongsToMany
     {
         // return $this->hasMany(SongRequest::class);
@@ -148,11 +170,17 @@ class Artist extends Model
         return $this->hasMany(ArtistGenres::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function communities(): BelongsToMany
     {
         return $this->belongsToMany(Genre::class, 'artist_communities', 'artist_id', 'communities_id')->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function languages(): BelongsToMany
     {
         return $this->belongsToMany(SupportedLanguage::class, 'artist_languages', 'artist_id', 'language_id')->withTimestamps();

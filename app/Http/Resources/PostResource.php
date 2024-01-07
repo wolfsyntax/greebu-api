@@ -7,6 +7,20 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 use App\Libraries\AwsService;
 
+/**
+ * @property \App\Models\Profile $profile
+ * @property string $id
+ * @property string $creator_id
+ * @property string $content
+ * @property string $attachment
+ * @property string $attachment_type
+ * @property string $longitude
+ * @property string $latitude
+ * @property bool $is_schedule
+ * @property string $scheduled_at
+ * @property object $created_at
+ * @property object $updated_at
+ */
 class PostResource extends JsonResource
 {
     /**
@@ -48,6 +62,5 @@ class PostResource extends JsonResource
             'created_at'        => $this->created_at,
             'updated_at'        => $this->updated_at,
         ];
-        return parent::toArray($request);
     }
 }

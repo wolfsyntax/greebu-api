@@ -15,6 +15,5 @@ class GenreProfileCollection extends ResourceCollection
     public function toArray(Request $request)
     {
         return $this->collection;
-        return parent::toArray($request);
     }
 }

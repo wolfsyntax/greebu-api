@@ -13,7 +13,7 @@ class SubscriptionController extends Controller
 {
     //
 
-    public function pricings(Request $request, $plan = 'artists')
+    public function pricings(Request $request, string $plan = 'artists')
     {
         $customer = Plan::where('account_type', 'customers')->first();
         $others = Plan::with('inclusions')->where('account_type', $plan)->orderBy('plan_type')->get();
@@ -33,9 +33,6 @@ class SubscriptionController extends Controller
         $profile = Profile::where('user_id', $user->id)->first();
 
         if (!$profile->hasRole('artists')) {
-
-
-
             Artist::create([
                 'profile_id' => $profile->id,
                 'artist_type_id' => ArtistType::first()->id,

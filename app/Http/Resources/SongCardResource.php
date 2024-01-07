@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Libraries\AwsService;
 
+/**
+ * @property \App\Models\Profile $creator
+ * @property \App\Models\Genre $genre
+ * @property string $clientInfo
+ * @property \App\Models\Artist $artists
+ * @property string $created_at
+ */
 class SongCardResource extends JsonResource
 {
     /**
@@ -18,14 +25,6 @@ class SongCardResource extends JsonResource
         // $service = new AwsService();
         $avatar = $this->creator->avatarUrl;
 
-        // if (!$avatar) {
-        //     $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->creator->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        // } else {
-        //     $avatar_host = parse_url($avatar);
-        //     if (!array_key_exists('host', $avatar_host)) {
-        //         $avatar = $service->get_aws_object($avatar);
-        //     }
-        // }
         return [
             'user_story'                => $this->user_story ?? '',
             'song_request_id'           => $this->id ?? '',
@@ -41,7 +40,6 @@ class SongCardResource extends JsonResource
             'duration'                  => $this->duration->title ?? '',
             'sender'                    => $this->sender ?? '',
             'receiver'                  => $this->receiver ?? '',
-            'purpose'                   => $this->purpose->name ?? '',
             'fullname'                  => $this->clientInfo,
             'first_name'                => $this->first_name ?? '',
             'last_name'                 => $this->last_name ?? '',
@@ -55,6 +53,5 @@ class SongCardResource extends JsonResource
             'artists'                   => new ArtistCollection($this->artists),
             'created_at'                => $this->created_at,
         ];
-        return parent::toArray($request);
     }
 }

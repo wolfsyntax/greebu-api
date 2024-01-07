@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+/**
+ * @property int $value
+ * @property string $duration_type
+ * @property string $first_name
+ * @property string $last_name
+ */
 class Duration extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
@@ -21,6 +27,9 @@ class Duration extends Model
         'title', 'value', 'cost', 'duration_type',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

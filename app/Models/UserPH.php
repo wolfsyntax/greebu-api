@@ -7,10 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+/**
+ * @property string $first_name
+ * @property string $last_name
+ */
 class UserPH extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
 
+    /** @var string */
     protected $table = 'users';
 
     /**
@@ -31,6 +36,9 @@ class UserPH extends Model
         'last_login',
     ];
 
+    /**
+     * @var array<int, string>
+     */
     protected $appends = [
         'fullname',
     ];

@@ -12,6 +12,9 @@ class ArtistGenres extends Model
 
     protected $table = 'artist_genres';
 
+    /**
+     * @var array<int,string>
+     */
     protected $fillable = [
         'artist_id', 'genre_title',
     ];

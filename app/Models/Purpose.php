@@ -21,6 +21,9 @@ class Purpose extends Model
         'name', 'description',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

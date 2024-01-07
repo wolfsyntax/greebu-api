@@ -16,6 +16,9 @@ class Emoticon extends Model
      */
     protected $fillable = [];
 
+    /**
+     * @var array<string>
+     */
     protected $appends = [];
 
     /**

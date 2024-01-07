@@ -8,6 +8,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 use App\Libraries\AwsService;
 
+/**
+ * @property \App\Models\Profile $profile
+ * @property string $song
+ * @property \App\Models\ArtistType $artistType
+ * @property \App\Models\ArtistReview $reviews
+ * @property \App\Models\Genre $genres
+ * @property string $id
+ *
+ */
 class ArtistResource extends JsonResource
 {
     /**
@@ -18,19 +27,6 @@ class ArtistResource extends JsonResource
     public function toArray(Request $request)
     {
         $this->profile->loadCount('followers', 'following');
-        // $avatar = filter_var($this->profile->avatar, FILTER_VALIDATE_URL) ? $this->profile->avatar : ($this->profile->bucket === 's3' ? Storage::disk($this->profile->bucket)->url($this->profile->avatar) : ($this->profile->avatar ? Storage::disk($this->profile->bucket)->temporaryUrl($this->profile->avatar, now()->addMinutes(60)) : ''));
-
-
-        // $avatar = $this->profile->avatar;
-
-        // if ($this->profile->bucket && !filter_var($avatar, FILTER_VALIDATE_URL)) {
-        //     if ($this->profile->bucket === 's3') {
-        //         $avatar = Storage::disk($this->profile->bucket)->url($avatar);
-        //     } else if ($this->profile->bucket === 's3priv') {
-        //         $avatar = Storage::disk($this->profile->bucket)->temporaryUrl($this->profile->avatar, now()->addMinutes(60));
-        //     }
-        // }
-
 
         $this->load('genres');
 
@@ -39,38 +35,6 @@ class ArtistResource extends JsonResource
         $avatar = $this->profile->avatarUrl;
         $cover = $this->profile->bannerUrl;
         $audio = $this->song;
-
-        // if ($this->profile->bucket && in_array($this->profile->bucket, ['s3', 's3priv',])) {
-        //     if ($avatar && !filter_var($avatar, FILTER_VALIDATE_URL)) {
-        //         $avatar = $service->get_aws_object($avatar, $this->profile->bucket === 's3priv');
-        //     }
-
-        //     if ($cover && !filter_var($cover, FILTER_VALIDATE_URL)) {
-        //         $cover = $service->get_aws_object($cover, $this->profile->bucket === 's3priv');
-        //     }
-        // }
-
-        // if ($audio && !filter_var($audio, FILTER_VALIDATE_URL)) {
-        //     $audio = $service->get_aws_object($audio);
-        // }
-
-        // if (!$this->profile->avatar) {
-        //     $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        // } else {
-        //     $avatar_host = parse_url($avatar);
-        //     if (!array_key_exists('host', $avatar_host)) {
-        //         $avatar = $service->get_aws_object($this->profile->avatar);
-        //     }
-        // }
-
-        // if (!$this->profile->cover_photo) {
-        //     // $cover = 'https://ui-avatars.com/api/?name=' . substr($this->business_name,  0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        // } else {
-        //     $cover_host = parse_url($cover);
-        //     if (!array_key_exists('host', $cover_host)) {
-        //         $cover = $service->get_aws_object($this->profile->cover_photo);
-        //     }
-        // }
 
         if ($audio && !filter_var($audio, FILTER_VALIDATE_URL)) {
             $audio = $service->get_aws_object($audio);
@@ -97,6 +61,5 @@ class ArtistResource extends JsonResource
             'twitter'               => $this->profile->twitter,
             'instagram'             => $this->profile->instagram,
         ];
-        return parent::toArray($request);
     }
 }

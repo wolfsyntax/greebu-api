@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 // use Spatie\Permission\Traits\HasRoles;
 use App\Traits\TwilioTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property string $email
@@ -21,6 +22,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
  * @property string $phone
  * @property string $first_name
  * @property string $last_name
+ * @property string $phone_verified_at
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -49,6 +51,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone_verified_at',
     ];
 
+    /**
+     * @var array<int, string>
+     */
     protected $appends = [
         'fullname', 'phonemask', 'emailmask',
     ];
@@ -72,6 +77,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * @param string $code
      * @return bool
      */
     public function verifyCode($code)
@@ -125,9 +131,9 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @return \App\Models\Profile
+     * @returns Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function profiles()
+    public function profiles(): HasMany
     {
         return $this->hasMany(Profile::class);
     }

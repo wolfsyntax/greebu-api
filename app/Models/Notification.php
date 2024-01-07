@@ -19,5 +19,8 @@ class Notification extends Model
         'type', 'notifiable_id', 'notifiable_type', 'data', 'read_at',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 }

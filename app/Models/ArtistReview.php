@@ -21,6 +21,9 @@ class ArtistReview extends Model
         'start_rating', 'status',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

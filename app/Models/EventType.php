@@ -24,6 +24,9 @@ class EventType extends Model
         'name', 'description',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**
@@ -36,6 +39,9 @@ class EventType extends Model
         'description'   => 'string',
     ];
 
+    /**
+     * @return string
+     */
     public function setNameAttribute(string $value): string
     {
         return $this->attributes['name'] = strtolower($value);

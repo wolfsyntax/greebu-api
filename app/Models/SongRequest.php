@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property string $first_name
+ * @property string $last_name
+ */
 class SongRequest extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
@@ -31,6 +37,9 @@ class SongRequest extends Model
         // 'request_status',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = ['clientInfo',];
 
     /**
@@ -60,38 +69,50 @@ class SongRequest extends Model
         'estimate_date'         => 'integer',
     ];
 
-    // public function artists()
-    // {
-    //     return $this->hasMany(Artist::class);
-    // }
-    public function artists()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function artists(): BelongsToMany
     {
         return $this->belongsToMany(Artist::class, 'song_request_artists',  'song_request_id', 'artist_id')->withTimestamps();
-        // return $this->belongsToMany(Artist::class, 'song_request_artists',  'song_request_id', 'artist_id')->with('profile')->withTimestamps();
-        // return $this->belongsToMany(Genre::class, 'artist_genres', 'artist_id', 'genre_id')->withTimestamps();
     }
 
-    public function language()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function language(): BelongsTo
     {
         return $this->belongsTo(SupportedLanguage::class, 'language_id', 'id');
     }
 
-    public function mood()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function mood(): BelongsTo
     {
         return $this->belongsTo(SongType::class, 'song_type_id');
     }
 
-    public function duration()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function duration(): BelongsTo
     {
         return $this->belongsTo(Duration::class);
     }
 
-    public function creator()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(Profile::class);
     }
 
-    public function purpose()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function purpose(): BelongsTo
     {
         return $this->belongsTo(Purpose::class);
     }

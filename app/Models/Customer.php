@@ -21,6 +21,9 @@ class Customer extends Model
         'name', 'profile_id',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**
@@ -40,6 +43,6 @@ class Customer extends Model
      */
     public function requests(): HasMany
     {
-        return $this->hasMany(SongRequest::class,'creator_id');
+        return $this->hasMany(SongRequest::class, 'creator_id');
     }
 }

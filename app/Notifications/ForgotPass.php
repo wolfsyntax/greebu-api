@@ -8,18 +8,23 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\HtmlString;
+use App\Models\User;
 
 class ForgotPass extends Notification
 {
     use Queueable;
-
+    /**
+     * @var string
+     */
     protected $token;
+    /** @var string */
     protected $url;
+    /** @var \App\Models\User */
     protected $user;
     /**
      * Create a new notification instance.
      */
-    public function __construct($token, $user)
+    public function __construct(string $token, User $user)
     {
         //
         $this->url = env('FRONTEND_URL', 'http://localhost:5173') . '/password/reset/' . $token;

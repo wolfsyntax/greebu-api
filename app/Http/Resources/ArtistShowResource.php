@@ -5,6 +5,17 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property \App\Models\Profile $profile
+ * @property string $id
+ * @property \App\Models\ArtistType $artistType
+ * @property string $title
+ * @property string $profile_id
+ * @property int $followers_count
+ * @property int $following_count
+ * @property \App\Models\ArtistReview $reviews
+ * @property \App\Models\ArtistReview $reviews
+ */
 class ArtistShowResource extends JsonResource
 {
     /**

@@ -18,6 +18,9 @@ class Subscription extends Model
      */
     protected $fillable = [];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

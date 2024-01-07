@@ -20,6 +20,9 @@ class PaymentMethodType extends Model
         'provider_name', 'description',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

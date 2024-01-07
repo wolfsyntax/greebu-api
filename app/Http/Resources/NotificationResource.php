@@ -5,6 +5,10 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $id
+ * @property mixed $data
+ */
 class NotificationResource extends JsonResource
 {
     /**
@@ -18,7 +22,5 @@ class NotificationResource extends JsonResource
             'id'    => $this->id,
             'data'  => $this->data,
         ];
-
-        return parent::toArray($request);
     }
 }

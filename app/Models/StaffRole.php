@@ -22,6 +22,9 @@ class StaffRole extends Model
         'usage',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

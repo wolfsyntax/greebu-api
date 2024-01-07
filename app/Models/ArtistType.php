@@ -21,6 +21,9 @@ class ArtistType extends Model
         'title', 'category_id',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

@@ -12,6 +12,9 @@ class OrganizerEventTypes extends Model
 
     protected $table = 'organizer_event_types';
 
+    /**
+     * @var array<int,string>
+     */
     protected $fillable = [
         'organizer_id', 'event_type',
     ];
