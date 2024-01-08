@@ -10,6 +10,36 @@ use App\Models\Profile;
 use App\Models\ArtistProposal;
 use App\Libraries\AwsService;
 
+/**
+ * @property \App\Models\Profile $profile
+ * @property string $id
+ * @property string $event_type
+ * @property string $event_name
+ * @property string $venue_name
+ * @property string $location
+ * @property string $street_address
+ * @property string $barangay
+ * @property string $city
+ * @property string $province
+ * @property bool $audience
+ * @property \DateTime $start_date
+ * @property \DateTime $end_date
+ * @property string $start_time
+ * @property string $end_time
+ * @property string $description
+ * @property string $lat
+ * @property string $long
+ * @property bool $is_featured
+ * @property bool $is_free
+ * @property string $deleted_at
+ * @property string $status
+ * @property string $review_status
+ * @property string $look_for
+ * @property string $requirement
+ * @property string $created_at
+ * @property string $reason
+ * @property int $total_participants
+ */
 class EventResource extends JsonResource
 {
     /**
@@ -24,15 +54,6 @@ class EventResource extends JsonResource
         $this->load('profile');
         $avatar = $this->profile->avatarUrl;
         $cover =   $this->cover_photo ?? '';
-
-        // if (!$avatar) {
-        //     $avatar = 'https://ui-avatars.com/api/?name=' . substr($this->profile->business_name, '', 0, 1) . '&rounded=true&bold=true&size=424&background=' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-        // } else {
-        //     $avatar_host = parse_url($avatar);
-        //     if (!array_key_exists('host', $avatar_host)) {
-        //         $avatar = $service->get_aws_object($avatar);
-        //     }
-        // }
 
         if ($cover) {
             $cover_host = parse_url($cover);
@@ -60,7 +81,8 @@ class EventResource extends JsonResource
             // if ($profile) $accept_proposal = true;
         }
 
-        $proposals = ArtistProposal::with('artist.profile')->where('event_id', $this->id)->where('status', 'accepted')->whereNot('accepted_at', null)->get()->unique(['artist_id', ]);
+        /** @var \App\Models\ArtistProposal */
+        $proposals = ArtistProposal::with('artist.profile')->where('event_id', $this->id)->where('status', 'accepted')->whereNot('accepted_at', null)->get()->unique(['artist_id',]);
 
         $data = [];
 
@@ -80,7 +102,7 @@ class EventResource extends JsonResource
                 'instagram'     => $artist->profile->instagram,
                 'facebook'      => $artist->profile->facebook,
                 'threads'       => $artist->profile->threads,
-                'street_address'=> $artist->profile->street_address,
+                'street_address' => $artist->profile->street_address,
                 'city'          => $artist->profile->city,
                 'zip_code'      => $artist->profile->zip_code,
                 'province'      => $artist->profile->province,

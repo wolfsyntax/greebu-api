@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Genre extends Model
 {
@@ -21,6 +22,9 @@ class Genre extends Model
         'title', 'description',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**
@@ -33,13 +37,11 @@ class Genre extends Model
         'description'   => 'string',
     ];
 
-    public function albums()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function albums(): BelongsToMany
     {
         return $this->belongsToMany(Album::class)->withTimestamps();
     }
-
-    // public function artists()
-    // {
-    //     return $this->belongsToMany(Artist::class, 'artist_genres', 'genre_id', 'artist_id');
-    // }
 }

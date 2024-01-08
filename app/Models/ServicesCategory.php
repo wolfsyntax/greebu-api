@@ -23,6 +23,9 @@ class ServicesCategory extends Model
         'card_photo',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

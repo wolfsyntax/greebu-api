@@ -10,8 +10,8 @@ return new class extends Migration
     {
         if (Schema::hasColumn($tbl, $col)) {
             Schema::table($tbl, function (Blueprint $table) use ($col) {
-                $table->$table->dropForeign([$col]);
-                $table->$table->dropColumn($col);
+                $table->dropForeign([$col]);
+                $table->dropColumn($col);
             });
         }
     }
@@ -34,8 +34,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('artist_types', function (Blueprint $table) {
-            $table->$table->dropForeign(['category_id']);
-            $table->$table->dropColumn('category_id');
+            $table->dropForeign(['category_id']);
+            $table->dropColumn('category_id');
         });
     }
 };

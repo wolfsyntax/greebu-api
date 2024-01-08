@@ -23,6 +23,9 @@ class BankCard extends Model
         'profile_id',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

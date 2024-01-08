@@ -8,7 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 // use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $barangay
+ * @property string $city
+ * @property string $province
+ * @property string $street_address
+ */
 class Event extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
@@ -37,6 +45,9 @@ class Event extends Model
         'total_participants',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [
         'location',
     ];
@@ -78,6 +89,10 @@ class Event extends Model
         'venue_name'        => 'string',
     ];
 
+
+    /**
+     * @var array<string, mixed>
+     */
     protected $attributes = [
         'total_participants'    => 0,
         'reason'            => '',
@@ -114,27 +129,33 @@ class Event extends Model
         return $this->street_address . ', ' . $this->barangay . ', ' . $this->city . ', ' . $this->province;
     }
 
-    // public function eventType()
-    // {
-    //     return $this->hasOne(EventType::class);
-    // }
-
-    public function profile()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function profile(): BelongsTo
     {
         return $this->belongsTo(Profile::class);
     }
 
-    public function proposals()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function proposals(): HasMany
     {
         return $this->hasMany(ArtistProposal::class);
     }
-
-    public function artistProposals()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function artistProposals(): HasMany
     {
         return $this->hasMany(ArtistProposal::class)->accepted();
     }
 
-    public function lookTypes()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function lookTypes(): HasMany
     {
         return $this->hasMany(LookType::class);
     }

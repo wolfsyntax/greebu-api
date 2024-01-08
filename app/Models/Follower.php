@@ -20,6 +20,9 @@ class Follower extends Model
         'followed_id', 'profile',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

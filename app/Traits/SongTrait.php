@@ -15,27 +15,26 @@ use App\Libraries\AwsService;
 
 trait SongTrait
 {
+    /**
+     * @return \App\Models\Artist
+     */
     public function audioUpload(Request $request, Artist $artist)
     {
 
-        if ($artist) {
+        $artist->song_title = $request->input('song_title');
 
-            $artist->song_title = $request->input('song_title');
+        $service = new AwsService();
 
-            $service = new AwsService();
-
-            if ($request->hasFile('song')) {
-                if ($artist->song && !filter_var($artist->song, FILTER_VALIDATE_URL)) {
-                    $service->delete_aws_object($artist->song);
-                    $artist->song = '';
-                }
-
-                $artist->song = $service->put_object_to_aws('artist_songs/audio_' . uniqid() . '.' . $request->file('song')->getClientOriginalExtension(), $request->file('song'));
+        if ($request->hasFile('song')) {
+            if ($artist->song && !filter_var($artist->song, FILTER_VALIDATE_URL)) {
+                $service->delete_aws_object($artist->song);
+                $artist->song = '';
             }
 
-            $artist->save();
+            $artist->song = $service->put_object_to_aws('artist_songs/audio_' . uniqid() . '.' . $request->file('song')->getClientOriginalExtension(), $request->file('song'));
         }
 
-        return false;
+        $artist->save();
+        return $artist;
     }
 }

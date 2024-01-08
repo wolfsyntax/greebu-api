@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 use Illuminate\Support\Str;
 
+/**
+ * @property string $first_name
+ * @property string $last_name
+ * @property string $gender
+ * @property string $avatar
+ */
 class OrganizerStaff extends Model
 {
     use HasFactory, HasUuids;
@@ -20,10 +26,16 @@ class OrganizerStaff extends Model
         'deactivated_at',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [
         'avatar_text', 'fullname',
     ];
 
+    /**
+     * @var array<string, string>
+     */
     protected $casts = [];
 
     /**

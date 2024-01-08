@@ -22,6 +22,9 @@ class SiteSetting extends Model
         'is_dropdown', 'status',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

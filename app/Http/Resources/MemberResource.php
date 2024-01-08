@@ -7,6 +7,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 use App\Libraries\AwsService;
 
+/**
+ * @property string $avatar
+ * @property string $first_name
+ * @property string $id
+ * @property string $artist_id
+ * @property string $fullname
+ * @property string $role
+ */
 class MemberResource extends JsonResource
 {
     /**

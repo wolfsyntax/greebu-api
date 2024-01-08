@@ -10,12 +10,43 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Libraries\AwsService;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property string $bucket
+ * @property string $cover_photo
+ * @property string $avatar
+ * @property string $business_name
+ * @property string $business_email
+ * @property string $user_id
+ * @property string $phone
+ * @property string $street_address
+ * @property string $city
+ * @property string $zip_code
+ * @property string $province
+ * @property string $country
+ * @property string $bio
+ * @property string $lat
+ * @property string $long
+ * @property string $threads
+ * @property string $instagram
+ * @property string $facebook
+ * @property string $twitter
+ * @property string $youtube
+ * @property string $spotify
+ * @property string $bucket
+ * @prop
+ */
 class Profile extends Model
 {
     use HasFactory, HasRoles, SoftDeletes, HasUuids, Notifiable;
 
+    /**
+     * @var string
+     */
     protected $guard_name = 'web';
     const DELETED_AT = 'deactivated_at';
 
@@ -37,6 +68,9 @@ class Profile extends Model
         'lat', 'long',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = ['avatarUrl', 'bannerUrl',];
 
     /**
@@ -67,6 +101,9 @@ class Profile extends Model
         'long'              => 'string',
     ];
 
+    /**
+     * @var array<string, mixed>
+     */
     protected $attributes = [
         'business_name'     => '',
         'business_email'    => '',
@@ -91,10 +128,6 @@ class Profile extends Model
     public static function boot()
     {
         parent::boot();
-        // self::creating(function ($model) {
-        //     $model->personal_code = Str::slug($model->business_name);
-        //     $model->business_name = Str::title($model->business_name);
-        // });
 
         static::saving(function ($query) {
             $query->personal_code = Str::slug($query->business_name);
@@ -102,38 +135,58 @@ class Profile extends Model
         });
     }
 
-    public function artist()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function artist(): HasOne
     {
         return $this->hasOne(Artist::class);
     }
 
-    public function customer()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function customer(): HasOne
     {
         return $this->hasOne(Customer::class);
     }
 
-    public function organizer()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function organizer(): HasOne
     {
         return $this->hasOne(Organizer::class);
     }
 
-    public function user()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function providers()
     {
         return $this->hasOne(ServiceProvider::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function followers()
     {
         return $this->belongsToMany(Profile::class, 'followers', 'following_id', 'follower_id')->withTimestamps();
     }
 
-    public function following()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function following(): BelongsToMany
     {
         return $this->belongsToMany(Profile::class, 'followers', 'follower_id', 'following_id')->withTimestamps();
     }
@@ -214,14 +267,6 @@ class Profile extends Model
 
     public function delete()
     {
-
-        // // $this->artist()->delete();
-        // // $this->customer()->delete();
-        // // $this->organizer()->delete();
-        // $this->providers()->delete();
-        // $this->followers()->delete();
-        // $this->following()->delete();
-        // $this->events()->delete();
 
         $role = $this->roles->first()?->name;
 

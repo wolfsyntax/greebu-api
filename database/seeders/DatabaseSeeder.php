@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\UserPH;
 use App\Models\Profile;
 use App\Models\Artist;
+use App\Models\ArtistCategory;
 use App\Models\Genre;
 use App\Models\OrganizerStaff;
 use Faker\Factory as Faker;
@@ -39,7 +40,9 @@ class DatabaseSeeder extends Seeder
             PurposeSeeder::class,
             SongTypeSeeder::class,
             SupportedLanguageSeeder::class,
+            ArtistCategorySeeder::class,
             ArtistTypeSeeder::class,
+            ArtistTypesCategorySeeder::class,
             GenreSeeder::class,
             CancellationReasonSeeder::class,
             PlansSeeders::class,

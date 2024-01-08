@@ -20,6 +20,9 @@ class Like extends Model
         'profile_id', 'track_id', 'emoticon_used',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

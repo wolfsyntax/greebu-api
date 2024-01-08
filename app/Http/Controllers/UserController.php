@@ -75,7 +75,7 @@ class UserController extends Controller
             'first_name'        => ['required', 'string', 'max:255',],
             'last_name'         => ['required', 'string', 'max:255',],
             'username'          => ['required', 'string', 'min:8', 'max:255',],
-            'avatar'            => ['sometimes', 'required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
+            'avatar'            => ['sometimes', 'required', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic',],
             'email'             => ['required', 'email:rfc,dns', 'unique:users,email,' . $request->user()->id,],
             'phone'             => ['required', new PhoneCheck()],
             'current_password'  => ['sometimes', 'required', 'string', 'min:8', 'max:255', new MatchCurrentPassword],
@@ -392,20 +392,6 @@ class UserController extends Controller
 
     public function twilioAPISms(Request $request, User $user = null)
     {
-        // $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
-        // $twilio = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
-
-        // return response()->json([
-        //     'status' => 200,
-        //     'message' => 'Twilio API SMS',
-        //     'result' => [
-        //         'res' => $twilio->messages->create(
-        //             $request->input('phone', '+639184592272'),
-        //             ['from' => env('TWILIO_NUMBER'), 'body' => $request->input('message', 'Default message content')],
-        //         ),
-        //     ]
-        // ]);
-
         try {
             $twilio = new Client(config('services.twilio.sid'), config('services.twilio.auth_token'));
             return response()->json([
@@ -448,7 +434,6 @@ class UserController extends Controller
                     'res'   => $response,
                 ]
             ]);
-            return true;
         } catch (Exception $th) {
             //throw $th;
             return response()->json([

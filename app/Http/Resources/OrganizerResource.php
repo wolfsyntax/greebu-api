@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Libraries\AwsService;
 
+/**
+ * @property string $id
+ * @property \App\Models\Profile $profile
+ * @property string $company_name
+ * @property bool $accept_proposal
+ * @property bool $send_proposal
+ */
 class OrganizerResource extends JsonResource
 {
     /**
@@ -16,8 +23,9 @@ class OrganizerResource extends JsonResource
     public function toArray(Request $request): array
     {
         $eventTypes = \App\Models\OrganizerEventTypes::where('organizer_id', $this->id)->get()->pluck('event_type');
-
+        /** @var \App\Models\Profile::$avatarUrl */
         $avatar = $this->profile->avatarUrl;
+        /** @var string */
         $cover =  $this->profile->bannerUrl;
 
         $service = new AwsService();
@@ -50,7 +58,5 @@ class OrganizerResource extends JsonResource
             'threads'           => $this->profile->threads,
             'bio'               => $this->profile->bio,
         ];
-
-        return parent::toArray($request);
     }
 }

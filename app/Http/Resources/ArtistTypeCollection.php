@@ -10,12 +10,10 @@ class ArtistTypeCollection extends ResourceCollection
     /**
      * Transform the resource collection into an array.
      *
-     * @return array<int|string, mixed>
+     * @return \App\Models\ArtistType
      */
-    public function toArray(Request $request): array
+    public function toArray(Request $request): mixed
     {
         return $this->collection;
-
-        return parent::toArray($request);
     }
 }

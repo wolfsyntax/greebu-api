@@ -12,19 +12,4 @@ class Role extends BaseRole
 {
     use HasFactory; //, HasUuids;
 
-    // public $incrementing = false;
-    // protected $keyType = 'string';
-
-    // public static function boot()
-    // {
-
-    //     parent::boot();
-
-    //     static::creating(function ($query) {
-    //         $query->id = Str::uuid()->toString();
-    //     });
-
-    //     static::saving(function ($query) {
-    //     });
-    // }
 }

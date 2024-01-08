@@ -8,7 +8,7 @@ use Aws\S3\Exception\S3Exception;
 
 class AwsService
 {
-
+    /** @var mixed */
     protected $client;
 
     public function __construct()
@@ -36,17 +36,17 @@ class AwsService
 
             // return $result['ObjectURL'];
             return $s3_filename;
-        } catch (AWS\S3\Exception\S3Exception $e) {
+        } catch (S3Exception $e) {
             return '';
         }
     }
 
-    public function get_aws_object($s3_filename, $signed = false)
+    public function get_aws_object(mixed $s3_filename, $signed = false)
     {
         try {
             if ($signed) {
                 $cmd = $this->client->getCommand('GetObject', [
-                    'Bucket' => config($signed ? "filesystems.disks.s3priv.bucket" : "filesystems.disks.s3.bucket"),
+                    'Bucket' => config("filesystems.disks.s3priv.bucket"),
                     'Key' => $s3_filename
                 ]);
 

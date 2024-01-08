@@ -7,6 +7,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 use App\Libraries\AwsService;
 
+/**
+ * @property \App\Models\Event $event
+ * @property \App\Models\Artist $artist
+ * @property string $sample_song
+ * @property string $id
+ * @property int $total_member
+ * @property string $cover_letter
+ * @property string $status
+ * @property string $cancel_reason
+ */
 class ArtistProposalResource extends JsonResource
 {
     /**

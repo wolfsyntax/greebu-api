@@ -5,6 +5,12 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $id
+ * @property string $first_name
+ * @property string $last_name
+ * @property string $email
+ */
 class UserResource extends JsonResource
 {
     /**
@@ -20,7 +26,5 @@ class UserResource extends JsonResource
             'last_name'     => $this->last_name,
             'email'         => $this->email,
         ];
-
-        return parent::toArray($request);
     }
 }

@@ -21,6 +21,9 @@ class Community extends Model
         'name', 'description', 'cover_photo', 'avatar',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

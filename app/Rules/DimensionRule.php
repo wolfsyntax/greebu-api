@@ -14,13 +14,9 @@ class DimensionRule implements ValidationRule
     /**
      * The constraints for the dimensions rule.
      *
-     * @var array
+     * @var array<mixed>
      */
     protected $constraints = [];
-    protected $max = '';
-    protected $min = '';
-    protected $default = '';
-    protected $ratio = '';
 
     /**
      * Create a new dimensions rule instance.
@@ -38,7 +34,7 @@ class DimensionRule implements ValidationRule
      *
      * @return string
      */
-    public function __toString($category = 'default')
+    public function __toString(string $category = 'default')
     {
 
         if ($this->constraints['width'] > 0 && $this->constraints['height'] > 0 && $category === 'default') {

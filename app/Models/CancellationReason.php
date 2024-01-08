@@ -20,6 +20,9 @@ class CancellationReason extends Model
         'name',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

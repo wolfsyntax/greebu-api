@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class PlansInclusion extends Model
 {
@@ -15,6 +16,9 @@ class PlansInclusion extends Model
         'plan_id', 'inclusions',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**
@@ -27,7 +31,10 @@ class PlansInclusion extends Model
         'inclusions'    => 'string',
     ];
 
-    public function plan()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function plan(): BelongsToMany
     {
         return $this->belongsToMany(Plan::class);
     }

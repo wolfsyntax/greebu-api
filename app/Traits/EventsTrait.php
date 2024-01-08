@@ -16,8 +16,11 @@ use Intervention\Image\Facades\Image;
 
 trait EventsTrait
 {
-
-    public function fetchEvents($request, $offset, $perPage = 12, $type = 'ongoing') {
+    /**
+     * @return array<string, mixed>
+     */
+    public function fetchEvents(Request $request, int $offset, int $perPage = 12, string $type = 'ongoing')
+    {
 
         $search = $request->query('search', '');
         $orderBy = $request->query('sortBy', 'DESC');
@@ -44,22 +47,22 @@ trait EventsTrait
             return $query->where('city', 'LIKE', '%' . $city . '%');
         });
 
-        $events->when(in_array($cost, ['paid', 'free']), function ($query, $cost) {
+        $events->when(in_array($cost, ['paid', 'free']), function ($query) use ($cost) {
             return $query->where(
                 'is_free',
-                strtolower($cost) === 'free' ? true : false
+                (strtolower($cost)) === 'free' ? true : false
             );
         });
 
-        $events->when($type == 'past', function($query) use ($now, $orderBy) {
-            return $query->where('end_date', '<', $now);//->orderBy('start_date', $orderBy)->orderBy('created_at', $orderBy);
+        $events->when($type == 'past', function ($query) use ($now) {
+            return $query->where('end_date', '<', $now); //->orderBy('start_date', $orderBy)->orderBy('created_at', $orderBy);
         });
 
-        $events->when($type == 'ongoing', function ($query) use($now, $endOfMonth, $orderBy) {
+        $events->when($type == 'ongoing', function ($query) use ($now, $endOfMonth) {
             return $query->whereBetween('start_date', [$now, $endOfMonth]);
         });
 
-        $events->when($type == 'upcoming', function ($query) use ($orderBy, $nextMonth, $nextSixMonth) {
+        $events->when($type == 'upcoming', function ($query) use ($nextMonth, $nextSixMonth) {
             // return $query->where('start_date', '>=', $nextMonth);
             return $query->whereBetween('start_date', [$nextMonth, $nextSixMonth]);
             //->orderBy('start_date', $orderBy)->orderBy('start_time', 'ASC');
@@ -73,8 +76,8 @@ trait EventsTrait
             return $query->where('event_name', 'LIKE', '%' . $search . '%')
                 ->orWhere('venue_name', 'LIKE', '%' . $search . '%')
                 ->orWhereHas('profile', function ($query) use ($search) {
-                return $query->where('business_name', 'LIKE', '%' . $search . '%');
-            });
+                    return $query->where('business_name', 'LIKE', '%' . $search . '%');
+                });
         });
 
         if ($type === 'ongoing') {

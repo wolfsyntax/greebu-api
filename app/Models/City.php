@@ -22,6 +22,9 @@ class City extends Model
         'province', 'country',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**
@@ -38,6 +41,9 @@ class City extends Model
         'country'       => 'string',
     ];
 
+    /**
+     * @var array<string,mixed>
+     */
     protected $attributes = [
         'ascii'         => '',
         'lat'           => '0.0000000',

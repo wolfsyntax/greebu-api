@@ -45,6 +45,7 @@ use App\Http\Controllers\API\VerificationController;
 use App\Http\Controllers\ProfileController;
 // For testing Only
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Artisan;
 use Spatie\Activitylog\Models\Activity;
 
 use App\Traits\TwilioTrait;
@@ -76,7 +77,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
         'profile'   => new ProfileResource($profile),
         'roles'     => $userRoles,
     ]);
-    return $request->user();
 });
 
 Route::get('user-notification', function (Request $request, $role = 'artists') {
@@ -94,7 +94,6 @@ Route::prefix('v2')->group(function () {
     Route::post('/register', [ProfileController::class, 'registration']);
     Route::post('/twilio-auth/resend-otp', [TwilioController::class, 'twilioV2']);
     Route::post('/twilio-auth/test', [TwilioController::class, 'testOtp']);
-
 });
 
 Route::post('/email-token/{token}', [NetworkController::class, 'fetchEmailByToken']);
@@ -273,8 +272,6 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('/notifications/{notification}/mark-read', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
 
-    // Route::apiResource('event', EventsController::class); //->middleware(['roles:organizer']);
-
     Route::apiResource('users', UserController::class);
     Route::get('users/follow/{role}/{profile}', [UserController::class, 'followUser']);
 
@@ -304,30 +301,8 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
     Route::post('/organizer/staff/{staff}/edit', [OrganizerController::class, 'editStaff']);
     Route::delete('/organizer/staff/{staff}', [OrganizerController::class, 'removeStaff']);
 
-    // Route::middleware('role:super-admin')->apiResource('site-settings', SiteSettingsController::class);
     Route::apiResource('site-settings', SiteSettingsController::class);
-
-    //
-    Route::get('/sample/{song}', function (Request $request, App\Models\SongRequest $song) {
-        $flag = ($request->user()->load('profiles')->id === $request->route()->parameter('song')->creator_id);
-        return response()->json([
-            'status'        => 200,
-            'message'       => '...',
-            'result'        => [
-                'song'      => $song,
-                'route'     => $request->route()->parameter('song'),
-                'user'      => $request->user()->load('profiles'),
-                'isOwned'   => $flag,
-                'creator_id' => $request->route()->parameter('song')->creator_id,
-                'profile_id' => $request->user()->load('profiles')->id,
-            ]
-        ]);
-    })->middleware(['restrictEdit']);
 });
-
-// Route::get('/email/verify', [VerificationController::class, 'show'])->name('verification.notice');
-// Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify')->middleware(['signed']);
-// Route::post('/email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
 
 Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
     Route::post('phone/send', [UserController::class, 'phone']);
@@ -335,7 +310,6 @@ Route::middleware(['auth:api', 'throttle:4,10'])->group(function () {
 });
 
 Route::get('fetch/{path}', function ($path) {
-    //Storage::disk('s3priv')->deleteDirectory($path);
     return response()->json([
         'status' => 200,
         'message' => '',
@@ -376,7 +350,7 @@ Route::get('/mass-update', function (Request $request) {
 
 Route::get('hash', function (Request $request) {
     return response()->json([
-        'password' => hash('sha256', $request->password, false),
+        'password' => hash('sha256', $request->input('password'), false),
     ]);
 });
 
@@ -436,43 +410,6 @@ Route::middleware(['auth:api', 'phoneVerified'])->group(function () {
 
 Route::get('/clear', [UserController::class, 'artisan']);
 
-
-Route::get('test-split', function (Request $request) {
-
-    Artisan::call('storage:link', []);
-    return response()->json([
-        'link' => '...'
-    ]);
-    $bucket = 's3';
-    $avatar = 'avatar/image_1.jpg';
-    $pro = Storage::disk('s3priv')->temporaryUrl($avatar, now()->addMinutes(60));
-    $pub = Storage::disk('s3priv')->url($avatar, now()->addMinutes(60));
-    return response()->json([
-        'all' => $bucket && !is_null($avatar) && !filter_var($avatar, FILTER_VALIDATE_URL),
-        'allf' => $bucket && !filter_var('https://via.placeholder.com/424x424.png/', FILTER_VALIDATE_URL),
-        'avatar' => $pro,
-        'pub' => $pub,
-        'all2' => $bucket && $avatar && !filter_var($avatar, FILTER_VALIDATE_URL),
-        'isNull' => is_null('avatar/image_1.jpg'),
-        'valid_url' => filter_var('avatar/image_1.jpg', FILTER_VALIDATE_URL),
-        'x' => $bucket && !filter_var('avatar/image_1.jpg', FILTER_VALIDATE_URL)
-    ]);
-    // $business_name = explode(' ', $profile->business_name, 1);
-
-    // $tr = '';
-
-    // foreach (explode(' ', trim(' Jayson Dela Trinidad Alpe '), 2) as $value) {
-    //     $tr .= $value[0];
-    // }
-    // return response()->json([
-    //     'trim' => trim(' Jayson Dela Trinidad Alpe '),
-    //     't' => explode(' ', trim(' Jayson  '), 2),
-    //     'x' => $tr
-    // ]);
-
-
-});
-
 use App\Libraries\AwsService;
 
 Route::post('aws-storage-upload', function (Request $request) {
@@ -485,7 +422,7 @@ Route::post('aws-storage-upload', function (Request $request) {
             'status'    => 200,
             'message'   => '...',
             'result'    => [
-                'path' => parse_url($path)['path']
+                // 'path' => parse_url($path ?? '')['path']
             ]
         ]);
     } else {
@@ -502,15 +439,9 @@ Route::post('aws-upload/{type}', function (Request $request, $type = 'delete') {
     $driver = 's3';
 
     if ($request->hasFile('avatar')) {
-        //
-        // $request->file('avatar'), 'img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension()
-
         $s3filename = 'avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension();
         // Working
         $res = $service->put_object_to_aws($s3filename, $request->file('avatar'));
-
-        // $res = Storage::disk($driver)->url('avatar/3img_1692336423.jpg');
-        // $res = $service->get_aws_object('avatar/1img_1692335008.jpg');
 
         return response()->json([
             'aws' => $res,
@@ -521,7 +452,6 @@ Route::post('aws-upload/{type}', function (Request $request, $type = 'delete') {
     } else {
         if ($type === 'get') {
             $res = $service->get_aws_object($request->input('avatar2'));
-            // $res = $service->get_aws_object($request->input('avatar2'));
         } else {
             $res = $service->delete_aws_object('avatar/img_1692344098.png');
         }
@@ -533,24 +463,10 @@ Route::post('aws-upload/{type}', function (Request $request, $type = 'delete') {
 
         ]);
     }
-
-    return response()->json([
-        'status' => 200,
-        'message'   => 'No file to uploaded.',
-    ]);
 });
 
 Route::post('aws-profile/{profile}', function (Request $request, \App\Models\Profile $profile) {
     $service = new AwsService();
-
-    // if ($request->hasFile('avatar')) {
-    //     if ($profile->avatar && !filter_var($profile->avatar, FILTER_VALIDATE_URL)) {
-    //         $service->delete_aws_object($profile->avatar);
-    //         $profile->avatar = '';
-    //     }
-
-    //     $profile->avatar = $service->put_object_to_aws('avatar/img_' . time() . '.' . $request->file('avatar')->getClientOriginalExtension(), $request->file('avatar'));
-    // }
 
     $v = '';
 
@@ -609,16 +525,6 @@ Route::post('image-type', function (Request $request) {
     return response()->json([
         'avatar' => $avatar &&  !filter_var($avatar, FILTER_VALIDATE_URL)
     ]);
-    $request->validate([
-        'avatar'                => ['nullable', 'mimes:xbm,tif,jfif,ico,tiff,gif,svg,webp,svgz,jpg,jpeg,png,bmp,pjp,apng,pjpeg,avif,heif,heic', ],
-    ]);
-
-    return response([
-        'avatar' => $request->file('avatar'),
-        'avatar_input' => $request->input('avatar'),
-        'avatar_ftype'   => gettype($request->file('avatar')),
-        'avatar_type'   => gettype($request->input('avatar')),
-    ]);
 });
 
 Route::post('image/compression', function (Request $request) {
@@ -644,23 +550,9 @@ Route::get('twilio', [TwilioController::class, 'getCountryCode']);
 
 Route::get('get-param/{role}', function (Request $request, $role = 'artists') {
     return response()->json([
-        'role' => $request->route()->parameter('role'),
+        'role' => $request->route('role'),
     ]);
 });
-// Route::get('manage/user-posts/{profile}/remove', function (Request $request, \App\Models\Profile $profile) {
-
-//     $posts = \App\Models\Post::where('creator_id', $profile->id)->get();
-
-//     foreach($posts as $post) {
-//         $post->delete();
-//     }
-
-//     return response()->json([
-//         'post' => $posts,
-//     ]);
-
-// });
 
 Route::middleware(['auth:api', 'restrictRequest'])->group(function () {
-
 });

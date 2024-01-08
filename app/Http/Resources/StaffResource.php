@@ -7,6 +7,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 use App\Libraries\AwsService;
 
+/**
+ * @property string $avatar
+ * @property string $fullname
+ * @property string $id
+ * @property string $organizer_id
+ * @property string $fullname
+ * @property string $avatar_text
+ * @property string $role
+ */
 class StaffResource extends JsonResource
 {
     /**
@@ -39,16 +48,5 @@ class StaffResource extends JsonResource
         ];
 
         return $data;
-        return parent::toArray($request);
-
-        // return [
-        //     'id'            => $this->id,
-        //     'organizer_id'       => $this->organizer_id,
-        //     'member_name'   => $this->fullname,
-        //     'avatar'        => $avatar,
-        //     'role' => ucfirst($this->role),
-        // ];
-
-        // return parent::toArray($request);
     }
 }

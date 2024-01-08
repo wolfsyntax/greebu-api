@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+/**
+ * @property string $iso2
+ * @property string $name
+ */
 class Country extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
@@ -20,6 +24,9 @@ class Country extends Model
         'name', 'iso2', 'iso3', 'currency', 'symbol',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [
         'phoneCode',
         'plusIso2',

@@ -25,6 +25,9 @@ class EventParticipant extends Model
         'is_paid', 'id_num', 'id_type',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

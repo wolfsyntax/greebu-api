@@ -8,15 +8,18 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\HtmlString;
-use App\Models\User;
 // use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\URL;
+use App\Models\User;
 
 class EmailVerification extends Notification
 {
     use Queueable;
-
+    /**
+     * @var \App\Models\User
+     */
     protected $user;
+    /** @var string */
     protected $url;
     /**
      * Create a new notification instance.

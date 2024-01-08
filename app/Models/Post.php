@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Post extends Model
 {
@@ -22,6 +24,9 @@ class Post extends Model
         'is_schedule', 'scheduled_at',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**
@@ -38,26 +43,38 @@ class Post extends Model
      */
     protected $casts = [];
 
-    public function profile()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function profile(): BelongsTo
     {
         return $this->belongsTo(Profile::class, 'creator_id');
     }
 
-    public function comments() {
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments(): HasMany
+    {
         return $this->hasMany(Comment::class);
     }
 
-    public function likes() {
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function likes(): HasMany
+    {
         return $this->hasMany(PostLike::class);
     }
 
-    public function delete() {
+    public function delete()
+    {
 
-        foreach($this->comments()->get() as $comment) {
+        foreach ($this->comments()->get() as $comment) {
             $comment->delete();
         }
 
-        foreach($this->likes()->get() as $like) {
+        foreach ($this->likes()->get() as $like) {
             $like->delete();
         }
 

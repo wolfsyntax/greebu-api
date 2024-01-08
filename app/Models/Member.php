@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 // use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * @property string $first_name
+ * @property string $last_name
+ */
 class Member extends Model
 {
     use HasFactory, HasUuids;
@@ -24,6 +29,9 @@ class Member extends Model
         'birthdate', 'member_since', 'deactivated_at',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = ['avatar_text', 'fullname',];
 
     /**
@@ -46,7 +54,10 @@ class Member extends Model
         'role'              => 'string',
     ];
 
-    public function team()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function team(): HasOne
     {
         return $this->hasOne(Artist::class);
     }

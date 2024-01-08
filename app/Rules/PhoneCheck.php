@@ -9,9 +9,14 @@ use Twilio\Rest\Client;
 
 class PhoneCheck implements ValidationRule
 {
-    protected $params;
-
-    public function __construct($param = 'PH')
+    /**
+     * @var string
+     */
+    protected string $params;
+    /**
+     * @return void
+     */
+    public function __construct(string $param = 'PH')
     {
         $this->params = $param;
     }

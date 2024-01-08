@@ -21,6 +21,9 @@ class SongType extends Model
         'name',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = [];
 
     /**

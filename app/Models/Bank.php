@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+/**
+ * @property string $name
+ * @property string $short_name
+ */
 class Bank extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
@@ -20,6 +24,9 @@ class Bank extends Model
         'name', 'short_name',
     ];
 
+    /**
+     * @var array<int,string>
+     */
     protected $appends = ['bank'];
 
     /**
