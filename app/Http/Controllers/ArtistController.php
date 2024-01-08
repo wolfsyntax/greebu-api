@@ -139,9 +139,9 @@ class ArtistController extends Controller
             });
         });
 
-        $artists->when($province || $city, function ($query) use ($city, $province) {
-            return $query->whereHas('profile', function ($query) use ($city, $province) {
-                return $query->where('city', 'LIKE', "%$city")->orWhere('province', 'LIKE', "%$province");
+        $artists->when($province || $city, function ($query) use ($city) {
+            return $query->whereHas('profile', function ($query) use ($city) {
+                return $query->where('city', 'LIKE', "%$city");
             });
         });
         //     $artists->whereHas('profile', function ($query) use ($city, $province) {
@@ -657,7 +657,7 @@ class ArtistController extends Controller
                 'artist_types'      => ArtistType::whereNot('category_id', '')->select('id', 'title', 'category_id')->get(),
                 'artist_categories' => ArtistCategory::select('id', 'title')->get(),
                 'genres'            => Genre::select('id', 'title')->where('title', '!=', 'Others')->get(),
-                'cities'            => Profile::account('artists')->distinct()->orderBy('city')->get(['city'])->map->city,
+                'cities'            => Profile::account('artists')->where('city', '!=', '')->distinct()->orderBy('city')->get(['city'])->map->city,
             ],
         ], 200);
     }

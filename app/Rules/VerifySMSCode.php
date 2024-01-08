@@ -10,8 +10,14 @@ class VerifySMSCode implements ValidationRule
 {
     use TwilioTrait;
 
+    /**
+     * @var string
+     */
     protected string $phone;
 
+    /**
+     * @param string $phone
+     */
     public function __construct(string $phone)
     {
         $this->phone = $phone;
